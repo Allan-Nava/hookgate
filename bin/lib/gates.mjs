@@ -48,14 +48,33 @@ export function commandState(input, cfg) {
 // done. Most stops are questions to the user or partial reports; sending each of them
 // would add a round trip to every turn (brief, Q7). Completion lexicon, a ticked task
 // list, or a "nothing left" phrase pass; anything else is skipped before the network.
-const COMPLETION_LEXICON = /\b(done|complete[ds]?|completion|finished|implemented|fixed|resolved|passing|passed|pass(?:es)?\b|ready|shipped|merged|pushed|committed|deployed|released|working|all set|all green|good to go|no (?:further|remaining|more) (?:work|changes|issues|steps))\b/i
+//
+// The lexicon is per language and every language is always on: a claim is a claim in
+// whatever language the agent answers (HG-23 — 766 of 1,229 real stops were Italian
+// claims an English-only lexicon skipped). `completion.lexicon` in the config adds
+// patterns; a new language is a pull request with its fixtures in evals/fixtures/.
+export const COMPLETION_LEXICONS = Object.freeze({
+  en: /\b(done|complete[ds]?|completion|finished|implemented|fixed|resolved|passing|passed|pass(?:es)?|ready|shipped|merged|pushed|committed|deployed|released|working|all set|all green|good to go|no (?:further|remaining|more) (?:work|changes|issues|steps))\b/i,
+  // Ambiguous words are anchored to their claim form: "fatto" alone is "done", but
+  // "ho fatto una ricerca" is not; "corretto" is also the adjective "correct", "funziona"
+  // opens a question as often as it closes a task, "chiuso" and "pronto" likewise.
+  it: /(?:(?:^|\n)\s*\**fatto\b|\b(?:ho|abbiamo|tutto|è stato) fatto\b|\b(?:ho|abbiamo) (?:corrett|chius|sistemat|risolt|implementat|complet|finit|terminat|pushat|committat|mergiat|rilasciat|pubblicat|deployat)[oaie]\b|\b(?:corrett|chius)[oaie] (?:il|la|lo|i|gli|le|l')\b|\b(?:completat|completamento|finit|terminat|conclus|implementat|sistemat|risolt|pushat|committat|mergiat|rilasciat|pubblicat|deployat)[oaie]?\b|\b(?:tutto|è|sono) pront[oaie]\b|\bpront[oaie] (?:per|al|alla)\b|\b(?:ora|adesso|tutto) funziona\b|\bfunziona (?:tutto|correttamente|ora|adesso)\b|\btutt[oi] (?:verde|verdi|ok|a posto)\b|\b(?:i |tutti i |gli |la suite dei )?test (?:passano|verdi|sono verdi|ok)\b|\bsuite (?:è )?verde\b|\bnon servono altre modifiche\b|\bnessun'altra modifica\b|\bnient[e']\s?altro da fare\b)/i,
+})
 const TICKED_TASK = /(^|\n)\s*[-*]\s*\[x\]/i
 const ALL_TESTS = /\b(all|every)\s+(the\s+)?tests?\b/i
 
-export function claimsCompletion(message) {
+// `extra` is the config's completion.lexicon: a regex source or a list of them; a
+// pattern that does not compile is ignored, never a reason to skip the gate.
+export function claimsCompletion(message, extra) {
   const m = String(message ?? '')
   if (!m.trim()) return false
-  return COMPLETION_LEXICON.test(m) || TICKED_TASK.test(m) || ALL_TESTS.test(m)
+  if (Object.values(COMPLETION_LEXICONS).some((re) => re.test(m)) || TICKED_TASK.test(m) || ALL_TESTS.test(m)) return true
+  for (const src of Array.isArray(extra) ? extra : extra ? [extra] : []) {
+    try {
+      if (new RegExp(String(src), 'i').test(m)) return true
+    } catch {}
+  }
+  return false
 }
 
 export function completionState(input, gitStatus, cfg) {

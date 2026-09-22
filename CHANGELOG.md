@@ -5,6 +5,13 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 
 ## [Unreleased]
 
+### Fixed
+- The completion prefilter read English only, so a final message in another language
+  never reached Jev: 766 of 1,229 real stops were Italian claims it skipped. The lexicon
+  is now per language (English, Italian), always on, with ambiguous words anchored to
+  their claim form, and `completion.lexicon` adds patterns from the config. The measured
+  skip rate is 29%, not the 81% first reported (HG-23).
+
 ### Added
 - `evals/scorecard.mjs` and `evals/fixtures/`: one metric per open bug, from labelled
   fixtures, no key; `scorecard.yml` scores base and head of every pull request and

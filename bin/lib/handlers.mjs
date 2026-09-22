@@ -90,7 +90,7 @@ export async function stop(input, deps = {}) {
   const promptKey = input.prompt_id ?? input.turn_id ?? `msg:${(input.last_assistant_message ?? '').slice(0, 80)}`
   if ((session.blockedPrompts ?? []).includes(promptKey)) return null
   // Local prefilter, no network: a message that claims nothing has nothing to verify.
-  if (cfg.completion?.prefilter !== false && !claimsCompletion(input.last_assistant_message)) {
+  if (cfg.completion?.prefilter !== false && !claimsCompletion(input.last_assistant_message, cfg.completion?.lexicon)) {
     log(dir, 'completion', input, cfg, { outcome: 'skipped', skipped: 'prefilter', latencyMs: 0, cached: false })
     return null
   }

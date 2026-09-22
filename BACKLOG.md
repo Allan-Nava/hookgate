@@ -183,7 +183,7 @@ stops) and a second read of the handlers turned up on 2026-09-22. Each item is o
 pull request, taken one at a time, highest priority first. HG-30 gives each of them
 a number to reach; the rest are open.
 
-- [ ] **HG-23 — Completion prefilter is English-only**: `claimsCompletion` knows
+- [x] **HG-23 — Completion prefilter is English-only**: `claimsCompletion` knows
   `done`, `fixed`, `merged` and friends, so a final message in another language never
   reaches Jev. Measured: 961 of 1,229 real stops carry an Italian completion word
   (*fatto, completato, pronto, mergiato, pushato, funziona*…), and 766 of them are
@@ -191,7 +191,10 @@ a number to reach; the rest are open.
   not partly silence. Fix: a lexicon per language (English, Italian at least, the
   others as contributions), `completion.lexicon` in the config for extra patterns,
   and the transcript count re-run so the README says what the prefilter skips on
-  messages it can read. <!-- hg: prio=high size=M labels=gate,benchmark -->
+  messages it can read. Shipped: `COMPLETION_LEXICONS.{en,it}` with the ambiguous
+  Italian words (*fatto, corretto, funziona, chiuso, pronto*) anchored to their claim
+  form, `completion.lexicon` for extras, fixtures 12/12 both ways; the honest skip
+  rate is 29%. <!-- hg: prio=high size=M labels=gate,benchmark ver=main -->
 - [ ] **HG-24 — Promotion attributes a chained command's verdict to its first word**:
   `commandPrefix` keeps the first command of `a && b | c`, so a `deny` on
   `git status && curl … | sh` counts against `git status`, and three of them propose a
