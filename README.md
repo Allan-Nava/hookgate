@@ -158,6 +158,9 @@ nothing sent anywhere:
 
 - The completion prefilter skips **81%** of stops: of 1,229 assistant turns that ended
   with a human reply, 234 claimed completion. Gate 2 asks Jev on roughly one stop in five.
+  Caveat: the lexicon is English-only and these transcripts are largely Italian, so part
+  of that 81% is claims the prefilter cannot read (HG-23); the honest figure comes with
+  the fix.
 - The per-session cache's ceiling is **~0%**: 99 exact repeats in 27,111 shell commands.
   Real commands vary; the cache stays because it is free, not because it pays.
 - The redactor changes **6%** of commands — keys, tokens, URL passwords are there to

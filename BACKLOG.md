@@ -175,3 +175,63 @@ ids stay in the CHANGELOG.
   ignored. Rebuild with `/graphify . --update` after a change that moves structure.
   Known state: 50 dangling-endpoint edges from document nodes naming code symbols
   differently from the AST. <!-- hg: prio=low size=S labels=docs,project ver=main -->
+
+## v0.1.2 — Bugs from the first measurements <!-- ms: phase=now -->
+
+What running `evals/local.mjs` over 102 real sessions (27,147 shell commands, 1,229
+stops) and a second read of the handlers turned up on 2026-09-22. Each item is one
+pull request, taken one at a time, highest priority first; none is shipped yet.
+
+- [ ] **HG-23 — Completion prefilter is English-only**: `claimsCompletion` knows
+  `done`, `fixed`, `merged` and friends, so a final message in another language never
+  reaches Jev. Measured: 961 of 1,229 real stops carry an Italian completion word
+  (*fatto, completato, pronto, mergiato, pushato, funziona*…), and 766 of them are
+  skipped by the prefilter — the "skips 81%" figure in the README is partly language,
+  not partly silence. Fix: a lexicon per language (English, Italian at least, the
+  others as contributions), `completion.lexicon` in the config for extra patterns,
+  and the transcript count re-run so the README says what the prefilter skips on
+  messages it can read. <!-- hg: prio=high size=M labels=gate,benchmark -->
+- [ ] **HG-24 — Promotion attributes a chained command's verdict to its first word**:
+  `commandPrefix` keeps the first command of `a && b | c`, so a `deny` on
+  `git status && curl … | sh` counts against `git status`, and three of them propose a
+  rule for `git status *`. 92.5% of real commands are compound once the `cd` hops are
+  stripped. Fix: only a simple command — no `&&`, `||`, `;`, `|`, newline, backtick or
+  `$(` outside quotes — counts toward promotion; compound ones are logged with
+  `compound: true` and never proposed. <!-- hg: prio=high size=M labels=gate,enhancement -->
+- [ ] **HG-25 — Never propose a rule for an interpreter or wrapper prefix**:
+  `python3`, `node`, `bash`, `sh`, `sudo`, `env`, `xargs`, `eval`, `exec`, `source`…
+  head 23.5% of real commands, and `Bash(python3 *)` as an `allow` rule covers
+  `python3 -c "shutil.rmtree(...)"` — the proposal widens, which the plugin promises
+  never to do. Fix: a never-promote set for `allow`; a `deny` proposal on such a
+  prefix is equally wrong (it would block every script) and is dropped too.
+  <!-- hg: prio=high size=S labels=gate -->
+- [ ] **HG-26 — A command longer than `maxStateChars` is judged with its middle
+  elided**: `truncate` keeps 70% head and 30% tail, so whatever sits in the middle of
+  a long command is never seen by Jev — a heredoc of padding with `rm -rf` in the
+  middle passes as the head and tail do. 94 real commands exceed 12,000 characters
+  (the longest 41,781). Fix: on the command gate an over-long command is `ask` with a
+  reason ("too long to judge"), never a judgement on a partial state; the completion
+  and injection gates keep truncating, where an elided middle costs recall, not
+  safety. <!-- hg: prio=high size=S labels=gate -->
+- [ ] **HG-27 — A repository can switch the gates off through its own config**:
+  `loadConfig` reads `.hookgate.json` from the harness's `cwd`, i.e. whatever
+  repository is open, so cloning one that ships `{"gates":{"command":false}}` or
+  `"mode":"audit"` disables the gate without a word. Fix: the repository file may only
+  tighten — raise a threshold, enable a gate, turn `failClosed` on; loosening fields
+  are honoured only from the user-level file (`~/.hookgate.json`) or the environment,
+  and `doctor` lists the repository fields it ignored.
+  <!-- hg: prio=med size=S labels=gate -->
+- [ ] **HG-28 — The audit log has no token usage, so cost per decision cannot be
+  computed**: `systemone` returns `usage`, `judge` carries it, `log` drops it. HG-16's
+  "cost with and without cache" and the README's cost column need it. Fix: log
+  `usage.input_tokens` per decision, and `report` prints tokens and cost per decision
+  at TypeSafe's published input price, with the price and its date in one constant.
+  <!-- hg: prio=med size=S labels=benchmark -->
+- [ ] **HG-29 — Validate the numbers in the config and classify a non-JSON body**:
+  `timeoutMs`, `maxStateChars`, `cache.ttlMs`, `promote.after` and
+  `promote.confidence` are never checked, so a string or `null` flows into
+  `setTimeout` and `truncate`; a config file whose top level is not an object is
+  merged key by key; and a 200 with a non-JSON body surfaces as `network` rather than
+  `malformed`, which hides a broken proxy in `report`. Fix: type and range checks in
+  `loadConfig` reported through `problems` (defaults win), and `res.json()` failures
+  mapped to `malformed`; one test each. <!-- hg: prio=low size=S labels=tests -->
