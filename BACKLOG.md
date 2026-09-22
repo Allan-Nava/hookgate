@@ -141,7 +141,7 @@ harness the brief designs for.
   latency with and without cache, decisions a promoted rule would absorb, the
   threshold sweep on real Jev answers. <!-- hg: prio=high size=M labels=benchmark -->
 
-## v0.1.1 — Audit of 2026-09-22 <!-- ms: phase=now -->
+## v0.1.1 — Audit of 2026-09-22 <!-- ms: phase=shipped -->
 
 What a read of the whole tree with a security, privacy and robustness eye turned up
 the day the gates landed. Small items, all shipped the same day; kept as items so the
@@ -176,12 +176,12 @@ ids stay in the CHANGELOG.
   Known state: 50 dangling-endpoint edges from document nodes naming code symbols
   differently from the AST. <!-- hg: prio=low size=S labels=docs,project ver=0.0.3 -->
 
-## v0.1.2 — Bugs from the first measurements <!-- ms: phase=now -->
+## v0.1.2 — Bugs from the first measurements <!-- ms: phase=shipped -->
 
 What running `evals/local.mjs` over 102 real sessions (27,147 shell commands, 1,229
-stops) and a second read of the handlers turned up on 2026-09-22. Each item is one
-pull request, taken one at a time, highest priority first. HG-30 gives each of them
-a number to reach; the rest are open.
+stops) and a second read of the handlers turned up on 2026-09-22. Each item was one
+pull request, taken one at a time, highest priority first, with HG-30's scorecard
+saying by how much it moved; all shipped the same day in `0.0.3`.
 
 - [x] **HG-23 — Completion prefilter is English-only**: `claimsCompletion` knows
   `done`, `fixed`, `merged` and friends, so a final message in another language never
