@@ -1,3 +1,11 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Allan-Nava/hookgate/main/assets/logo.svg" width="72" height="72" alt="hookgate">
+</p>
+<p align="center">
+  <a href="https://allan-nava.github.io/hookgate/"><img src="https://img.shields.io/badge/docs-allan--nava.github.io%2Fhookgate-2f5d8a?labelColor=1b1a18" alt="Documentation"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2f5d8a?labelColor=1b1a18" alt="MIT licence"></a>
+</p>
+
 # hookgate
 
 **Calibrated, sub-second decisions inside Claude Code's hooks.** A `PreToolUse` gate
