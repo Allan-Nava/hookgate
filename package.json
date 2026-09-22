@@ -17,6 +17,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "build:site": "node site/build.mjs",
     "test": "node bin/hookgate.mjs check"
   },
   "keywords": [
@@ -39,5 +40,8 @@
   },
   "bugs": {
     "url": "https://github.com/Allan-Nava/hookgate/issues"
+  },
+  "devDependencies": {
+    "marked": "^18.0.0"
   }
 }
