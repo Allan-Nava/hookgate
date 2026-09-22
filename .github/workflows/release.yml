@@ -37,7 +37,7 @@ jobs:
       issues: write     # close the milestone
       id-token: write   # OIDC: this is what authenticates the publish
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ inputs.tag || github.ref_name }}
           fetch-depth: 0
@@ -50,7 +50,7 @@ jobs:
       # npm answers 404 rather than 401 so as not to reveal whether the package
       # exists. Trusted publishing needs *no* credential in the environment;
       # registry.npmjs.org is already npm's default registry.
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24
 
