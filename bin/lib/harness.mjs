@@ -14,13 +14,16 @@ export function dataDir(env = process.env) {
 }
 
 // The JSON a handler prints for a PreToolUse decision. `null` means fall through.
-export function permissionOutput(harness, decision, reason, extra = {}) {
+export function permissionOutput(harness, decision, reason, extra = {}, { codexAskAs = 'passthrough' } = {}) {
   if (!decision) return null
   if (harness === 'codex') {
-    // Codex has no `ask` on PreToolUse: a below-threshold answer blocks with a reason
-    // that tells the agent to ask the user, which is what `ask` means there.
-    const block = decision !== 'allow'
-    return { decision: block ? 'block' : 'allow', reason, systemMessage: block ? reason : undefined, ...extra }
+    // Codex (learn.chatgpt.com/docs/hooks, 2026-09-22) takes the same
+    // hookSpecificOutput.permissionDecision shape but only allow|deny — no `ask`. A
+    // below-threshold answer therefore passes through with the concern surfaced as a
+    // systemMessage, unless codex.askAs is "deny": hookgate never widens, and turning
+    // every `ask` into a refusal would narrow more than the judgement supports.
+    if (decision === 'ask') return codexAskAs === 'deny' ? { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny' }, systemMessage: reason, ...extra } : { systemMessage: reason, ...extra }
+    return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: decision }, ...(decision === 'deny' ? { systemMessage: reason } : {}), ...extra }
   }
   // systemMessage is a top-level field of the hook output, beside hookSpecificOutput.
   return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: decision, permissionDecisionReason: reason }, ...extra }
@@ -32,13 +35,17 @@ export function messageOutput(harness, event, systemMessage) {
   return { hookSpecificOutput: { hookEventName: event }, systemMessage }
 }
 
+// Stop: the same `{decision: "block", reason}` on both harnesses.
 export function stopOutput(harness, reason) {
   if (harness === 'codex') return { decision: 'block', reason }
   return { decision: 'block', reason, hookSpecificOutput: { hookEventName: 'Stop' } }
 }
 
+// PostToolUse: Claude Code has additionalContext; Codex has no such field and
+// documents `decision: "block"` as "records feedback without undoing" — the reason
+// reaches the model, the result stays. That is the annotation, in Codex's terms.
 export function postToolOutput(harness, context) {
-  if (harness === 'codex') return { additionalContext: context }
+  if (harness === 'codex') return { decision: 'block', reason: context }
   return { hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: context } }
 }
 

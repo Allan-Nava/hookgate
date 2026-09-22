@@ -87,3 +87,15 @@ test('doctor sees the fake and reports ok', async () => {
   assert.equal(r.status, 0)
   assert.match(r.stdout, /api: answered in \d+ ms · model jev-1.13.0/)
 })
+
+test('under Codex (PLUGIN_ROOT): deny in permissionDecision shape, stop as decision block, injection as block feedback', async () => {
+  const codex = { PLUGIN_ROOT: '/codex-plugin', CLAUDE_PLUGIN_ROOT: '' }
+  answers = { risk: { choice: 'deny', confidence: 0.97 }, destructive: { noul: 0.99, confidence: 0.95 } }
+  const d = await run('pre-tool-use', { hook_event_name: 'PreToolUse', session_id: 'cx', turn_id: 't1', tool_name: 'Bash', tool_input: { command: 'rm -rf ~' }, cwd: '/tmp' }, codex)
+  assert.equal(JSON.parse(d.stdout).hookSpecificOutput.permissionDecision, 'deny')
+  answers = { unverified: { noul: 0.92, confidence: 0.9 } }
+  const s = await run('stop', { hook_event_name: 'Stop', session_id: 'cx', turn_id: 't1', cwd: '/tmp', last_assistant_message: 'Done and pushed.' }, codex)
+  assert.deepEqual(Object.keys(JSON.parse(s.stdout)).sort(), ['decision', 'reason'])
+  const none = await run('pre-tool-use', { hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command: 'rm -rf ~' }, cwd: '/tmp' }, { ...codex, TYPESAFE_API_KEY: '' })
+  assert.equal(none.stdout, '', 'no key under Codex falls through too')
+})

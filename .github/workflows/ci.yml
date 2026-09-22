@@ -26,10 +26,13 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: npm test
-      # A handler with no key and no stdin must fall through: exit 0, empty stdout.
+      # A handler with no key must fall through — exit 0, empty stdout — once per harness
+      # environment: Claude Code (CLAUDE_PLUGIN_ROOT) and Codex CLI (PLUGIN_ROOT).
       - run: |
-          out="$(echo '{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"rm -rf /"}}' | env -u TYPESAFE_API_KEY node bin/hookgate.mjs pre-tool-use)"
-          test -z "$out"
+          for h in CLAUDE_PLUGIN_ROOT PLUGIN_ROOT; do
+            out="$(echo '{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"rm -rf /"},"cwd":"/tmp"}' | env -u TYPESAFE_API_KEY $h=/plugin node bin/hookgate.mjs pre-tool-use)"
+            test -z "$out" || { echo "$h: expected fall-through, got $out"; exit 1; }
+          done
 
   pack:
     runs-on: ubuntu-latest

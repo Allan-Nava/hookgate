@@ -49,7 +49,7 @@ function onError(e, gate, harness, cfg, dir, input) {
   const code = e instanceof JevError ? e.code : 'exception'
   log(dir, gate, input, cfg, { outcome: 'error', error: code, message: e.message })
   if (code === 'no-key' || code === 'bad-key') return null
-  if (cfg.failClosed && gate === 'command') return permissionOutput(harness, 'ask', `hookgate: could not reach Jev (${e.message}) and failClosed is on — asking instead of falling through.`)
+  if (cfg.failClosed && gate === 'command') return permissionOutput(harness, 'ask', `hookgate: could not reach Jev (${e.message}) and failClosed is on — asking instead of falling through.`, {}, { codexAskAs: cfg.codex?.askAs })
   return null
 }
 
@@ -71,7 +71,7 @@ export async function preToolUse(input, deps = {}) {
     log(dir, 'command', input, cfg, { outcome: decision, choice: risk.choice, confidence: risk.confidence, destructive: res.answers.destructive?.noul, model: res.model, latencyMs: res.latencyMs, cached: res.cached, prefix: commandPrefix(input.tool_input?.command ?? '') })
     const extra = promoted ? { systemMessage: `hookgate: "${promoted.prefix}" has been judged ${promoted.decision} ${promoted.count} times at ≥${Math.round(cfg.promote.confidence * 100)}% confidence — a static rule would save the round trip:\n${ruleSyntax(harness, promoted.prefix, promoted.decision)}` } : {}
     if (cfg.mode === 'audit' || (decision === 'allow' && cfg.allowMode !== 'allow')) return promoted ? messageOutput(harness, 'PreToolUse', extra.systemMessage) : null
-    return permissionOutput(harness, decision, reason, extra)
+    return permissionOutput(harness, decision, reason, extra, { codexAskAs: cfg.codex?.askAs })
   } catch (e) {
     return onError(e, 'command', harness, cfg, dir, input)
   }

@@ -37,12 +37,19 @@ test('deny and ask come back in Claude Code shape with a reason', async () => {
   assert.equal(a.hookSpecificOutput.permissionDecision, 'ask')
 })
 
-test('Codex harness gets its own answer shape, ask becomes block', async () => {
+test('Codex harness: deny is permissionDecision deny, ask passes through with a systemMessage, or denies when configured', async () => {
   const d = tmp()
   const codexEnv = { TYPESAFE_API_KEY: 'k', HOOKGATE_DATA: d, PLUGIN_ROOT: '/codex-plugin' }
-  const out = await preToolUse(preInput('git push --force'), { env: codexEnv, fetch: fakeFetch(ask) })
-  assert.equal(out.decision, 'block')
-  assert.ok(out.systemMessage)
+  const den = await preToolUse(preInput('rm -rf ~'), { env: codexEnv, fetch: fakeFetch(deny) })
+  assert.equal(den.hookSpecificOutput.permissionDecision, 'deny')
+  assert.ok(den.systemMessage)
+  const a = await preToolUse(preInput('git push --force'), { env: codexEnv, fetch: fakeFetch(ask) })
+  assert.equal(a.hookSpecificOutput, undefined)
+  assert.match(a.systemMessage, /human glance/)
+  mkdirSync(join(d, 'repo', '.claude'), { recursive: true })
+  writeFileSync(join(d, 'repo', '.claude', 'hookgate.json'), JSON.stringify({ codex: { askAs: 'deny' } }))
+  const strict = await preToolUse(preInput('git push --force', { cwd: join(d, 'repo') }), { env: codexEnv, fetch: fakeFetch(ask) })
+  assert.equal(strict.hookSpecificOutput.permissionDecision, 'deny')
 })
 
 test('the request carries redacted state and both questions', async () => {
