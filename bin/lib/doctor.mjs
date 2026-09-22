@@ -21,10 +21,12 @@ export async function doctor({ cwd = process.cwd(), env = process.env, fetchImpl
   ok(`data dir: ${dataDir(env)}`)
   if (env.HOOKGATE_ENDPOINT) warn(`endpoint overridden: ${env.HOOKGATE_ENDPOINT}`)
 
-  const { cfg, path, problems } = loadConfig(cwd, env)
-  if (existsSync(path)) ok(`config: ${path}`)
-  else ok(`config: defaults (no ${path})`)
+  const { cfg, path, userPath, problems, ignored } = loadConfig(cwd, env)
+  ok(existsSync(userPath) ? `user config: ${userPath}` : `user config: none (${userPath})`)
+  if (existsSync(path)) ok(`${env.HOOKGATE_CONFIG ? 'config' : 'repository config (may only tighten)'}: ${path}`)
+  else ok(`repository config: none (${path})`)
   for (const p of problems) bad(`config: ${p}`)
+  for (const i of ignored) warn(`config: ${i}`)
   ok(`mode ${cfg.mode} · allowMode ${cfg.allowMode} · failClosed ${cfg.failClosed} · gates ${Object.entries(cfg.gates).filter(([, v]) => v).map(([k]) => k).join(', ') || 'none'}`)
   ok(`thresholds: confidence ${cfg.thresholds.confidence} · destructive ${cfg.thresholds.destructive} · unverified ${cfg.thresholds.unverified} · injection ${cfg.thresholds.injection}`)
 

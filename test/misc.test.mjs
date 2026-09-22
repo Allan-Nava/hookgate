@@ -12,17 +12,37 @@ import { fakeFetch, tmp } from './helpers.mjs'
 test('config: defaults, file, env, and a malformed file is a problem not a failure', () => {
   const d = tmp()
   mkdirSync(join(d, '.claude'))
+  const user = join(d, 'user.json')
+  const e = { HOOKGATE_USER_CONFIG: user }
   writeFileSync(join(d, '.claude', 'hookgate.json'), '{"thresholds":{"confidence":0.8},"mode":"audit"}')
-  const { cfg, problems } = loadConfig(d, {})
-  assert.equal(cfg.thresholds.confidence, 0.8)
+  const { cfg, problems, ignored } = loadConfig(d, e)
+  assert.equal(cfg.thresholds.confidence, 0.8, 'a higher bar is tighter: honoured')
   assert.equal(cfg.thresholds.destructive, DEFAULTS.thresholds.destructive)
-  assert.equal(cfg.mode, 'audit')
+  assert.equal(cfg.mode, 'enforce', 'audit from the repository loosens: ignored')
+  assert.equal(ignored.length, 1)
+  assert.match(ignored[0], /mode="audit" loosens/)
   assert.deepEqual(problems, [])
-  assert.equal(loadConfig(d, { HOOKGATE_MODE: 'enforce' }).cfg.mode, 'enforce')
+  // the user's own file is trusted, and the environment wins over it
+  writeFileSync(user, '{"mode":"audit","model":"jev-1.13.0"}')
+  assert.equal(loadConfig(d, e).cfg.mode, 'audit')
+  assert.equal(loadConfig(d, e).cfg.model, 'jev-1.13.0')
+  assert.equal(loadConfig(d, { ...e, HOOKGATE_MODE: 'enforce' }).cfg.mode, 'enforce')
+  // an explicit HOOKGATE_CONFIG is trusted like the user's file
+  assert.equal(loadConfig(d, { ...e, HOOKGATE_CONFIG: join(d, '.claude', 'hookgate.json') }).ignored.length, 0)
+  // a repository may add lexicon patterns, never replace them
+  writeFileSync(user, '{"mode":"audit","completion":{"lexicon":["\\\\bhecho\\\\b"]}}')
+  writeFileSync(join(d, '.claude', 'hookgate.json'), '{"completion":{"lexicon":["\\\\blisto\\\\b"]},"model":"x","timeoutMs":1}')
+  const l = loadConfig(d, e)
+  assert.deepEqual(l.cfg.completion.lexicon, ['\\bhecho\\b', '\\blisto\\b'])
+  assert.equal(l.cfg.model, DEFAULTS.model)
+  assert.equal(l.cfg.timeoutMs, DEFAULTS.timeoutMs)
+  assert.equal(l.ignored.length, 2)
   writeFileSync(join(d, '.claude', 'hookgate.json'), '{not json')
-  const bad = loadConfig(d, {})
-  assert.equal(bad.cfg.mode, 'enforce')
+  const bad = loadConfig(d, e)
+  assert.equal(bad.cfg.mode, 'audit', 'falls back to the layer below')
   assert.equal(bad.problems.length, 1)
+  writeFileSync(join(d, '.claude', 'hookgate.json'), '["not","an","object"]')
+  assert.equal(loadConfig(d, e).problems.length, 1)
 })
 
 test('harness detection and shapes', () => {

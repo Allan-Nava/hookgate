@@ -6,6 +6,11 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 ## [Unreleased]
 
 ### Fixed
+- A repository's own `.hookgate.json` could switch the gates off, go audit, or set a
+  model or timeout that fails open. Configuration now has a trust order — defaults,
+  `~/.hookgate.json`, `HOOKGATE_CONFIG`, then the repository file, then the environment
+  — and the repository file may only tighten; what it tried and could not do is listed
+  by `hookgate doctor` (HG-27).
 - Rule promotion counted a chained command's verdict against its first word and could
   propose a prefix rule for an interpreter or wrapper. Only one simple command — no
   chaining, no pipe, no substitution outside quotes — counts, and a never-promote set

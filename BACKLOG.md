@@ -221,14 +221,16 @@ a number to reach; the rest are open.
   and injection gates keep truncating, where an elided middle costs recall, not
   safety. Shipped as described; `skipped: too-long` in the log, fixtures 3/3.
   <!-- hg: prio=high size=S labels=gate ver=main -->
-- [ ] **HG-27 — A repository can switch the gates off through its own config**:
+- [x] **HG-27 — A repository can switch the gates off through its own config**:
   `loadConfig` reads `.hookgate.json` from the harness's `cwd`, i.e. whatever
   repository is open, so cloning one that ships `{"gates":{"command":false}}` or
   `"mode":"audit"` disables the gate without a word. Fix: the repository file may only
   tighten — raise a threshold, enable a gate, turn `failClosed` on; loosening fields
   are honoured only from the user-level file (`~/.hookgate.json`) or the environment,
-  and `doctor` lists the repository fields it ignored.
-  <!-- hg: prio=med size=S labels=gate -->
+  and `doctor` lists the repository fields it ignored. Shipped: `TIGHTEN` table in
+  `config.mjs` with the direction per field; `model` and `timeoutMs` never from the
+  repository; `HOOKGATE_USER_CONFIG` for tests.
+  <!-- hg: prio=med size=S labels=gate ver=main -->
 - [ ] **HG-28 — The audit log has no token usage, so cost per decision cannot be
   computed**: `systemone` returns `usage`, `judge` carries it, `log` drops it. HG-16's
   "cost with and without cache" and the README's cost column need it. Fix: log

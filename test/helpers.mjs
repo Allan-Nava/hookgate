@@ -24,5 +24,7 @@ export function fakeFetch(answers, { status = 200, delayMs = 0, model = 'jev-1.1
   return fn
 }
 
-export const env = (dir, extra = {}) => ({ TYPESAFE_API_KEY: 'sk-test-0123456789abcdef', HOOKGATE_DATA: dir, CLAUDE_PLUGIN_ROOT: '/plugin', ...extra })
+// HOOKGATE_USER_CONFIG points inside the temp dir so a real ~/.hookgate.json never
+// leaks into a test; write to it for settings a repository may not set.
+export const env = (dir, extra = {}) => ({ TYPESAFE_API_KEY: 'sk-test-0123456789abcdef', HOOKGATE_DATA: dir, CLAUDE_PLUGIN_ROOT: '/plugin', HOOKGATE_USER_CONFIG: join(dir, 'user-hookgate.json'), ...extra })
 export const preInput = (command, extra = {}) => ({ hook_event_name: 'PreToolUse', session_id: 's1', tool_name: 'Bash', tool_input: { command }, cwd: '/tmp/repo', ...extra })
