@@ -1,0 +1,89 @@
+# CLAUDE.md
+
+Guidance for Claude Code when working in this repository.
+
+## What this repo is
+
+`hookgate` is a **Claude Code plugin** whose whole product is two hook handlers:
+`PreToolUse` on `Bash` (is this command safe to run?) and `Stop` (is this claim of
+completion true?). Both are answered by TypeSafe's Jev, a System One model that
+returns typed decisions with a calibrated confidence — no text, no parsing — and both
+escalate to the human when confidence is low. It is modelled on
+[qrspi](https://github.com/Allan-Nava/qrspi): dependency-free, one installer, manifests
+in step, releases by tag, and the same prose conventions.
+
+The gates are not implemented yet. They are being designed under
+`thoughts/HG-1-jev-gates/` with the QRSPI workflow; `00-brief.md` there is the task
+definition and the reason for every decision below.
+
+## Layout
+
+```
+bin/hookgate.mjs       the only code: `check`, and the two hook handlers
+hooks/hooks.json       the plugin's hook registrations — both point at bin/hookgate.mjs
+.claude-plugin/        plugin.json and a single-plugin marketplace.json (marketplace
+                       name `hookgate`, so the install is `hookgate@hookgate`)
+.github/workflows/     ci.yml (check on Node 18/20/22/24, pack on 24), release.yml (on
+                       tag hookgate--v*: publish over OIDC, release, close milestone),
+                       release-drift.yml (main with a version but no tag for 2 h)
+thoughts/              QRSPI artifacts for this repo's own work
+CONTRIBUTING.md        local loop, benchmark protocol, release runbook
+```
+
+## The rules the code encodes
+
+Do not weaken these; they are the product.
+
+1. **Fail-open.** No key, no network, timeout, 5xx, exception: exit 0, empty stdout,
+   no decision. Claude Code's ordinary permission flow takes over. A gate that
+   stalls the agent is worse than none. Fail-closed is an explicit opt-in, never
+   the default.
+2. **Below threshold is `ask`, never `allow`.** Confidence decides whether to act,
+   the answer decides what; low confidence always lands on the human.
+3. **State never carries secrets.** Redact token-looking values before the request;
+   truncate to Jev's 32k-token state limit.
+4. **Zero runtime dependencies, Node 18+.** A hook runs on every tool call. One
+   `fetch` to `POST https://api.typesafe.ai/v1/systemone`; `check` fails on a
+   `dependencies` block.
+5. **Every hook has a timeout of at most 10 s** in `hooks.json`; the handler's own
+   fetch timeout is shorter. `check` enforces the first.
+6. **Names are not TypeSafe's marks.** The project is `hookgate`; "Jev" and
+   "TypeSafe" appear only when naming their product.
+
+## Facts the code depends on (dated — re-verify before every tag)
+
+**Claude Code hooks** (code.claude.com/docs/en/hooks, read 2026-09-22): a handler
+receives JSON on stdin — `session_id`, `cwd`, `hook_event_name`, `tool_name`,
+`tool_input`, `tool_use_id` on PreToolUse; `last_assistant_message`, `stop_reason` on
+Stop. It answers with JSON on stdout: `hookSpecificOutput.permissionDecision`
+(`allow|deny|ask`) and `permissionDecisionReason` on PreToolUse; `block: true` with
+a reason on Stop; `systemMessage` for the transcript. Exit 0 = read the JSON; exit 2 =
+block, stderr is the reason; other = proceed. Plugin hooks live in
+`hooks/hooks.json` with `${CLAUDE_PLUGIN_ROOT}` paths; default command timeout 600 s,
+so ours is set explicitly. `type: prompt` hooks are the LLM-judged incumbent.
+
+**Jev** (docs.typesafe.ai, read 2026-09-22): `POST https://api.typesafe.ai/v1/systemone`,
+`Authorization: Bearer $TYPESAFE_API_KEY`, body `{state, model, questions}`. Three
+question types: `noul` (probability 0–1), `choice` (`criteria` map, ≤255 options,
+returns `choice` + `probabilities`), `score` (`criteria` 2–10 levels). Every answer
+carries `confidence` 0–1, a statistic of how concentrated the distribution is. Model
+`jev-1.13.0`, aliases `jev-latest` / `jev-preview`; the response reports the exact
+version, pin it when answers must not drift. Limits: 64k tokens per request, 32k for
+state; 250k tokens/s and 1,200 requests/min, adjusting. Price $42 per billion input
+tokens, output free. Text only. Errors 401, 422, 429, 529.
+
+## Verifying a change
+
+```bash
+npm test                                             # manifests, hooks.json, fail-open statement
+echo '{"tool_name":"Bash","tool_input":{"command":"ls"}}' | node bin/hookgate.mjs pre-tool-use
+npm pack --dry-run                                   # bin/, hooks/, .claude-plugin/, README, LICENSE
+```
+
+## Conventions
+
+- Prose in English, British-leaning spelling, em-dashes, no marketing filler, no
+  decorative emoji.
+- Versions must match across the three manifests; `npm test` fails if they drift.
+- Anything measured gets a date and the Jev version the response reported.
+- Commit messages and pull requests carry no tool-attribution footer.

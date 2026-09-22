@@ -1,0 +1,43 @@
+{
+  "name": "hookgate",
+  "version": "0.0.1",
+  "description": "Calibrated, sub-second decisions in Claude Code's hooks: a PreToolUse gate on shell commands and a Stop gate on unverified completion, answered by TypeSafe's Jev with a confidence score, escalating to the human when unsure.",
+  "type": "module",
+  "bin": {
+    "hookgate": "bin/hookgate.mjs"
+  },
+  "files": [
+    "bin",
+    "hooks",
+    ".claude-plugin",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node bin/hookgate.mjs check"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "claude-code-plugin",
+    "hooks",
+    "guardrails",
+    "typesafe",
+    "system-one",
+    "calibrated-confidence",
+    "agent-safety"
+  ],
+  "author": "Allan Nava (https://github.com/Allan-Nava)",
+  "license": "MIT",
+  "homepage": "https://github.com/Allan-Nava/hookgate",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Allan-Nava/hookgate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Allan-Nava/hookgate/issues"
+  }
+}

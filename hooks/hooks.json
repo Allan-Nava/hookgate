@@ -1,0 +1,32 @@
+{
+  "description": "hookgate — calibrated gates. Every handler fails open: no key, no network or an API error means no decision, and Claude Code's normal permission flow takes over.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hookgate.mjs",
+            "args": ["pre-tool-use"],
+            "timeout": 5,
+            "statusMessage": "hookgate: judging the command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hookgate.mjs",
+            "args": ["stop"],
+            "timeout": 5,
+            "statusMessage": "hookgate: checking the claim of completion"
+          }
+        ]
+      }
+    ]
+  }
+}

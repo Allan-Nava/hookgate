@@ -1,0 +1,20 @@
+{
+  "name": "hookgate",
+  "version": "0.0.1",
+  "description": "Calibrated, sub-second decisions in Claude Code's hooks: a PreToolUse gate on shell commands and a Stop gate on unverified completion, answered by TypeSafe's Jev with a confidence score, escalating to the human when unsure.",
+  "author": {
+    "name": "Allan Nava",
+    "url": "https://github.com/Allan-Nava"
+  },
+  "homepage": "https://github.com/Allan-Nava/hookgate",
+  "repository": "https://github.com/Allan-Nava/hookgate",
+  "license": "MIT",
+  "keywords": [
+    "hooks",
+    "guardrails",
+    "typesafe",
+    "system-one",
+    "calibrated-confidence",
+    "agent-safety"
+  ]
+}

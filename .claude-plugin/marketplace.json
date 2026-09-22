@@ -1,0 +1,18 @@
+{
+  "name": "hookgate",
+  "owner": {
+    "name": "Allan Nava",
+    "url": "https://github.com/Allan-Nava"
+  },
+  "metadata": {
+    "description": "Calibrated decision gates for Claude Code hooks.",
+    "version": "0.0.1"
+  },
+  "plugins": [
+    {
+      "name": "hookgate",
+      "source": "./",
+      "description": "PreToolUse and Stop gates decided by TypeSafe's Jev with calibrated confidence — allow, ask or deny in about 100 ms, fail-open when the API is unreachable."
+    }
+  ]
+}
