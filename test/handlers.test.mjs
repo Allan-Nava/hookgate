@@ -112,6 +112,28 @@ test('three confident identical verdicts propose a rule, once', async () => {
   assert.equal(outs[3], null, 'proposed only once per prefix per session')
 })
 
+test('a command longer than maxStateChars is ask without a request; audit logs and falls through (HG-26)', async () => {
+  const d = tmp()
+  const long = `echo start\n${'# padding\n'.repeat(1500)}rm -rf ~/projects\n${'# padding\n'.repeat(400)}echo end`
+  assert.ok(long.length > 12000)
+  const f = fakeFetch(allow)
+  const out = await preToolUse(preInput(long), { env: env(d), fetch: f })
+  assert.equal(out.hookSpecificOutput.permissionDecision, 'ask')
+  assert.match(out.hookSpecificOutput.permissionDecisionReason, /characters/)
+  assert.equal(f.calls.length, 0, 'no partial state goes to Jev')
+  const log = readFileSync(join(d, 'decisions.jsonl'), 'utf8').trim().split('\n').map(JSON.parse)
+  assert.equal(log.at(-1).skipped, 'too-long')
+  // a command exactly at the cap is judged as usual
+  const f2 = fakeFetch(allow)
+  await preToolUse(preInput('x'.repeat(12000)), { env: env(tmp()), fetch: f2 })
+  assert.equal(f2.calls.length, 1)
+  // audit mode: logged, fell through
+  const f3 = fakeFetch(allow)
+  const audit = await preToolUse(preInput(long), { env: env(tmp(), { HOOKGATE_MODE: 'audit' }), fetch: f3 })
+  assert.equal(audit, null)
+  assert.equal(f3.calls.length, 0)
+})
+
 test('stop blocks an unverified claim once, then lets the prompt end', async () => {
   const d = tmp()
   const f = fakeFetch({ unverified: { noul: 0.9, confidence: 0.85 } })

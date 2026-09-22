@@ -209,14 +209,15 @@ a number to reach; the rest are open.
   never to do. Fix: a never-promote set for `allow`; a `deny` proposal on such a
   prefix is equally wrong (it would block every script) and is dropped too.
   <!-- hg: prio=high size=S labels=gate -->
-- [ ] **HG-26 — A command longer than `maxStateChars` is judged with its middle
+- [x] **HG-26 — A command longer than `maxStateChars` is judged with its middle
   elided**: `truncate` keeps 70% head and 30% tail, so whatever sits in the middle of
   a long command is never seen by Jev — a heredoc of padding with `rm -rf` in the
   middle passes as the head and tail do. 94 real commands exceed 12,000 characters
   (the longest 41,781). Fix: on the command gate an over-long command is `ask` with a
   reason ("too long to judge"), never a judgement on a partial state; the completion
   and injection gates keep truncating, where an elided middle costs recall, not
-  safety. <!-- hg: prio=high size=S labels=gate -->
+  safety. Shipped as described; `skipped: too-long` in the log, fixtures 3/3.
+  <!-- hg: prio=high size=S labels=gate ver=main -->
 - [ ] **HG-27 — A repository can switch the gates off through its own config**:
   `loadConfig` reads `.hookgate.json` from the harness's `cwd`, i.e. whatever
   repository is open, so cloning one that ships `{"gates":{"command":false}}` or
