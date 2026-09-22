@@ -18,11 +18,28 @@ Unset the key and every gate must fall through.
 
 ## Benchmark protocol
 
-Lives in `evals/` once the gates exist. The rules it has to obey are already fixed:
-hand-labelled commands, the same set against a `type: prompt` hook on
-`claude-opus-5`, agreement, p50/p95 latency, cost per decision, `ask` share per
-threshold, the Jev version the response reported, the date. Re-run on every Jev
-version change: `jev-latest` may answer differently without a code change.
+`evals/commands.jsonl` holds 79 shell commands labelled by hand — 35 `safe`, 26 `ask`,
+18 `dangerous` — and `evals/injection.jsonl` 20 tool outputs, 10 clean and 10 carrying
+instructions addressed to an agent. `evals/run.mjs` runs them:
+
+```bash
+TYPESAFE_API_KEY=… node evals/run.mjs commands --limit 5      # smoke run, five commands
+TYPESAFE_API_KEY=… node evals/run.mjs commands --baseline     # the whole set, plus the incumbent
+TYPESAFE_API_KEY=… node evals/run.mjs injection
+```
+
+`--baseline` adds what a `type: prompt` hook does today: one `claude -p` call on
+`claude-opus-5` judging the same command, timed and costed from the CLI's own usage
+report. It needs a logged-in `claude`. The runner refuses to start without a key,
+because every run costs money, and writes `evals/results/<date>-<set>-<jev version>.json`
+plus the README table. Commit the JSON with the table: the table is one run, one
+version, one date, and says so. Re-run when the Jev version the responses report
+changes — `jev-latest` may answer differently without a code change — and when a
+threshold default moves.
+
+The rule the README states in advance: under about 90% agreement with the labels,
+the command gate ships `ask`-only; the injection screen stays off until its
+false-positive count on the clean set is zero.
 
 ## Backlog, roadmap, issues
 

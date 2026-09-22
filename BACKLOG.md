@@ -16,8 +16,8 @@ on GitHub changes nothing; ticking the item here does.
 ```
 ## v0.2.0 — Title of the milestone <!-- ms: phase=next -->
 
-- [x] **HG-9 — Short name**: what it is, why it earns its place, what it needs to
-  touch. <!-- hg: prio=high size=M labels=gate ver=main -->
+- [ ] **HG-99 — Short name**: what it is, why it earns its place, what it needs to
+  touch. <!-- hg: prio=high size=M labels=gate -->
 ```
 
 - The **id never changes**. A new item takes the next free number, never a retired
@@ -87,9 +87,9 @@ harness the brief designs for.
   only add context or block; find out whether a `Noul` "is this output worth keeping
   in context?" that answers with `additionalContext` earns its call. Needs a
   measurement first. <!-- hg: prio=low size=M labels=gate,benchmark -->
-- [ ] **HG-9 — Fail-closed as an explicit opt-in**: `.claude/hookgate.json` gains
+- [x] **HG-9 — Fail-closed as an explicit opt-in**: `.claude/hookgate.json` gains
   `failClosed: true`, under which an unreachable API means `ask` rather than
-  fall-through; never the default. <!-- hg: prio=low size=S labels=gate -->
+  fall-through; never the default. <!-- hg: prio=low size=S labels=gate ver=main -->
 - [ ] **HG-11 — Codex CLI adapter: same handlers, Codex answer shape, second
   manifest**: detect the harness from `CLAUDE_PLUGIN_ROOT` vs `PLUGIN_ROOT`, emit
   Codex's `decision: allow|block` shape, `.codex-plugin/plugin.json` beside the Claude
@@ -112,3 +112,9 @@ harness the brief designs for.
   this contain instructions addressed to an AI agent?" — annotating the span via
   `additionalContext`; off by default until a fixture set in `evals/` gives the
   false-positive rate. <!-- hg: prio=med size=L labels=gate,benchmark -->
+- [ ] **HG-16 — Benchmark the optimisations: cache, promotion, thresholds**: from the
+  audit log and from `evals/`, measure what each optimisation buys — cache hit rate
+  and the requests it saves per session, decisions a promoted rule would have absorbed,
+  cost and p50/p95 latency with and without cache, `ask` share and dangerous-allowed
+  count across a threshold sweep. `hookgate report` grows the columns; the README gets
+  a second table, dated, with the Jev version. <!-- hg: prio=high size=M labels=benchmark -->
