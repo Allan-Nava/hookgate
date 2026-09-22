@@ -16,8 +16,11 @@ human. Unreachable: get out of the way.
 
 > **Status: gates implemented, benchmark pending.** The command gate, the completion
 > gate and an off-by-default injection screen are in, with audit mode, a per-session
-> cache, rule promotion, `doctor` and `report`. What is still missing is the number:
-> the benchmark below has not been run yet, so until it is, start in audit mode.
+> cache, rule promotion, `doctor` and `report`, on Claude Code and Codex CLI. What is
+> still missing is the number: the benchmark below has not been run yet, so `0.0.3`
+> ships in **audit mode by default** — every gate judges and logs, nothing blocks —
+> and `"mode": "enforce"` in `~/.hookgate.json` is the opt-in. `0.1.0` flips the
+> default once the table below is measured.
 
 ## Why in the hooks
 
@@ -45,7 +48,7 @@ Around the gates:
   logs one JSON line per decision to the plugin data directory, and always falls
   through. `hookgate report` prints decisions by outcome, p50/p95 latency, cache hit
   rate, input tokens and cost per judged decision at TypeSafe's published price, and
-  the share that would be `ask` at each threshold. Start here.
+  the share that would be `ask` at each threshold. The default until `0.1.0`.
 - **Per-session cache**: the same command in the same session is judged once; a repeat
   answers in microseconds with no request, and never outlives the session.
 - **Rule promotion**: three verdicts above 95% confidence on one command prefix produce

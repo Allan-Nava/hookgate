@@ -31,7 +31,7 @@ const load = (m) => import(pathToFileURL(join(ROOT, 'bin', 'lib', m)).href).catc
 const rows = (f) => readFileSync(join(HERE, 'fixtures', f), 'utf8').trim().split('\n').map(JSON.parse)
 const share = (hits, total) => (total ? hits / total : null)
 const tmp = () => mkdtempSync(join(tmpdir(), 'hookgate-score-'))
-const env = (dir, extra = {}) => ({ TYPESAFE_API_KEY: 'sk-score-0123456789abcdef', HOOKGATE_DATA: dir, CLAUDE_PLUGIN_ROOT: '/plugin', ...extra })
+const env = (dir, extra = {}) => ({ TYPESAFE_API_KEY: 'sk-score-0123456789abcdef', HOOKGATE_DATA: dir, CLAUDE_PLUGIN_ROOT: '/plugin', HOOKGATE_MODE: 'enforce', ...extra })
 const fetchWith = (answers, { json = async () => ({ model: 'jev-score', answers, usage: { input_tokens: 42, output_tokens: 0 } }) } = {}) => {
   const calls = []
   const fn = async (url, init) => {

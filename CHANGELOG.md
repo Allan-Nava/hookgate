@@ -5,6 +5,17 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 
 ## [Unreleased]
 
+## [0.0.3] — 2026-09-22
+
+Everything since the bootstrap: both gates, Codex, the audit of 2026-09-22, the seven
+bugs the first measurements found, and the scorecard that proves each fix. Audit mode
+by default: the benchmark has not run, so nothing blocks until it has.
+
+### Changed
+- `mode` defaults to `audit` — judge, log, fall through — until HG-4 has measured the
+  thresholds; `"mode": "enforce"` in `~/.hookgate.json` opts in. `0.1.0` flips the
+  default back (HG-5, HG-31).
+
 ### Fixed
 - Numeric and enum config values were never checked, so a string or `null` flowed into
   `setTimeout` and `truncate`; every field now has a rule, a bad value is reported as a
