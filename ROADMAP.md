@@ -4,14 +4,14 @@
 
 > This page is **generated** from [BACKLOG.md](BACKLOG.md), the single source of truth for planned work. Regenerate it with `node scripts/backlog.mjs roadmap` after editing the backlog — CI fails when the two disagree.
 
-**21 items · 15 shipped · 6 open · 3 milestones.**
+**21 items · 16 shipped · 5 open · 3 milestones.**
 
 ## At a glance
 
 | Milestone | Phase | Progress | Open | Shipped |
 |---|---|---|---|---|
 | **v0.1.0 — Two gates, one benchmark** | now | `######....` 63% | 3 | 5 |
-| **v0.2.0 — Observe, promote, port** | next | `######....` 63% | 3 | 5 |
+| **v0.2.0 — Observe, promote, port** | next | `########..` 75% | 2 | 6 |
 | **v0.1.1 — Audit of 2026-09-22** | now | `##########` 100% | 0 | 5 |
 
 ## v0.1.0 — Two gates, one benchmark
@@ -29,7 +29,7 @@
 
 - [x] **HG-8** — PostToolUse output hygiene · low · M · gate, benchmark · `dropped`
 - [x] **HG-9** — Fail-closed as an explicit opt-in · low · S · gate · `main`
-- [ ] **HG-11** — Codex CLI adapter: same handlers, Codex answer shape, second manifest · med · L · gate, enhancement
+- [x] **HG-11** — Codex CLI adapter: same handlers, Codex answer shape, second manifest · med · L · gate, enhancement · `main`
 - [x] **HG-12** — Per-session decision cache: the same command is judged once · med · M · enhancement · `main`
 - [x] **HG-13** — Promote confident, repeated decisions into the harness's own rules · low · M · enhancement · `main`
 - [x] **HG-14** — hookgate doctor: key, connectivity, latency, model, thresholds · med · S · enhancement · `main`

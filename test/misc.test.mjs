@@ -77,6 +77,17 @@ test('doctor: no key is a warning, a broken config is BAD, a reachable API is ok
   assert.equal(r.broken, false)
 })
 
+test('print-hooks emits a Codex hooks file with absolute paths to this checkout', async () => {
+  const { execFileSync } = await import('node:child_process')
+  const { dirname } = await import('node:path')
+  const { fileURLToPath } = await import('node:url')
+  const bin = join(dirname(fileURLToPath(import.meta.url)), '..', 'bin', 'hookgate.mjs')
+  const out = JSON.parse(execFileSync(process.execPath, [bin, 'print-hooks'], { encoding: 'utf8' }))
+  const cmds = Object.values(out.hooks).flatMap((es) => es.flatMap((e) => e.hooks.map((h) => h.command)))
+  assert.ok(cmds.length >= 3)
+  for (const c of cmds) assert.ok(c.includes('/bin/hookgate.mjs') && !c.includes('PLUGIN_ROOT'), c)
+})
+
 test('a non-ASCII key is a bad-key error, not an opaque fetch failure', async () => {
   const { systemone } = await import('../bin/lib/jev.mjs')
   await assert.rejects(systemone({ state: 'x', questions: {}, model: 'jev-latest', apiKey: 'sk-…', timeoutMs: 100, fetchImpl: fakeFetch({}) }), (e) => e.code === 'bad-key')

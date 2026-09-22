@@ -57,7 +57,7 @@ Around the gates:
   documentation. Codex has no `ask` on `PreToolUse`, so a below-threshold answer passes
   through with the concern surfaced as a `systemMessage` (`"codex": {"askAs": "deny"}`
   refuses instead), and the injection screen uses Codex's `decision: "block"` feedback
-  in place of `additionalContext`. Not yet exercised against a live Codex.
+  in place of `additionalContext`. Exercised against a live Codex 0.155.1 (see Install).
 
 Configuration lives in `.claude/hookgate.json` in the repository (or `HOOKGATE_CONFIG`);
 every key is optional:
@@ -107,7 +107,21 @@ redacted before anything leaves the machine, and state is truncated well under J
 ```
 
 with `TYPESAFE_API_KEY` in the environment Claude Code runs in, then `hookgate doctor`
-from the plugin directory to see what it sees. Zero dependencies, Node 18 or later,
+from the plugin directory to see what it sees.
+
+**Codex CLI** (0.155 and later dropped plugin-bundled hooks, so hooks are per repository
+or per user):
+
+```
+npm install -g hookgate
+hookgate print-hooks > .codex/hooks.json      # or ~/.codex/hooks.json
+```
+
+Codex asks to trust the hooks file once; `--dangerously-bypass-hook-trust` skips that
+for automation you already vet. Verified live on 2026-09-22 with Codex 0.155.1: the
+command gate refused `rm -rf ~/…` ("Command blocked by PreToolUse hook: hookgate:
+refused at 97% confidence") and let a `git push --force` through with the concern as a
+`systemMessage`; the completion gate ran on `Stop`. Zero dependencies, Node 18 or later,
 one `fetch` to `POST https://api.typesafe.ai/v1/systemone`. The package on npm is the
 same tree, for `npx hookgate doctor` and `npx hookgate report`.
 

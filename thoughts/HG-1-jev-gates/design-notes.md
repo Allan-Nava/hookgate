@@ -33,3 +33,11 @@ code agree. HG-1 as a QRSPI run remains the maintainer's call.
   `updatedInput` piping a verbose command through `head`, or truncation at the
   source), and hookgate's `PostToolUse` slot is spent on the one question that does
   earn it: injected instructions (HG-15).
+- **Codex, live.** 2026-09-22, Codex 0.155.1, scratch repo, repo-level `.codex/hooks.json`,
+  fake Jev on `HOOKGATE_ENDPOINT`. `git push --force origin main` → `ask` at 0.85 →
+  passed through (failed on its own: no remote); `rm -rf ~/hookgate-nonexistent-dir` →
+  `deny` at 0.97 → Codex: "Command blocked by PreToolUse hook: hookgate: refused at 97%
+  confidence — 98% likely destructive or exfiltrating"; `Stop` → completion gate ran,
+  passed. Harness detected from the stdin shape (`turn_id`, no `prompt_id`). Two
+  surprises: `plugin_hooks` is a removed feature in this Codex, and repo hooks need
+  trust — `print-hooks` and the README Install section come from that.
