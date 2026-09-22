@@ -1,81 +1,83 @@
 {
-  "at": "2026-09-22T13:08:07.426Z",
+  "at": "2026-09-22T13:13:56.715Z",
   "overhead": {
     "no key (fall-through)": {
-      "p50": 58.513958,
-      "p95": 60.148083,
+      "p50": 59.432375,
+      "p95": 63.549333,
       "n": 30
     },
     "cache hit (no request)": {
-      "p50": 61.200458,
-      "p95": 62.830334,
+      "p50": 61.744083,
+      "p95": 64.374042,
       "n": 30
     },
     "local fake Jev (full round trip, no network)": {
-      "p50": 79.594541,
-      "p95": 81.57825,
+      "p50": 82.574625,
+      "p95": 86.845625,
       "n": 30
     }
   },
   "transcripts": {
     "sessions": 102,
-    "commands": 27225,
+    "commands": 27246,
     "repeats": 99,
-    "repeatRate": 0.0036363636363636364,
+    "repeatRate": 0.0036335608896718784,
     "medianSessionRepeatRate": 0,
-    "redacted": 1516,
-    "redactedRate": 0.05568411386593205,
+    "redacted": 1519,
+    "redactedRate": 0.055751302943551344,
+    "promotable": 1744,
+    "promotableRate": 0.0640093958746238,
     "stops": 1229,
     "stopsClaiming": 878,
     "prefilterSkipRate": 0.28559804719283965,
     "topPrefixes": [
       [
-        "python3",
-        5631
-      ],
-      [
-        "grep",
-        2518
-      ],
-      [
-        "echo",
-        2390
-      ],
-      [
-        "cat",
-        2062
+        "(not promotable)",
+        25502
       ],
       [
         "sed",
-        2060
+        1163
       ],
       [
-        "for",
-        1283
+        "grep",
+        159
       ],
       [
-        "ssh",
-        1223
+        "cat",
+        137
+      ],
+      [
+        "head",
+        46
+      ],
+      [
+        "tail",
+        43
       ],
       [
         "ls",
-        765
+        17
+      ],
+      [
+        "docker run",
+        17
+      ],
+      [
+        "gh run",
+        15
+      ],
+      [
+        "gh issue",
+        15
+      ],
+      [
+        "git diff",
+        14
       ],
       [
         "curl",
-        487
-      ],
-      [
-        "git add",
-        375
-      ],
-      [
-        "node",
-        333
-      ],
-      [
-        "mkdir",
-        300
+        11
       ]
     ]
   }

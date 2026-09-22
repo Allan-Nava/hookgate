@@ -114,8 +114,29 @@ export function commandPrefix(command) {
   return takesSub.includes(first) && words[1] && !words[1].startsWith('-') ? `${first} ${words[1]}` : first
 }
 
+// What a promoted rule may cover (HG-24, HG-25). A rule is a prefix, so it covers
+// every command that starts that way: it must only ever be proposed for a command
+// that IS that prefix plus arguments — one simple command, no chaining, no
+// substitution — and never for a program that runs whatever follows.
+const NEVER_PROMOTE = new Set(['python', 'python3', 'node', 'deno', 'bun', 'bash', 'sh', 'zsh', 'fish', 'dash', 'ksh', 'sudo', 'doas', 'su', 'env', 'xargs', 'eval', 'exec', 'source', '.', 'perl', 'ruby', 'php', 'lua', 'osascript', 'nohup', 'time', 'timeout', 'command', 'builtin', 'nice', 'watch', 'caffeinate', 'ssh', 'script', 'expect', 'parallel', 'find'])
+
+export function promotablePrefix(command) {
+  let s = String(command).trim()
+  for (let guard = 0; guard < 8; guard++) {
+    const next = s.replace(/^(?:[A-Za-z_][A-Za-z0-9_]*=(?:"[^"]*"|'[^']*'|\S*)\s+)+/, '').replace(/^cd\s+(?:"[^"]*"|'[^']*'|\S+)[ \t]*(?:&&|;|\n)\s*/, '')
+    if (next === s) break
+    s = next
+  }
+  // Operators outside quotes make it more than one command: 92.5% of real commands.
+  const unquoted = s.replace(/"(?:[^"\\]|\\.)*"|'[^']*'/g, '""')
+  if (/&&|\|\||;|\||\n|`|\$\(/.test(unquoted)) return null
+  const prefix = commandPrefix(s)
+  if (!prefix || NEVER_PROMOTE.has(prefix.split(' ')[0])) return null
+  return prefix
+}
+
 export function notePrefix(session, prefix, decision, confidence, cfg) {
-  if (!['allow', 'deny'].includes(decision) || confidence < cfg.promote.confidence) return null
+  if (!prefix || !['allow', 'deny'].includes(decision) || confidence < cfg.promote.confidence) return null
   session.prefixes ??= {}
   session.proposed ??= []
   const p = (session.prefixes[prefix] ??= { allow: 0, deny: 0 })

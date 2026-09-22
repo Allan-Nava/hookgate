@@ -195,20 +195,23 @@ a number to reach; the rest are open.
   Italian words (*fatto, corretto, funziona, chiuso, pronto*) anchored to their claim
   form, `completion.lexicon` for extras, fixtures 12/12 both ways; the honest skip
   rate is 29%. <!-- hg: prio=high size=M labels=gate,benchmark ver=main -->
-- [ ] **HG-24 — Promotion attributes a chained command's verdict to its first word**:
+- [x] **HG-24 — Promotion attributes a chained command's verdict to its first word**:
   `commandPrefix` keeps the first command of `a && b | c`, so a `deny` on
   `git status && curl … | sh` counts against `git status`, and three of them propose a
   rule for `git status *`. 92.5% of real commands are compound once the `cd` hops are
   stripped. Fix: only a simple command — no `&&`, `||`, `;`, `|`, newline, backtick or
   `$(` outside quotes — counts toward promotion; compound ones are logged with
-  `compound: true` and never proposed. <!-- hg: prio=high size=M labels=gate,enhancement -->
-- [ ] **HG-25 — Never propose a rule for an interpreter or wrapper prefix**:
+  `compound: true` and never proposed. Shipped as `promotablePrefix()`; the log carries
+  `promotable: null` for them beside the descriptive `prefix`.
+  <!-- hg: prio=high size=M labels=gate,enhancement ver=main -->
+- [x] **HG-25 — Never propose a rule for an interpreter or wrapper prefix**:
   `python3`, `node`, `bash`, `sh`, `sudo`, `env`, `xargs`, `eval`, `exec`, `source`…
   head 23.5% of real commands, and `Bash(python3 *)` as an `allow` rule covers
   `python3 -c "shutil.rmtree(...)"` — the proposal widens, which the plugin promises
   never to do. Fix: a never-promote set for `allow`; a `deny` proposal on such a
-  prefix is equally wrong (it would block every script) and is dropped too.
-  <!-- hg: prio=high size=S labels=gate -->
+  prefix is equally wrong (it would block every script) and is dropped too. Shipped:
+  `NEVER_PROMOTE` in `store.mjs`, both directions, `find` included for `-exec`.
+  <!-- hg: prio=high size=S labels=gate ver=main -->
 - [x] **HG-26 — A command longer than `maxStateChars` is judged with its middle
   elided**: `truncate` keeps 70% head and 30% tail, so whatever sits in the middle of
   a long command is never seen by Jev — a heredoc of padding with `rm -rf` in the

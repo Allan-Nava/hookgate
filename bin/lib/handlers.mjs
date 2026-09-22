@@ -6,7 +6,7 @@ import { loadConfig } from './config.mjs'
 import { COMMAND_QUESTIONS, COMPLETION_QUESTION, INJECTION_QUESTION, claimsCompletion, commandState, completionState, decideCommand, decideCompletion, decideInjection, injectionState } from './gates.mjs'
 import { dataDir, detectHarness, messageOutput, permissionOutput, postToolOutput, ruleSyntax, stopOutput } from './harness.mjs'
 import { JevError, endpointFrom, systemone } from './jev.mjs'
-import { appendDecision, cacheGet, cacheKey, cachePut, commandPrefix, loadSession, notePrefix, saveSession } from './store.mjs'
+import { appendDecision, cacheGet, cacheKey, cachePut, commandPrefix, loadSession, notePrefix, promotablePrefix, saveSession } from './store.mjs'
 
 const INJECTION_TOOLS = new Set(['WebFetch', 'Read', 'Bash', 'WebSearch'])
 
@@ -76,9 +76,10 @@ export async function preToolUse(input, deps = {}) {
     const res = await judge({ gate: 'command', state, questions: COMMAND_QUESTIONS, input, cfg, session, deps })
     const { decision, reason } = decideCommand(res.answers, cfg)
     const risk = res.answers.risk ?? {}
-    const promoted = notePrefix(session, commandPrefix(input.tool_input?.command ?? ''), risk.choice, risk.confidence ?? 0, cfg)
+    const promotable = promotablePrefix(raw)
+    const promoted = notePrefix(session, promotable, risk.choice, risk.confidence ?? 0, cfg)
     saveSession(dir, input.session_id, session)
-    log(dir, 'command', input, cfg, { outcome: decision, choice: risk.choice, confidence: risk.confidence, destructive: res.answers.destructive?.noul, model: res.model, latencyMs: res.latencyMs, cached: res.cached, prefix: commandPrefix(input.tool_input?.command ?? '') })
+    log(dir, 'command', input, cfg, { outcome: decision, choice: risk.choice, confidence: risk.confidence, destructive: res.answers.destructive?.noul, model: res.model, latencyMs: res.latencyMs, cached: res.cached, prefix: commandPrefix(raw), promotable })
     const extra = promoted ? { systemMessage: `hookgate: "${promoted.prefix}" has been judged ${promoted.decision} ${promoted.count} times at ≥${Math.round(cfg.promote.confidence * 100)}% confidence — a static rule would save the round trip:\n${ruleSyntax(harness, promoted.prefix, promoted.decision)}` } : {}
     if (cfg.mode === 'audit' || (decision === 'allow' && cfg.allowMode !== 'allow')) return promoted ? messageOutput(harness, 'PreToolUse', extra.systemMessage) : null
     return permissionOutput(harness, decision, reason, extra, { codexAskAs: cfg.codex?.askAs })

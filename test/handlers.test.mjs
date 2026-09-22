@@ -134,6 +134,18 @@ test('a command longer than maxStateChars is ask without a request; audit logs a
   assert.equal(f3.calls.length, 0)
 })
 
+test('compound and interpreter commands never propose a rule, however confident (HG-24, HG-25)', async () => {
+  const d = tmp()
+  const f = fakeFetch({ risk: { choice: 'allow', confidence: 0.99 }, destructive: { noul: 0.01, confidence: 0.9 } })
+  for (const c of ['git status && ls', 'git status | head', 'git status; ls', 'python3 a.py', 'python3 b.py', 'python3 c.py']) {
+    const out = await preToolUse(preInput(c), { env: env(d), fetch: f })
+    assert.equal(out, null, c)
+  }
+  const log = readFileSync(join(d, 'decisions.jsonl'), 'utf8').trim().split('\n').map(JSON.parse)
+  assert.ok(log.every((r) => r.promotable === null), 'logged as not promotable')
+  assert.equal(log[0].prefix, 'git status', 'the descriptive prefix is still logged')
+})
+
 test('stop blocks an unverified claim once, then lets the prompt end', async () => {
   const d = tmp()
   const f = fakeFetch({ unverified: { noul: 0.9, confidence: 0.85 } })

@@ -49,7 +49,11 @@ Around the gates:
   answers in microseconds with no request, and never outlives the session.
 - **Rule promotion**: three verdicts above 95% confidence on one command prefix produce
   a single `systemMessage` proposing the harness's own permission rule —
-  `"Bash(npm test *)"` for Claude Code, `prefix_rule()` for Codex. Proposed, never written.
+  `"Bash(npm test *)"` for Claude Code, `prefix_rule()` for Codex. Proposed, never written,
+  and only for what the rule would actually cover: one simple command (no `&&`, `|`, `;`,
+  newline or substitution) whose program is not an interpreter or wrapper — `python3`,
+  `bash`, `sudo`, `xargs` and their kind run whatever follows, so a prefix rule on them
+  would widen, and hookgate never widens.
 - **`hookgate doctor`**: key, connectivity, latency, model, config, harness. Non-zero only
   on a broken configuration, never on a slow API.
 - **Two harnesses, one file**: the handlers read the same stdin JSON under Claude Code
@@ -165,8 +169,10 @@ nothing sent anywhere:
   Real commands vary; the cache stays because it is free, not because it pays.
 - The redactor changes **6%** of commands — keys, tokens, URL passwords are there to
   be caught.
-- Command prefixes, after skipping `cd … &&` hops and `VAR=value` assignments:
-  `python3`, `grep`, `echo`, `cat`, `sed` lead — the rule-promotion candidates.
+- A promoted rule may cover **6%** of commands: 1,744 of 27,147 are one simple command
+  whose program is not an interpreter (HG-24, HG-25). `sed`, `grep`, `cat`, `head`,
+  `tail` lead. The other 94% chain, pipe or run a script — a prefix rule on them would
+  say more than the judgement did.
 
 **Every fix carries its number.** `node evals/scorecard.mjs` scores each open bug from
 committed fixtures — no key, no network — and CI runs it on the base and the head of
