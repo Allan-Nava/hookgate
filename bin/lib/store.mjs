@@ -3,7 +3,7 @@
 // and the one-block-per-stop marker. Every write is best-effort — a full disk must
 // not turn into a blocked tool call.
 import { createHash } from 'node:crypto'
-import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
+import { appendFileSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const safe = (fn) => {
@@ -24,16 +24,17 @@ export function appendDecision(dir, record) {
   safe(() => {
     mkdirSync(dir, { recursive: true })
     const p = join(dir, 'decisions.jsonl')
-    if (existsSync(p) && statSync(p).size > LOG_MAX) renameSync(p, join(dir, 'decisions.1.jsonl'))
+    // No exists-then-stat: read the size in one call and let a missing file throw into `safe`.
+    const size = safe(() => statSync(p).size) ?? 0
+    if (size > LOG_MAX) renameSync(p, join(dir, 'decisions.1.jsonl'))
     appendFileSync(p, `${JSON.stringify(record)}\n`)
   })
 }
 
 export function readDecisions(dir) {
   return ['decisions.1.jsonl', 'decisions.jsonl']
-    .map((f) => join(dir, f))
-    .filter(existsSync)
-    .flatMap((p) => readFileSync(p, 'utf8').split('\n'))
+    .map((f) => safe(() => readFileSync(join(dir, f), 'utf8')) ?? '')
+    .flatMap((text) => text.split('\n'))
     .filter(Boolean)
     .map((l) => safe(() => JSON.parse(l)))
     .filter(Boolean)

@@ -25,6 +25,9 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 - A malformed `TYPESAFE_API_KEY` is reported as such instead of an opaque fetch error.
 - The rule-promotion message under Codex used Claude Code's answer shape.
 - The benchmark runner passed an undefined `CLAUDECODE` to the child `claude`.
+- Three CodeQL findings from the first scan: an unanchored regex in `check`, a
+  one-pass HTML-comment strip in the backlog tool that could leave a `<!--`, and a
+  check-then-use on the audit log file.
 
 ## [0.0.2] — 2026-09-22
 

@@ -84,7 +84,7 @@ function check() {
   if (new Set(Object.values(versions)).size !== 1) fail(`versions differ: ${JSON.stringify(versions)}`)
   if (pkg.name !== 'hookgate' || plugin.name !== 'hookgate' || codex.name !== 'hookgate') fail('package.json, plugin.json and .codex-plugin/plugin.json must all be named hookgate')
   if (!(market.plugins ?? []).some((p) => p.name === 'hookgate' && p.source === './')) fail('marketplace.json must list the hookgate plugin with source "./"')
-  if (!/github\.com[/:]Allan-Nava\/hookgate/.test(pkg.repository?.url ?? '')) fail('package.json#repository must name the GitHub repo')
+  if (!/^(?:git\+)?https:\/\/github\.com\/Allan-Nava\/hookgate(?:\.git)?$/.test(pkg.repository?.url ?? '')) fail('package.json#repository must be the GitHub repo URL, exactly')
   if (pkg.dependencies && Object.keys(pkg.dependencies).length) fail('no runtime dependencies — a hook runs on every tool call')
   for (const f of ['bin', 'hooks', 'codex', '.claude-plugin', '.codex-plugin', 'README.md', 'CHANGELOG.md', 'LICENSE']) if (!pkg.files?.includes(f)) fail(`package.json#files is missing ${f}`)
 
