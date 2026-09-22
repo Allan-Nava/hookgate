@@ -105,7 +105,11 @@ jobs:
           # variable counts as a configured credential even when it expands to
           # nothing, which is why setup-node above is given no registry-url.
           unset NODE_AUTH_TOKEN
-          npm publish --access public
+          # Verbose on purpose: at the default level a refused OIDC exchange ends in a
+          # bare ENEEDAUTH (2026-09-22, 0.0.3). At verbose npm prints the token
+          # exchange with the registry and why it failed — a publisher it cannot
+          # find, a claim that does not match — which is the only clue there is.
+          npm publish --access public --loglevel verbose
 
       # The registry takes a moment to serve a freshly published version — over a
       # minute on 2026-09-18 (0.3.2), which the previous six 10-second tries did not
