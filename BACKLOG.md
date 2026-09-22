@@ -169,12 +169,14 @@ ids stay in the CHANGELOG.
   `helpers:pinGitHubActionDigests` pins every `uses:` to a digest and keeps it moving.
   <!-- hg: prio=med size=S labels=project ver=0.0.3 -->
 - [x] **HG-22 — Knowledge graph of the repository (graphify)**: `graphify-out/` holds the
-  graph built from the whole tree — 367 nodes, 757 edges, 14 labelled communities —
+  graph built from the whole tree — 453 nodes, 896 edges, 20 labelled communities,
+  rebuilt 2026-09-22 after 0.0.3 —
   as `graph.json`, `GRAPH_REPORT.md` and `graph.html`, versioned so an agent can
   `graphify query` it instead of re-reading files; interpreter path and cache are
   ignored. Rebuild with `/graphify . --update` after a change that moves structure.
-  Known state: 50 dangling-endpoint edges from document nodes naming code symbols
-  differently from the AST. <!-- hg: prio=low size=S labels=docs,project ver=0.0.3 -->
+  Health check clean since the rebuild: the semantic pass is given the AST ids of the
+  code symbols the documents name, so document → code edges land on the AST node.
+  <!-- hg: prio=low size=S labels=docs,project ver=0.0.3 -->
 
 ## v0.1.2 — Bugs from the first measurements <!-- ms: phase=shipped -->
 
