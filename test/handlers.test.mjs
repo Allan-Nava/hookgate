@@ -84,16 +84,23 @@ test('timeout fails open by default and asks with failClosed', async () => {
   const slow = fakeFetch(deny, { delayMs: 500 })
   const d = tmp()
   mkdirSync(join(d, 'repo', '.claude'), { recursive: true })
-  writeFileSync(join(d, 'user-hookgate.json'), JSON.stringify({ timeoutMs: 50 }))
+  writeFileSync(join(d, 'user-hookgate.json'), JSON.stringify({ timeoutMs: 100 }))
   assert.equal(await preToolUse(preInput('rm -rf /', { cwd: join(d, 'repo') }), { env: env(d), fetch: slow }), null)
   writeFileSync(join(d, 'repo', '.claude', 'hookgate.json'), JSON.stringify({ failClosed: true }))
   const out = await preToolUse(preInput('rm -rf /', { cwd: join(d, 'repo') }), { env: env(d), fetch: fakeFetch(deny, { delayMs: 500 }) })
   assert.equal(out.hookSpecificOutput.permissionDecision, 'ask')
 })
 
-test('HTTP 5xx and malformed bodies fail open', async () => {
+test('HTTP 5xx and malformed bodies fail open, and the log names the fault (HG-29)', async () => {
   assert.equal(await preToolUse(preInput('rm -rf /'), { env: env(tmp()), fetch: fakeFetch(deny, { status: 529 }) }), null)
   assert.equal(await preToolUse(preInput('rm -rf /'), { env: env(tmp()), fetch: fakeFetch({ risk: { choice: 'weird' } }) }), null)
+  // a 200 whose body is not JSON — a proxy or captive portal — is `malformed`, not `network`
+  const d = tmp()
+  const html = async () => ({ ok: true, status: 200, json: async () => JSON.parse('<html>') })
+  assert.equal(await preToolUse(preInput('rm -rf /'), { env: env(d), fetch: html }), null)
+  const log = readFileSync(join(d, 'decisions.jsonl'), 'utf8').trim().split('\n').map(JSON.parse)
+  assert.equal(log.at(-1).outcome, 'error')
+  assert.equal(log.at(-1).error, 'malformed')
 })
 
 test('audit mode judges, logs, and falls through', async () => {

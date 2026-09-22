@@ -30,7 +30,14 @@ export async function systemone({ state, questions, model, apiKey, timeoutMs, fe
     })
     const latencyMs = Date.now() - t0
     if (!res.ok) throw new JevError(`HTTP ${res.status}`, { status: res.status, code: 'http' })
-    const json = await res.json()
+    let json
+    try {
+      json = await res.json()
+    } catch (e) {
+      // A 200 that is not JSON is a broken proxy or a captive portal, not a network
+      // fault; the audit log should say which (HG-29).
+      throw new JevError(`malformed response: not JSON (${e.message})`, { code: 'malformed' })
+    }
     if (!json || typeof json.answers !== 'object') throw new JevError('malformed response: no answers', { code: 'malformed' })
     return { answers: json.answers, model: json.model ?? model, usage: json.usage ?? null, latencyMs }
   } catch (e) {

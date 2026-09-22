@@ -239,14 +239,16 @@ a number to reach; the rest are open.
   Shipped: `inputTokens` on every judged record, `PRICE_PER_INPUT_TOKEN` +
   `PRICE_DATE` in `report.mjs`, `evals/run.mjs` imports them.
   <!-- hg: prio=med size=S labels=benchmark ver=main -->
-- [ ] **HG-29 — Validate the numbers in the config and classify a non-JSON body**:
+- [x] **HG-29 — Validate the numbers in the config and classify a non-JSON body**:
   `timeoutMs`, `maxStateChars`, `cache.ttlMs`, `promote.after` and
   `promote.confidence` are never checked, so a string or `null` flows into
   `setTimeout` and `truncate`; a config file whose top level is not an object is
   merged key by key; and a 200 with a non-JSON body surfaces as `network` rather than
   `malformed`, which hides a broken proxy in `report`. Fix: type and range checks in
   `loadConfig` reported through `problems` (defaults win), and `res.json()` failures
-  mapped to `malformed`; one test each. <!-- hg: prio=low size=S labels=tests -->
+  mapped to `malformed`; one test each. Shipped: `RULES` in `config.mjs` covering every
+  key, with ranges (`timeoutMs` 100–10,000, `maxStateChars` 200–100,000).
+  <!-- hg: prio=low size=S labels=tests ver=main -->
 - [x] **HG-30 — Scorecard: one metric per open bug, on base and head of every pull
   request**: `evals/scorecard.mjs` scores HG-23 to HG-29 from `evals/fixtures/`
   (48 labelled final messages in two languages, 32 commands labelled by what a

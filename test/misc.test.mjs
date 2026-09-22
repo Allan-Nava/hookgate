@@ -45,6 +45,35 @@ test('config: defaults, file, env, and a malformed file is a problem not a failu
   assert.equal(loadConfig(d, e).problems.length, 1)
 })
 
+test('config: every number and enum is validated; a bad value is a problem and the default takes over (HG-29)', () => {
+  const d = tmp()
+  const p = join(d, 'hookgate.json')
+  const cases = [
+    [{ timeoutMs: 'abc' }, 'timeoutMs', DEFAULTS.timeoutMs],
+    [{ timeoutMs: 1 }, 'timeoutMs', DEFAULTS.timeoutMs],
+    [{ maxStateChars: null }, 'maxStateChars', DEFAULTS.maxStateChars],
+    [{ maxStateChars: 12.5 }, 'maxStateChars', DEFAULTS.maxStateChars],
+    [{ promote: { after: '3' } }, 'promote.after', DEFAULTS.promote.after],
+    [{ promote: { confidence: 2 } }, 'promote.confidence', DEFAULTS.promote.confidence],
+    [{ cache: { ttlMs: -1 } }, 'cache.ttlMs', DEFAULTS.cache.ttlMs],
+    [{ thresholds: { confidence: '0.9' } }, 'thresholds.confidence', DEFAULTS.thresholds.confidence],
+    [{ gates: { command: 'yes' } }, 'gates.command', true],
+    [{ completion: { lexicon: [1, 2] } }, 'completion.lexicon', []],
+    [{ codex: { askAs: 'block' } }, 'codex.askAs', 'passthrough'],
+    [{ model: '' }, 'model', DEFAULTS.model],
+  ]
+  for (const [file, key, expected] of cases) {
+    writeFileSync(p, JSON.stringify(file))
+    const { cfg, problems } = loadConfig(d, { HOOKGATE_CONFIG: p, HOOKGATE_USER_CONFIG: join(d, 'none.json') })
+    assert.equal(problems.length, 1, `${key}: ${JSON.stringify(problems)}`)
+    assert.match(problems[0], new RegExp(`^${key.replace('.', '\\.')} must be`))
+    assert.deepEqual(key.split('.').reduce((a, k) => a[k], cfg), expected, key)
+  }
+  // a valid file reports nothing
+  writeFileSync(p, JSON.stringify({ timeoutMs: 3000, maxStateChars: 8000, promote: { after: 5, confidence: 0.99 }, cache: { ttlMs: 0 }, completion: { lexicon: ['x'] } }))
+  assert.deepEqual(loadConfig(d, { HOOKGATE_CONFIG: p, HOOKGATE_USER_CONFIG: join(d, 'none.json') }).problems, [])
+})
+
 test('harness detection and shapes', () => {
   assert.equal(detectHarness({ CLAUDE_PLUGIN_ROOT: '/x' }), 'claude')
   assert.equal(detectHarness({ PLUGIN_ROOT: '/x' }), 'codex')

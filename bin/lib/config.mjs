@@ -130,14 +130,42 @@ export function loadConfig(cwd = process.cwd(), env = process.env) {
   if (env.HOOKGATE_MODE) cfg.mode = env.HOOKGATE_MODE
   if (env.HOOKGATE_MODEL) cfg.model = env.HOOKGATE_MODEL
   if (env.HOOKGATE_FAIL_CLOSED === '1') cfg.failClosed = true
-  if (!['enforce', 'audit'].includes(cfg.mode)) {
-    problems.push(`mode must be enforce|audit, got "${cfg.mode}" — using enforce`)
-    cfg.mode = 'enforce'
-  }
-  if (!['passthrough', 'allow'].includes(cfg.allowMode)) {
-    problems.push(`allowMode must be passthrough|allow, got "${cfg.allowMode}" — using passthrough`)
-    cfg.allowMode = 'passthrough'
-  }
-  for (const [k, v] of Object.entries(cfg.thresholds)) if (typeof v !== 'number' || v < 0 || v > 1) problems.push(`thresholds.${k} must be a number in [0, 1]`)
+  validate(cfg, problems)
   return { cfg, path, userPath, problems, ignored }
+}
+
+// Every value the handlers arithmetic on or branch on, checked once here (HG-29): a
+// string where a number should be would otherwise flow into setTimeout and truncate
+// unnoticed. A bad value is reported and the default takes its place — the gate keeps
+// judging on numbers that mean something.
+const RULES = {
+  mode: (v) => ['enforce', 'audit'].includes(v) || 'enforce|audit',
+  model: (v) => (typeof v === 'string' && v.trim().length > 0) || 'a non-empty string',
+  timeoutMs: (v) => (num(v) && v >= 100 && v <= 10000) || 'a number of milliseconds in [100, 10000]',
+  failClosed: (v) => typeof v === 'boolean' || 'true|false',
+  allowMode: (v) => ['passthrough', 'allow'].includes(v) || 'passthrough|allow',
+  'thresholds.confidence': (v) => (num(v) && v >= 0 && v <= 1) || 'a number in [0, 1]',
+  'thresholds.destructive': (v) => (num(v) && v >= 0 && v <= 1) || 'a number in [0, 1]',
+  'thresholds.unverified': (v) => (num(v) && v >= 0 && v <= 1) || 'a number in [0, 1]',
+  'thresholds.injection': (v) => (num(v) && v >= 0 && v <= 1) || 'a number in [0, 1]',
+  'gates.command': (v) => typeof v === 'boolean' || 'true|false',
+  'gates.completion': (v) => typeof v === 'boolean' || 'true|false',
+  'gates.injection': (v) => typeof v === 'boolean' || 'true|false',
+  'completion.prefilter': (v) => typeof v === 'boolean' || 'true|false',
+  'completion.lexicon': (v) => (Array.isArray(v) && v.every((x) => typeof x === 'string')) || typeof v === 'string' || 'a regex source or a list of them',
+  'cache.ttlMs': (v) => (num(v) && v >= 0) || 'a number of milliseconds ≥ 0',
+  'promote.after': (v) => (Number.isInteger(v) && v >= 1) || 'an integer ≥ 1',
+  'promote.confidence': (v) => (num(v) && v >= 0 && v <= 1) || 'a number in [0, 1]',
+  'codex.askAs': (v) => ['passthrough', 'deny'].includes(v) || 'passthrough|deny',
+  maxStateChars: (v) => (Number.isInteger(v) && v >= 200 && v <= 100000) || 'an integer in [200, 100000]',
+}
+
+function validate(cfg, problems) {
+  for (const [key, rule] of Object.entries(RULES)) {
+    const v = get(cfg, key)
+    const r = rule(v)
+    if (r === true) continue
+    problems.push(`${key} must be ${r}, got ${JSON.stringify(v)} — using ${JSON.stringify(get(DEFAULTS, key))}`)
+    set(cfg, key, get(DEFAULTS, key))
+  }
 }
