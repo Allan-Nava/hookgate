@@ -107,10 +107,13 @@ harness the brief designs for.
   `failClosed: true`, under which an unreachable API means `ask` rather than
   fall-through; never the default. <!-- hg: prio=low size=S labels=gate ver=main -->
 - [ ] **HG-11 — Codex CLI adapter: same handlers, Codex answer shape, second
-  manifest**: detect the harness from `CLAUDE_PLUGIN_ROOT` vs `PLUGIN_ROOT`, emit
-  Codex's `decision: allow|block` shape, `.codex-plugin/plugin.json` beside the Claude
-  one, `npm test` holding both manifests to one version. Open question first: where a
-  below-threshold answer goes when the harness has no `ask`.
+  manifest**: detect the harness from `CLAUDE_PLUGIN_ROOT` vs `PLUGIN_ROOT`; contract
+  verified against learn.chatgpt.com/docs/hooks on 2026-09-22 and the adapter aligned —
+  `permissionDecision allow|deny`, `ask` → pass-through with a `systemMessage` (or
+  `codex.askAs: deny`), `Stop` identical, injection via `decision: block` feedback;
+  `.codex-plugin/plugin.json` beside the Claude one, `npm test` holding both to one
+  version, unit and e2e tests under `PLUGIN_ROOT`, CI fall-through per harness.
+  **Remaining: a scratch repo with a live Codex CLI.**
   <!-- hg: prio=med size=L labels=gate,enhancement -->
 - [x] **HG-12 — Per-session decision cache: the same command is judged once**: keyed
   by `session_id` and the redacted state hash, TTL, invalidated on `cwd` change; a
