@@ -4,14 +4,14 @@
 
 > This page is **generated** from [BACKLOG.md](BACKLOG.md), the single source of truth for planned work. Regenerate it with `node scripts/backlog.mjs roadmap` after editing the backlog — CI fails when the two disagree.
 
-**16 items · 9 shipped · 7 open · 2 milestones.**
+**16 items · 10 shipped · 6 open · 2 milestones.**
 
 ## At a glance
 
 | Milestone | Phase | Progress | Open | Shipped |
 |---|---|---|---|---|
 | **v0.1.0 — Two gates, one benchmark** | now | `######....` 63% | 3 | 5 |
-| **v0.2.0 — Observe, promote, port** | next | `#####.....` 50% | 4 | 4 |
+| **v0.2.0 — Observe, promote, port** | next | `######....` 63% | 3 | 5 |
 
 ## v0.1.0 — Two gates, one benchmark
 
@@ -26,7 +26,7 @@
 
 ## v0.2.0 — Observe, promote, port
 
-- [ ] **HG-8** — PostToolUse output hygiene · low · M · gate, benchmark
+- [x] **HG-8** — PostToolUse output hygiene · low · M · gate, benchmark · `dropped`
 - [x] **HG-9** — Fail-closed as an explicit opt-in · low · S · gate · `main`
 - [ ] **HG-11** — Codex CLI adapter: same handlers, Codex answer shape, second manifest · med · L · gate, enhancement
 - [x] **HG-12** — Per-session decision cache: the same command is judged once · med · M · enhancement · `main`
