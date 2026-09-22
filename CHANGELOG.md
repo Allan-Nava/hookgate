@@ -6,6 +6,9 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 ## [Unreleased]
 
 ### Added
+- `evals/scorecard.mjs` and `evals/fixtures/`: one metric per open bug, from labelled
+  fixtures, no key; `scorecard.yml` scores base and head of every pull request and
+  posts the delta, failing on a regression (HG-30).
 - The command gate (HG-2), the completion gate (HG-3) and the off-by-default
   injection screen (HG-15, code only), decided by Jev with calibrated confidence.
 - Audit mode and `hookgate report` (HG-10); per-session decision cache (HG-12); rule

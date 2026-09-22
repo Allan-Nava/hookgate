@@ -168,6 +168,11 @@ nothing sent anywhere:
 - Command prefixes, after skipping `cd … &&` hops and `VAR=value` assignments:
   `python3`, `grep`, `echo`, `cat`, `sed` lead — the rule-promotion candidates.
 
+**Every fix carries its number.** `node evals/scorecard.mjs` scores each open bug from
+committed fixtures — no key, no network — and CI runs it on the base and the head of
+every pull request, posting the delta. A fix moves one line to 100%; a regression on
+any line fails the job.
+
 Full runner: `node evals/run.mjs commands --baseline` over all 79 labelled commands and
 `node evals/run.mjs injection` over the 20 outputs, once a key exists; the pre-stated
 rule stands — under about 90% agreement the command gate ships `ask`-only. Until then,

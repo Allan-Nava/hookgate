@@ -180,7 +180,8 @@ ids stay in the CHANGELOG.
 
 What running `evals/local.mjs` over 102 real sessions (27,147 shell commands, 1,229
 stops) and a second read of the handlers turned up on 2026-09-22. Each item is one
-pull request, taken one at a time, highest priority first; none is shipped yet.
+pull request, taken one at a time, highest priority first. HG-30 gives each of them
+a number to reach; the rest are open.
 
 - [ ] **HG-23 — Completion prefilter is English-only**: `claimsCompletion` knows
   `done`, `fixed`, `merged` and friends, so a final message in another language never
@@ -235,3 +236,12 @@ pull request, taken one at a time, highest priority first; none is shipped yet.
   `malformed`, which hides a broken proxy in `report`. Fix: type and range checks in
   `loadConfig` reported through `problems` (defaults win), and `res.json()` failures
   mapped to `malformed`; one test each. <!-- hg: prio=low size=S labels=tests -->
+- [x] **HG-30 — Scorecard: one metric per open bug, on base and head of every pull
+  request**: `evals/scorecard.mjs` scores HG-23 to HG-29 from `evals/fixtures/`
+  (48 labelled final messages in two languages, 32 commands labelled by what a
+  promotion rule may cover, generated over-long commands, loosening repository
+  configs, invalid config values) with no key and no network; `scorecard.yml` runs it
+  on the pull request's base and head with the head's fixtures, posts base, head and
+  delta as one sticky comment plus the hook overhead on the runner, and fails on a
+  regression. A fix moves its line to 100%; a new bug lands with its fixture.
+  <!-- hg: prio=high size=M labels=benchmark,tests ver=main -->

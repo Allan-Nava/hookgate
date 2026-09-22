@@ -22,6 +22,7 @@
   "scripts": {
     "build:site": "node site/build.mjs",
     "test": "node bin/hookgate.mjs check && node --test",
+    "scorecard": "node evals/scorecard.mjs",
     "backlog": "node scripts/backlog.mjs check && node scripts/backlog_test.mjs"
   },
   "keywords": [
