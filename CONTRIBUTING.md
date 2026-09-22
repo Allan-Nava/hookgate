@@ -76,6 +76,13 @@ Settings → Trusted Publisher → GitHub Actions:
 | Workflow filename | `release.yml` |
 | Environment | *(leave empty)* |
 
+**The name had a past.** `hookgate` on npm carried a `0.0.1` published and unpublished
+from this same account on 2026-03-23 — the name was already ours. npm never lets a version number be reused, even a
+withdrawn one, so our first publishable version is `0.0.2`. `npm view <name>` reports
+an *error* for a name with no live versions, which reads as "free" — check
+`https://registry.npmjs.org/<name>` and its `time.unpublished` instead before trusting
+a name.
+
 The publisher matches on the literal filename, so never rename `release.yml`. Never
 give `actions/setup-node` a `registry-url`: it plants a placeholder token that stops
 the OIDC exchange with a misleading 404.
