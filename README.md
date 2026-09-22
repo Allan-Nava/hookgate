@@ -53,8 +53,11 @@ Around the gates:
 - **`hookgate doctor`**: key, connectivity, latency, model, config, harness. Non-zero only
   on a broken configuration, never on a slow API.
 - **Two harnesses, one file**: the handlers read the same stdin JSON under Claude Code
-  and Codex CLI and answer in each one's shape. The Codex side is written to the
-  documented contract and not yet exercised against a live Codex.
+  and Codex CLI and answer in each one's shape, verified against Codex's hooks
+  documentation. Codex has no `ask` on `PreToolUse`, so a below-threshold answer passes
+  through with the concern surfaced as a `systemMessage` (`"codex": {"askAs": "deny"}`
+  refuses instead), and the injection screen uses Codex's `decision: "block"` feedback
+  in place of `additionalContext`. Not yet exercised against a live Codex.
 
 Configuration lives in `.claude/hookgate.json` in the repository (or `HOOKGATE_CONFIG`);
 every key is optional:

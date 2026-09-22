@@ -19,6 +19,7 @@ export const DEFAULTS = Object.freeze({
   gates: { command: true, completion: true, injection: false },
   cache: { ttlMs: 60 * 60 * 1000 },
   promote: { after: 3, confidence: 0.95 },
+  codex: { askAs: 'passthrough' }, // passthrough | deny — Codex has no `ask` on PreToolUse
   maxStateChars: 12000, // well under Jev's 32k-token state limit
 })
 

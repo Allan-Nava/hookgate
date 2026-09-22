@@ -122,12 +122,18 @@ version, pin it when answers must not drift. Limits: 64k tokens per request, 32k
 state; 250k tokens/s and 1,200 requests/min, adjusting. Price $42 per billion input
 tokens, output free. Text only. Errors 401, 422, 429, 529.
 
-**Codex CLI hooks** (learn.chatgpt.com/codex/hooks, read 2026-09-22): the same
+**Codex CLI hooks** (learn.chatgpt.com/docs/hooks, verified 2026-09-22): the same
 events — `PreToolUse`, `PostToolUse`, `Stop`, `PermissionRequest`, `UserPromptSubmit`,
-`SessionStart`… — and the same stdin fields (`session_id`, `cwd`, `hook_event_name`,
-`tool_name`, `tool_input`, plus `turn_id`). The answer differs: `decision: "allow" |
-"block"`, `updatedInput`, `additionalContext`, `systemMessage`, `continue: false`;
-exit 2 blocks with stderr as the reason. Configured in `~/.codex/hooks.json`,
+`SessionStart`… — and the stdin fields `session_id`, `cwd`, `hook_event_name`,
+`transcript_path`, `permission_mode`, `model`, plus `turn_id` and, on tool events,
+`tool_name`, `tool_input`, `tool_use_id`. `PreToolUse` takes the same
+`hookSpecificOutput.permissionDecision` shape as Claude Code but only `allow|deny` —
+**no `ask`** — with `{decision: "block"}` as the legacy form; `Stop` is
+`{decision: "block", reason}` on both; `PostToolUse` has **no `additionalContext`**,
+its `decision: "block"` "records feedback without undoing", which is what hookgate
+uses for the injection screen there. Every event takes top-level `systemMessage`,
+`continue`, `stopReason`; exit 2 blocks with stderr as the reason. Not marked
+experimental; `[features] hooks = false` disables. Configured in `~/.codex/hooks.json`,
 `<repo>/.codex/hooks.json` or `[hooks]` in `config.toml`; a plugin bundles
 `hooks/hooks.json` and gets `PLUGIN_ROOT` and `PLUGIN_DATA`. Default timeout 600 s.
 Codex also has **rules**: Starlark `prefix_rule()` files under `.codex/rules/` deciding
