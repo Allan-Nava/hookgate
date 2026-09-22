@@ -1,0 +1,73 @@
+name: Scorecard
+
+# One number per open bug, on the base and on the head of every pull request, from
+# the same committed fixtures (evals/fixtures/), with no key and no network. The
+# comparison lands in the job summary and in one sticky PR comment, so a fix says by
+# how much it moved the metric it names — and a regression on any metric fails.
+#
+# The fixtures always come from the head: adding one changes the denominator for
+# both sides alike. The base is scored with the head's scorecard too, so a base that
+# predates a metric scores n/a rather than failing.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: scorecard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scorecard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Check out the base
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+      - name: Score the base with the head's fixtures
+        if: github.event_name == 'pull_request'
+        run: node evals/scorecard.mjs --root base --json out/base.json > /dev/null || echo "base could not be scored"
+      - name: Score the head
+        run: |
+          mkdir -p out
+          if [ -f out/base.json ]; then
+            node evals/scorecard.mjs --json out/head.json --compare out/base.json --md out/summary.md
+          else
+            node evals/scorecard.mjs --json out/head.json --md out/summary.md
+          fi
+      - name: Hook overhead on this runner
+        run: |
+          echo "" >> out/summary.md
+          node evals/local.mjs overhead >> out/summary.md
+      - name: Job summary
+        if: always()
+        run: |
+          { echo "## Scorecard"; echo; cat out/summary.md 2>/dev/null || echo "no summary"; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Sticky comment on the pull request
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs')
+            const marker = '<!-- hookgate-scorecard -->'
+            let body = 'no summary produced'
+            try { body = fs.readFileSync('out/summary.md', 'utf8') } catch {}
+            const text = `${marker}\n## Scorecard — base vs head\n\n${body}\n\n_Fixtures from the head, scored on both sides; \`node evals/scorecard.mjs\` reproduces it locally. A regression on any metric fails the job._`
+            const { owner, repo } = context.repo
+            const issue_number = context.payload.pull_request.number
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 })
+            const mine = comments.find((c) => c.body && c.body.startsWith(marker))
+            if (mine) await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body: text })
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body: text })

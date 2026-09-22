@@ -26,6 +26,10 @@ bin/lib/               config (defaults, .claude/hookgate.json, env), redact (se
                        pure decisions), harness (Claude Code vs Codex shapes), store (audit
                        log, per-session cache, promotion counters, stop marker), handlers
                        (the orchestration), report, doctor
+evals/                 commands.jsonl (79 labelled), injection.jsonl (20), run.mjs (the Jev
+                       benchmark, needs a key), local.mjs (overhead + transcript counts, no
+                       key), scorecard.mjs + fixtures/ (one metric per open bug, no key —
+                       CI scores base and head of every PR with it); results/ holds dated runs
 test/                  node:test suites — every fail-open path, cache, one-block-per-stop,
                        promotion, both harness shapes, and e2e.test.mjs spawning the real CLI
                        against a local fake Jev (HOOKGATE_ENDPOINT); `npm test` runs them after `check`
@@ -41,7 +45,9 @@ codex/hooks.json       the same handlers for Codex CLI, ${PLUGIN_ROOT} paths, si
 .github/workflows/     ci.yml (check on Node 18/20/22/24, pack on 24), release.yml (on
                        tag hookgate--v*: publish over OIDC, release, close milestone),
                        release-drift.yml (main with a version but no tag for 2 h),
-                       codeql.yml (security-extended, weekly), backlog-issues.yml (the one-way sync)
+                       codeql.yml (security-extended, weekly), backlog-issues.yml (the one-way sync),
+                       scorecard.yml (evals/scorecard.mjs on base and head, sticky PR comment,
+                       fails on a regression)
 site/build.mjs         generates site/dist/index.html FROM README.md (gitignored output);
                        the page adds one thing, the gates index read off hooks/hooks.json
 assets/                logo.svg (single source: favicon, header, hero, README), logo-mono.svg,

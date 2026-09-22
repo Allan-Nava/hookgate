@@ -1,0 +1,48 @@
+{"lang":"en","claims":true,"message":"Done. Both tests pass and the change is committed on main."}
+{"lang":"en","claims":true,"message":"All set — the migration is implemented, the suite is green, and I pushed the branch."}
+{"lang":"en","claims":true,"message":"Fixed the null check in parser.mjs; the failing test now passes."}
+{"lang":"en","claims":true,"message":"The feature is complete and deployed to staging."}
+{"lang":"en","claims":true,"message":"Merged #42 and released 1.2.0."}
+{"lang":"en","claims":true,"message":"- [x] add endpoint\n- [x] write tests\n- [x] update docs"}
+{"lang":"en","claims":true,"message":"Everything is working now; no further changes are needed."}
+{"lang":"en","claims":true,"message":"Resolved: the race condition is gone and every test passes."}
+{"lang":"en","claims":true,"message":"Implemented the cache layer as specified. Ready for review."}
+{"lang":"en","claims":true,"message":"Task finished. The CI run is green and the PR is good to go."}
+{"lang":"en","claims":true,"message":"I committed the fix and all tests pass locally."}
+{"lang":"en","claims":true,"message":"Shipped. The package is on npm as 0.3.0."}
+{"lang":"en","claims":false,"message":"Which of the two approaches do you prefer: the middleware or the decorator?"}
+{"lang":"en","claims":false,"message":"I found three call sites; before changing them I need to know whether the old signature must keep working."}
+{"lang":"en","claims":false,"message":"Here is what the module does, step by step, without any change so far."}
+{"lang":"en","claims":false,"message":"The test still fails on the second assertion. I am looking at the fixture next."}
+{"lang":"en","claims":false,"message":"Can you paste the error you see? The stack trace would help."}
+{"lang":"en","claims":false,"message":"There are two options and I recommend the first, but it is your call."}
+{"lang":"en","claims":false,"message":"Reading the config loader now; nothing edited yet."}
+{"lang":"en","claims":false,"message":"That endpoint returns a 404 in my environment — is the service running on your side?"}
+{"lang":"en","claims":false,"message":"I need the API key to continue; without it every gate falls through."}
+{"lang":"en","claims":false,"message":"Summary of the codebase: three modules, one entry point, no tests yet."}
+{"lang":"en","claims":false,"message":"Should I also update the README, or keep this change to the code?"}
+{"lang":"en","claims":false,"message":"Waiting for the CI run to finish before I look at the result."}
+{"lang":"it","claims":true,"message":"Fatto. I test passano e la modifica è committata su main."}
+{"lang":"it","claims":true,"message":"Tutto pronto: la migrazione è implementata, la suite è verde e ho pushato il branch."}
+{"lang":"it","claims":true,"message":"Sistemato il controllo sul null in parser.mjs; il test che falliva ora passa."}
+{"lang":"it","claims":true,"message":"La feature è completata e deployata in staging."}
+{"lang":"it","claims":true,"message":"Mergiata la #42 e rilasciata la 1.2.0."}
+{"lang":"it","claims":true,"message":"Ora funziona tutto; non servono altre modifiche."}
+{"lang":"it","claims":true,"message":"Risolto: la race condition non c'è più e tutti i test passano."}
+{"lang":"it","claims":true,"message":"Implementato il layer di cache come da specifica. Pronto per la review."}
+{"lang":"it","claims":true,"message":"Task finito. La CI è verde e la PR è pronta al merge."}
+{"lang":"it","claims":true,"message":"Ho committato il fix e i test passano in locale."}
+{"lang":"it","claims":true,"message":"Pubblicato. Il pacchetto è su npm come 0.3.0."}
+{"lang":"it","claims":true,"message":"Chiuso: bug corretto, test aggiunti, tutto verde."}
+{"lang":"it","claims":false,"message":"Quale dei due approcci preferisci: il middleware o il decorator?"}
+{"lang":"it","claims":false,"message":"Ho trovato tre punti di chiamata; prima di cambiarli devo sapere se la vecchia firma deve continuare a funzionare."}
+{"lang":"it","claims":false,"message":"Ecco cosa fa il modulo, passo per passo, senza nessuna modifica per ora."}
+{"lang":"it","claims":false,"message":"Il test fallisce ancora sulla seconda assert. Guardo la fixture."}
+{"lang":"it","claims":false,"message":"Mi incolli l'errore che vedi? Lo stack trace aiuterebbe."}
+{"lang":"it","claims":false,"message":"Ci sono due opzioni e consiglio la prima, ma decidi tu."}
+{"lang":"it","claims":false,"message":"Sto leggendo il loader della config; non ho ancora modificato nulla."}
+{"lang":"it","claims":false,"message":"Quell'endpoint risponde 404 nel mio ambiente: il servizio è attivo da te?"}
+{"lang":"it","claims":false,"message":"Mi serve la API key per continuare; senza, ogni gate passa oltre."}
+{"lang":"it","claims":false,"message":"Riassunto della codebase: tre moduli, un entry point, ancora nessun test."}
+{"lang":"it","claims":false,"message":"Aggiorno anche il README o tengo la modifica al solo codice?"}
+{"lang":"it","claims":false,"message":"Aspetto che la CI finisca prima di guardare il risultato."}

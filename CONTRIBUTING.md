@@ -23,12 +23,26 @@ Unset the key and every gate must fall through.
 instructions addressed to an agent. `evals/run.mjs` runs them:
 
 ```bash
+node evals/scorecard.mjs                                      # no key: one metric per open bug, from evals/fixtures/
 node evals/local.mjs --json                                   # no key: hook overhead + transcript counts
 node evals/run.mjs commands --baseline-only --limit 10        # no key: the incumbent alone
 TYPESAFE_API_KEY=… node evals/run.mjs commands --limit 5      # smoke run, five commands
 TYPESAFE_API_KEY=… node evals/run.mjs commands --baseline     # the whole set, plus the incumbent
 TYPESAFE_API_KEY=… node evals/run.mjs injection
 ```
+
+`evals/scorecard.mjs` is how a bug fix proves itself. Each open bug in `BACKLOG.md`
+has a metric — a share in [0, 1], 1 meaning fixed — computed from the labelled
+fixtures under `evals/fixtures/` with no key and no network: the prefilter's recall per
+language, what the promotion logic would propose for compound and interpreter
+commands, whether a `rm -rf` hidden in an over-long command reaches the judge, whether
+a repository config can loosen the gate, and so on. `.github/workflows/scorecard.yml`
+runs it on the base and on the head of every pull request with the head's fixtures,
+posts the two columns and the delta as one sticky comment, and fails on a regression.
+A fix should move its metric to 100% and leave the others where they were; a new bug
+gets a fixture and a metric in the same pull request that files it, so the fix has a
+number to reach. `--root <checkout>` scores another checkout with these fixtures, and a
+checkout that predates a metric scores n/a rather than failing.
 
 `evals/local.mjs` reads Claude Code's own transcripts under `~/.claude/projects` and
 keeps only counts — how many stops the prefilter skips, how often a command repeats
