@@ -140,8 +140,8 @@ const description = lede
 const body = sections.filter((s) => !/^license$/i.test(s.heading))
 const nav = body.filter((s) => !/^prior art$/i.test(s.heading))
 const priorArtAt = body.findIndex((s) => /^prior art$/i.test(s.heading))
-const inventorySection = `  <section id="what-ships">
-    <h2><a class="anchor" href="#what-ships">What ships</a></h2>
+const inventorySection = `  <section id="the-gates">
+    <h2><a class="anchor" href="#the-gates">The gates, from hooks.json</a></h2>
     <p>Straight from <code>hooks/hooks.json</code>. Two handlers in one file, each with a hard timeout; every one of them falls through when it cannot decide.</p>
     <div class="cards">
 ${renderInventory()}
