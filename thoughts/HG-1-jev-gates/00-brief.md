@@ -21,6 +21,13 @@ each) or by nobody.
   without `npm install`; release by tag as in qrspi.
 
 **In scope.**
+- Two harnesses, one file. Claude Code ships in 0.1.0; Codex CLI in 0.2.0, but the
+  design accounts for both from the start: the handler reads the same stdin JSON
+  (`hook_event_name`, `tool_name`, `tool_input`, `cwd`) on both and emits the
+  harness's own answer shape — `hookSpecificOutput.permissionDecision` for Claude
+  Code, `decision: allow|block` for Codex — chosen from the environment
+  (`CLAUDE_PLUGIN_ROOT` vs `PLUGIN_ROOT`). Two manifests (`.claude-plugin/`,
+  `.codex-plugin/`), two `hooks.json`, no forked logic.
 - Claude Code plugin: `hooks/hooks.json` plus one Node ESM file, zero dependencies,
   raw `fetch` to `POST https://api.typesafe.ai/v1/systemone`, model `jev-latest`
   with an optional pin to the version the response reports.
@@ -59,6 +66,9 @@ each) or by nobody.
 - MIT licence, as qrspi and the official skill.
 
 **Open risks.**
+- Codex hooks are documented but may still be marked experimental, and Codex has no
+  `ask` decision on `PreToolUse` — the `PermissionRequest` event may be where "ask"
+  lives. Research settles both before the adapter is designed.
 - Jev's calibration on shell-command risk is unmeasured by anyone. If agreement with
   the labels is under ~90% on the set, the command gate stays `ask`-only.
 - `jev-latest` can change its answers without notice: the benchmark is re-run at
