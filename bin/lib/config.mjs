@@ -9,7 +9,10 @@ import { homedir } from 'node:os'
 import { join } from 'node:path'
 
 export const DEFAULTS = Object.freeze({
-  mode: 'enforce', // enforce | audit — audit judges for real, logs, and always falls through
+  // enforce | audit — audit judges for real, logs, and always falls through. Audit is
+  // the default until the benchmark (HG-4) has put a number behind the thresholds:
+  // 0.1.0 flips it to enforce. `enforce` is one line in ~/.hookgate.json meanwhile.
+  mode: 'audit',
   model: 'jev-latest', // or a pinned id the response reported, e.g. jev-1.13.0
   timeoutMs: 2000, // the handler's own fetch timeout; hooks.json allows 5 s
   failClosed: false, // true: an unreachable API means `ask`, never fall-through (HG-9)

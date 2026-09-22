@@ -58,7 +58,7 @@ test('deny and ask come back in Claude Code shape with a reason', async () => {
 
 test('Codex harness: deny is permissionDecision deny, ask passes through with a systemMessage, or denies when configured', async () => {
   const d = tmp()
-  const codexEnv = { TYPESAFE_API_KEY: 'k', HOOKGATE_DATA: d, PLUGIN_ROOT: '/codex-plugin' }
+  const codexEnv = { TYPESAFE_API_KEY: 'k', HOOKGATE_DATA: d, PLUGIN_ROOT: '/codex-plugin', HOOKGATE_MODE: 'enforce', HOOKGATE_USER_CONFIG: join(d, 'none.json') }
   const den = await preToolUse(preInput('rm -rf ~'), { env: codexEnv, fetch: fakeFetch(deny) })
   assert.equal(den.hookSpecificOutput.permissionDecision, 'deny')
   assert.ok(den.systemMessage)

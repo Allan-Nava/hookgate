@@ -43,7 +43,7 @@ function exec(args, { input, env, cwd } = {}) {
     else child.stdin.end()
   })
 }
-const baseEnv = () => ({ PATH: process.env.PATH, TYPESAFE_API_KEY: 'sk-e2e-0123456789abcdef', HOOKGATE_ENDPOINT: `http://127.0.0.1:${port}`, HOOKGATE_DATA: tmp(), CLAUDE_PLUGIN_ROOT: '/plugin' })
+const baseEnv = () => ({ PATH: process.env.PATH, TYPESAFE_API_KEY: 'sk-e2e-0123456789abcdef', HOOKGATE_ENDPOINT: `http://127.0.0.1:${port}`, HOOKGATE_DATA: tmp(), CLAUDE_PLUGIN_ROOT: '/plugin', HOOKGATE_MODE: 'enforce' })
 const run = (handler, input, extraEnv = {}) => exec([BIN, handler], { input: JSON.stringify(input), env: { ...baseEnv(), ...extraEnv } })
 
 test('deny comes out as Claude Code JSON, exit 0, key only in the header', async () => {

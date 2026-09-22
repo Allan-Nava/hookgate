@@ -129,14 +129,16 @@ the OIDC exchange with a misleading 404.
 **Per release:**
 
 ```bash
-# 1. bump the version in all three manifests — they must agree
-#    package.json · .claude-plugin/plugin.json · .claude-plugin/marketplace.json
+# 1. bump the version in all four manifests — they must agree
+#    package.json · .claude-plugin/plugin.json · .claude-plugin/marketplace.json · .codex-plugin/plugin.json
+#    rename CHANGELOG's [Unreleased] to [x.y.z] — date, and open a new empty [Unreleased]
+#    turn every ver=main in BACKLOG.md into ver=x.y.z and regenerate the roadmap
 npm test
 npm pack --dry-run
 
-# 2. land the bump on main through a pull request, then
-claude plugin tag . --dry-run
-claude plugin tag . --push     # creates and pushes hookgate--v{version}
+# 2. land the bump on main through a pull request, then tag that merge commit
+git checkout main && git pull
+git tag hookgate--v{version} && git push origin hookgate--v{version}
 ```
 
 The tag triggers `release.yml`: it re-checks the tag against `package.json`, runs the

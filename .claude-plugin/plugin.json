@@ -1,6 +1,6 @@
 {
   "name": "hookgate",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Calibrated, sub-second decisions in Claude Code's hooks: a PreToolUse gate on shell commands and a Stop gate on unverified completion, answered by TypeSafe's Jev with a confidence score, escalating to the human when unsure.",
   "author": {
     "name": "Allan Nava",

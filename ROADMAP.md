@@ -4,7 +4,7 @@
 
 > This page is **generated** from [BACKLOG.md](BACKLOG.md), the single source of truth for planned work. Regenerate it with `node scripts/backlog.mjs roadmap` after editing the backlog — CI fails when the two disagree.
 
-**30 items · 25 shipped · 5 open · 4 milestones.**
+**31 items · 26 shipped · 5 open · 4 milestones.**
 
 ## At a glance
 
@@ -13,46 +13,47 @@
 | **v0.1.0 — Two gates, one benchmark** | now | `######....` 63% | 3 | 5 |
 | **v0.2.0 — Observe, promote, port** | next | `########..` 75% | 2 | 6 |
 | **v0.1.1 — Audit of 2026-09-22** | now | `##########` 100% | 0 | 6 |
-| **v0.1.2 — Bugs from the first measurements** | now | `##########` 100% | 0 | 8 |
+| **v0.1.2 — Bugs from the first measurements** | now | `##########` 100% | 0 | 9 |
 
 ## v0.1.0 — Two gates, one benchmark
 
 - [ ] **HG-1** — Run QRSPI on the brief: Questions → Research → Spec → Plan · high · L · gate, enhancement
-- [x] **HG-2** — Command-risk gate: PreToolUse on Bash answered by Jev · high · L · gate · `main`
-- [x] **HG-3** — Completion gate: Stop hook that blocks unverified claims of done · high · M · gate · `main`
+- [x] **HG-2** — Command-risk gate: PreToolUse on Bash answered by Jev · high · L · gate · `0.0.3`
+- [x] **HG-3** — Completion gate: Stop hook that blocks unverified claims of done · high · M · gate · `0.0.3`
 - [ ] **HG-4** — Benchmark: ≥50 labelled commands, Jev gate vs type: prompt hook · high · M · benchmark
 - [ ] **HG-5** — First release 0.1.0: trusted publisher, tag, publish · med · S · release
-- [x] **HG-6** — Site generated from README, as qrspi does it · low · S · docs · `main`
-- [x] **HG-7** — Backlog as the single source of truth, enforced by CI · med · M · project · `main`
-- [x] **HG-10** — Audit mode: log every decision and its confidence without enforcing · high · M · gate, enhancement · `main`
+- [x] **HG-6** — Site generated from README, as qrspi does it · low · S · docs · `0.0.3`
+- [x] **HG-7** — Backlog as the single source of truth, enforced by CI · med · M · project · `0.0.3`
+- [x] **HG-10** — Audit mode: log every decision and its confidence without enforcing · high · M · gate, enhancement · `0.0.3`
 
 ## v0.2.0 — Observe, promote, port
 
 - [x] **HG-8** — PostToolUse output hygiene · low · M · gate, benchmark · `dropped`
-- [x] **HG-9** — Fail-closed as an explicit opt-in · low · S · gate · `main`
-- [x] **HG-11** — Codex CLI adapter: same handlers, Codex answer shape, second manifest · med · L · gate, enhancement · `main`
-- [x] **HG-12** — Per-session decision cache: the same command is judged once · med · M · enhancement · `main`
-- [x] **HG-13** — Promote confident, repeated decisions into the harness's own rules · low · M · enhancement · `main`
-- [x] **HG-14** — hookgate doctor: key, connectivity, latency, model, thresholds · med · S · enhancement · `main`
+- [x] **HG-9** — Fail-closed as an explicit opt-in · low · S · gate · `0.0.3`
+- [x] **HG-11** — Codex CLI adapter: same handlers, Codex answer shape, second manifest · med · L · gate, enhancement · `0.0.3`
+- [x] **HG-12** — Per-session decision cache: the same command is judged once · med · M · enhancement · `0.0.3`
+- [x] **HG-13** — Promote confident, repeated decisions into the harness's own rules · low · M · enhancement · `0.0.3`
+- [x] **HG-14** — hookgate doctor: key, connectivity, latency, model, thresholds · med · S · enhancement · `0.0.3`
 - [ ] **HG-15** — Screen tool results for injected instructions (PostToolUse additionalContext) · med · L · gate, benchmark
 - [ ] **HG-16** — Benchmark the optimisations: cache, promotion, thresholds · high · M · benchmark
 
 ## v0.1.1 — Audit of 2026-09-22
 
-- [x] **HG-17** — Say exactly what leaves the machine · high · S · docs · `main`
-- [x] **HG-18** — Bounded, atomic on-disk state · med · S · gate, tests · `main`
-- [x] **HG-19** — End-to-end tests of the CLI contract · high · S · tests · `main`
-- [x] **HG-20** — CHANGELOG.md · med · S · docs, release · `main`
-- [x] **HG-21** — Supply chain: CodeQL and pinned actions · med · S · project · `main`
-- [x] **HG-22** — Knowledge graph of the repository (graphify) · low · S · docs, project · `main`
+- [x] **HG-17** — Say exactly what leaves the machine · high · S · docs · `0.0.3`
+- [x] **HG-18** — Bounded, atomic on-disk state · med · S · gate, tests · `0.0.3`
+- [x] **HG-19** — End-to-end tests of the CLI contract · high · S · tests · `0.0.3`
+- [x] **HG-20** — CHANGELOG.md · med · S · docs, release · `0.0.3`
+- [x] **HG-21** — Supply chain: CodeQL and pinned actions · med · S · project · `0.0.3`
+- [x] **HG-22** — Knowledge graph of the repository (graphify) · low · S · docs, project · `0.0.3`
 
 ## v0.1.2 — Bugs from the first measurements
 
-- [x] **HG-23** — Completion prefilter is English-only · high · M · gate, benchmark · `main`
-- [x] **HG-24** — Promotion attributes a chained command's verdict to its first word · high · M · gate, enhancement · `main`
-- [x] **HG-25** — Never propose a rule for an interpreter or wrapper prefix · high · S · gate · `main`
-- [x] **HG-26** — A command longer than `maxStateChars` is judged with its middle elided · high · S · gate · `main`
-- [x] **HG-27** — A repository can switch the gates off through its own config · med · S · gate · `main`
-- [x] **HG-28** — The audit log has no token usage, so cost per decision cannot be computed · med · S · benchmark · `main`
-- [x] **HG-29** — Validate the numbers in the config and classify a non-JSON body · low · S · tests · `main`
-- [x] **HG-30** — Scorecard: one metric per open bug, on base and head of every pull request · high · M · benchmark, tests · `main`
+- [x] **HG-23** — Completion prefilter is English-only · high · M · gate, benchmark · `0.0.3`
+- [x] **HG-24** — Promotion attributes a chained command's verdict to its first word · high · M · gate, enhancement · `0.0.3`
+- [x] **HG-25** — Never propose a rule for an interpreter or wrapper prefix · high · S · gate · `0.0.3`
+- [x] **HG-26** — A command longer than `maxStateChars` is judged with its middle elided · high · S · gate · `0.0.3`
+- [x] **HG-27** — A repository can switch the gates off through its own config · med · S · gate · `0.0.3`
+- [x] **HG-28** — The audit log has no token usage, so cost per decision cannot be computed · med · S · benchmark · `0.0.3`
+- [x] **HG-29** — Validate the numbers in the config and classify a non-JSON body · low · S · tests · `0.0.3`
+- [x] **HG-30** — Scorecard: one metric per open bug, on base and head of every pull request · high · M · benchmark, tests · `0.0.3`
+- [x] **HG-31** — Release 0.0.3: everything on main, audit mode by default · high · S · release · `0.0.3`

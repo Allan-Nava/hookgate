@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Calibrated decision gates for Claude Code hooks.",
-    "version": "0.0.2"
+    "version": "0.0.3"
   },
   "plugins": [
     {
