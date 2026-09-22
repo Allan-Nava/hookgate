@@ -97,7 +97,18 @@ export function cachePut(session, key, value, now = Date.now()) {
 
 // Promotion (HG-13): count confident, identical decisions per command prefix.
 export function commandPrefix(command) {
-  const words = String(command).trim().split(/\s+/)
+  let s = String(command).trim()
+  // Skip what is not the command: leading VAR=value assignments and `cd <dir> &&` /
+  // `cd <dir>;` hops — 47% of real commands start with a cd, and a promotion rule for
+  // "cd" would be meaningless.
+  for (let guard = 0; guard < 8; guard++) {
+    // `cd X && cmd`, `cd X; cmd` and `cd X⏎cmd` — the last is how most real commands
+    // arrive (9,408 of 12,700 cd-led commands in one maintainer's transcripts).
+    const next = s.replace(/^(?:[A-Za-z_][A-Za-z0-9_]*=(?:"[^"]*"|'[^']*'|\S*)\s+)+/, '').replace(/^cd\s+(?:"[^"]*"|'[^']*'|\S+)[ \t]*(?:&&|;|\n)\s*/, '')
+    if (next === s) break
+    s = next
+  }
+  const words = s.split(/\s+/)
   const first = words[0] ?? ''
   const takesSub = ['git', 'npm', 'npx', 'pnpm', 'yarn', 'docker', 'kubectl', 'gh', 'cargo', 'go', 'make', 'python', 'python3', 'node', 'pip']
   return takesSub.includes(first) && words[1] && !words[1].startsWith('-') ? `${first} ${words[1]}` : first

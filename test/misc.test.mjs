@@ -44,6 +44,12 @@ test('command prefixes take the subcommand for the tools that have one', () => {
   assert.equal(commandPrefix('npm test'), 'npm test')
   assert.equal(commandPrefix('rm -rf /'), 'rm')
   assert.equal(commandPrefix('ls'), 'ls')
+  assert.equal(commandPrefix('cd /Users/a/repo && npm test'), 'npm test', 'cd hop skipped')
+  assert.equal(commandPrefix('cd "/tmp/x y"; git status'), 'git status')
+  assert.equal(commandPrefix('K=~/.ssh/id FOO="a b" ssh -i $K host'), 'ssh', 'env assignments skipped')
+  assert.equal(commandPrefix('cd repo && cd sub && cargo test'), 'cargo test')
+  assert.equal(commandPrefix('cd /Users/a/repo\nnpm run build'), 'npm run', 'newline-separated cd')
+  assert.equal(commandPrefix('cd /tmp'), 'cd', 'a bare cd stays cd')
 })
 
 test('report aggregates the audit log', () => {
