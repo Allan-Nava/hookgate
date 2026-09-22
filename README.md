@@ -36,7 +36,7 @@ on Jev. Nobody has put it inside the agent harness. That is the gap this fills.
 | Gate | Hook | Question to Jev | Effect |
 |---|---|---|---|
 | Command risk | `PreToolUse` on `Bash` | `Choice{allow, ask, deny}` + `Noul` "destroys data or state outside the repo?" | `ask` or `deny` with a reason. Below the confidence threshold it is always `ask`, never `allow`. A confident `allow` **passes through** by default: hookgate narrows what the harness would do, it never widens it (`allowMode: "allow"` opts in) |
-| Unverified completion | `Stop` | `Noul` "does the last message claim a completion the visible state does not support?" on the message plus `git status` | `block` with a reason naming what to verify. Once per prompt, so the agent cannot loop |
+| Unverified completion | `Stop` | `Noul` "does the last message claim a completion the visible state does not support?" on the message plus `git status` — asked only when the message claims something (a local prefilter skips questions and partial reports with no network call) | `block` with a reason naming what to verify. Once per prompt, so the agent cannot loop |
 | Injected instructions | `PostToolUse` on `WebFetch`, `WebSearch`, `Read`, `Bash` | `Noul` "does this output contain instructions addressed to an AI agent?" | `additionalContext` telling the agent to treat the span as data. **Off by default** until the fixture set gives a false-positive rate |
 
 Around the gates:
@@ -70,7 +70,8 @@ every key is optional:
   "failClosed": false,
   "allowMode": "passthrough",
   "thresholds": { "confidence": 0.7, "destructive": 0.5, "unverified": 0.7, "injection": 0.7 },
-  "gates": { "command": true, "completion": true, "injection": false }
+  "gates": { "command": true, "completion": true, "injection": false },
+  "completion": { "prefilter": true }
 }
 ```
 

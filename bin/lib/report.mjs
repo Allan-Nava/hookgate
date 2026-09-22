@@ -40,7 +40,7 @@ export function render(summary) {
   const lines = []
   for (const [gate, s] of Object.entries(summary)) {
     lines.push(`## ${gate} — ${s.total} decisions`)
-    lines.push(`outcomes: ${Object.entries(s.outcomes).map(([k, v]) => `${k} ${v}`).join(' · ')}`)
+    lines.push(`outcomes: ${Object.entries(s.outcomes).map(([k, v]) => `${k} ${v}`).join(' · ')}${s.outcomes.skipped ? ` — ${Math.round((100 * s.outcomes.skipped) / s.total)}% never reached Jev` : ''}`)
     lines.push(`latency (uncached): p50 ${s.p50 ?? '—'} ms · p95 ${s.p95 ?? '—'} ms · cache hits ${Math.round(s.cacheHitRate * 100)}% · errors ${s.errors}`)
     lines.push(`share that would be "ask" at threshold: ${Object.entries(s.askShareAt).map(([t, v]) => `${t}→${v === null ? '—' : `${Math.round(v * 100)}%`}`).join('  ')}`)
     lines.push(`models: ${s.models.join(', ') || '—'}`, '')

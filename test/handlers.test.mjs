@@ -141,3 +141,23 @@ test('injection gate is off by default and annotates when on', async () => {
   const out = await postToolUse(input, { env: env(d), fetch: f })
   assert.match(out.hookSpecificOutput.additionalContext, /instructions addressed to an AI agent/)
 })
+
+test('stop skips Jev when the message claims nothing, and asks when it does', async () => {
+  const d = tmp()
+  const f = fakeFetch({ unverified: { noul: 0.9, confidence: 0.85 } })
+  const question = { hook_event_name: 'Stop', session_id: 's1', prompt_id: 'q1', cwd: '/tmp', last_assistant_message: 'Should I also migrate the tests, or leave them?' }
+  assert.equal(await stop(question, { env: env(d), fetch: f, gitStatus: () => '' }), null)
+  assert.equal(f.calls.length, 0, 'no request for a question')
+  const log = readFileSync(join(d, 'decisions.jsonl'), 'utf8').trim().split('\n').map(JSON.parse)
+  assert.equal(log[0].outcome, 'skipped')
+  assert.equal(log[0].skipped, 'prefilter')
+  const claim = { ...question, prompt_id: 'q2', last_assistant_message: 'Done, all tests pass.' }
+  const out = await stop(claim, { env: env(d), fetch: f, gitStatus: () => ' M a.js' })
+  assert.equal(out.decision, 'block')
+  assert.equal(f.calls.length, 1)
+  // opt out: the prefilter off sends the question too
+  mkdirSync(join(d, 'repo', '.claude'), { recursive: true })
+  writeFileSync(join(d, 'repo', '.claude', 'hookgate.json'), JSON.stringify({ completion: { prefilter: false } }))
+  await stop({ ...question, prompt_id: 'q3', cwd: join(d, 'repo') }, { env: env(d), fetch: f, gitStatus: () => '' })
+  assert.equal(f.calls.length, 2)
+})

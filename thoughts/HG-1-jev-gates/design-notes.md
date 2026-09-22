@@ -43,3 +43,10 @@ code agree. HG-1 as a QRSPI run remains the maintainer's call.
   passed. Harness detected from the stdin shape (`turn_id`, no `prompt_id`). Two
   surprises: `plugin_hooks` is a removed feature in this Codex, and repo hooks need
   trust — `print-hooks` and the README Install section come from that.
+- **Stop prefilter (Q7).** Traced with the graph on 2026-09-22: the completion gate was
+  asking Jev on every stop that passed the config, key, `stop_hook_active` and
+  once-per-prompt guards — the brief's default assumption of a local prefilter was not
+  implemented. Now `claimsCompletion()` gates the request on completion lexicon, a
+  ticked task list or an "all tests" phrase; skipped stops are logged as
+  `skipped:prefilter`, `completion.prefilter: false` turns it off. Gate 2's cost per
+  decision in the benchmark is to be read with this in mind.

@@ -3,7 +3,7 @@
 // harness's shape. Every error path ends in `null` (fall through) unless failClosed.
 import { execFileSync } from 'node:child_process'
 import { loadConfig } from './config.mjs'
-import { COMMAND_QUESTIONS, COMPLETION_QUESTION, INJECTION_QUESTION, commandState, completionState, decideCommand, decideCompletion, decideInjection, injectionState } from './gates.mjs'
+import { COMMAND_QUESTIONS, COMPLETION_QUESTION, INJECTION_QUESTION, claimsCompletion, commandState, completionState, decideCommand, decideCompletion, decideInjection, injectionState } from './gates.mjs'
 import { dataDir, detectHarness, messageOutput, permissionOutput, postToolOutput, ruleSyntax, stopOutput } from './harness.mjs'
 import { JevError, endpointFrom, systemone } from './jev.mjs'
 import { appendDecision, cacheGet, cacheKey, cachePut, commandPrefix, loadSession, notePrefix, saveSession } from './store.mjs'
@@ -89,6 +89,11 @@ export async function stop(input, deps = {}) {
   const session = loadSession(dir, input.session_id)
   const promptKey = input.prompt_id ?? input.turn_id ?? `msg:${(input.last_assistant_message ?? '').slice(0, 80)}`
   if ((session.blockedPrompts ?? []).includes(promptKey)) return null
+  // Local prefilter, no network: a message that claims nothing has nothing to verify.
+  if (cfg.completion?.prefilter !== false && !claimsCompletion(input.last_assistant_message)) {
+    log(dir, 'completion', input, cfg, { outcome: 'skipped', skipped: 'prefilter', latencyMs: 0, cached: false })
+    return null
+  }
   const state = completionState(input, deps.gitStatus(input.cwd ?? process.cwd()), cfg)
   try {
     const res = await judge({ gate: 'completion', state, questions: COMPLETION_QUESTION, input, cfg, session, deps })
