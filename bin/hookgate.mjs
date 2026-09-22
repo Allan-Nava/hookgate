@@ -61,8 +61,11 @@ function checkHooksFile(path, rootVar, fail) {
     for (const entry of entries) {
       for (const h of entry.hooks ?? []) {
         if (h.type !== 'command') fail(`${path} ${event}: only command hooks are used here (got ${h.type})`)
-        if (h.command !== `${rootVar}/bin/hookgate.mjs`) fail(`${path} ${event}: command must be ${rootVar}/bin/hookgate.mjs, got ${h.command}`)
-        if (!Array.isArray(h.args) || !HANDLERS.has(h.args[0])) fail(`${path} ${event}: args must name a handler this file implements`)
+        // Claude Code takes command + args; Codex documents a single command string.
+        const handler = Array.isArray(h.args) ? h.args[0] : h.command.split(/\s+/).at(-1)
+        const bin = Array.isArray(h.args) ? h.command : h.command.replace(/^node\s+"?/, '').replace(/"?\s+\S+$/, '')
+        if (bin !== `${rootVar}/bin/hookgate.mjs`) fail(`${path} ${event}: command must run ${rootVar}/bin/hookgate.mjs, got ${h.command}`)
+        if (!HANDLERS.has(handler)) fail(`${path} ${event}: the command must end in a handler this file implements, got ${handler}`)
         if (typeof h.timeout !== 'number' || h.timeout > 10) fail(`${path} ${event}: timeout must be set and at most 10 s — a gate that stalls the agent is worse than none`)
       }
     }
@@ -90,7 +93,7 @@ function check() {
 
   const claude = checkHooksFile('hooks/hooks.json', '${CLAUDE_PLUGIN_ROOT}', fail)
   const codexHooks = checkHooksFile('codex/hooks.json', '${PLUGIN_ROOT}', fail)
-  const handlersOf = (h) => Object.values(h.hooks).flatMap((es) => es.flatMap((e) => e.hooks.map((x) => x.args[0]))).sort().join(',')
+  const handlersOf = (h) => Object.values(h.hooks).flatMap((es) => es.flatMap((e) => e.hooks.map((x) => (Array.isArray(x.args) ? x.args[0] : x.command.split(/\s+/).at(-1))))).sort().join(',')
   if (handlersOf(claude) !== handlersOf(codexHooks)) fail('hooks/hooks.json and codex/hooks.json must register the same handlers')
 
   for (const f of ['README.md', 'CONTRIBUTING.md', 'CLAUDE.md', 'LICENSE', 'BACKLOG.md', 'ROADMAP.md', 'CHANGELOG.md']) if (!existsSync(join(ROOT, f))) fail(`${f} is missing`)

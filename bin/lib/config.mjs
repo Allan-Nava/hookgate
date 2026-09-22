@@ -31,7 +31,10 @@ const merge = (a, b) => {
 
 export function loadConfig(cwd = process.cwd(), env = process.env) {
   const problems = []
-  const path = env.HOOKGATE_CONFIG ?? join(cwd, '.claude', 'hookgate.json')
+  // The first of these that exists wins: an explicit path, a harness-neutral file,
+  // then the per-harness directories.
+  const candidates = env.HOOKGATE_CONFIG ? [env.HOOKGATE_CONFIG] : [join(cwd, '.hookgate.json'), join(cwd, '.claude', 'hookgate.json'), join(cwd, '.codex', 'hookgate.json')]
+  const path = candidates.find(existsSync) ?? candidates[candidates.length > 1 ? 1 : 0]
   let file = {}
   if (existsSync(path)) {
     try {

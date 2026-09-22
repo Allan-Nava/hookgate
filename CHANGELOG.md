@@ -13,7 +13,9 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
   `failClosed` opt-in (HG-9); Codex CLI adapter aligned to the documented hook contract
   — `permissionDecision` shape, `ask` as pass-through plus `systemMessage` or
   `codex.askAs: deny`, injection feedback via `decision: block` — with e2e tests under
-  `PLUGIN_ROOT`; live Codex check pending (HG-11).
+  `PLUGIN_ROOT`; harness also detected from the stdin shape and `HOOKGATE_HARNESS`;
+  `codex/hooks.json` in Codex's single-command form; config also read from
+  `.hookgate.json` and `.codex/hookgate.json`; live Codex check pending (HG-11).
 - `evals/`: 79 hand-labelled commands, 20 tool outputs, and the benchmark runner with
   a `type: prompt` baseline (HG-4, tooling only — the run is blocked on a key).
 - README section "What leaves the machine, exactly" (HG-17); `HOOKGATE_ENDPOINT` for

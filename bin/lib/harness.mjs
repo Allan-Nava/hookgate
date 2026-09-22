@@ -3,9 +3,14 @@
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
-export function detectHarness(env = process.env) {
+// Order: an explicit HOOKGATE_HARNESS, then the plugin variables each harness sets,
+// then the stdin shape — a repo-level hooks.json sets no plugin variable at all, and
+// Codex's stdin carries `turn_id` and `model` where Claude Code carries `prompt_id`.
+export function detectHarness(env = process.env, input = {}) {
+  if (env.HOOKGATE_HARNESS === 'codex' || env.HOOKGATE_HARNESS === 'claude') return env.HOOKGATE_HARNESS
   if (env.CLAUDE_PLUGIN_ROOT || env.CLAUDE_PROJECT_DIR || env.CLAUDECODE) return 'claude'
   if (env.PLUGIN_ROOT || env.CODEX_HOME) return 'codex'
+  if (input && input.turn_id && !input.prompt_id) return 'codex'
   return 'claude'
 }
 
