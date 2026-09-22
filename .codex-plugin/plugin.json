@@ -1,0 +1,10 @@
+{
+  "name": "hookgate",
+  "version": "0.0.2",
+  "description": "Calibrated, sub-second decisions in Codex CLI's hooks: a PreToolUse gate on shell commands and a Stop gate on unverified completion, answered by TypeSafe's Jev with a confidence score, blocking with a reason when unsure.",
+  "author": { "name": "Allan Nava", "url": "https://github.com/Allan-Nava" },
+  "homepage": "https://github.com/Allan-Nava/hookgate",
+  "repository": "https://github.com/Allan-Nava/hookgate",
+  "license": "MIT",
+  "hooks": "codex/hooks.json"
+}

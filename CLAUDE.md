@@ -13,17 +13,27 @@ escalate to the human when confidence is low. It is modelled on
 [qrspi](https://github.com/Allan-Nava/qrspi): dependency-free, one installer, manifests
 in step, releases by tag, and the same prose conventions.
 
-The gates are not implemented yet. They are being designed under
-`thoughts/HG-1-jev-gates/` with the QRSPI workflow; `00-brief.md` there is the task
-definition and the reason for every decision below.
+The gates are implemented in `bin/lib/`; `thoughts/HG-1-jev-gates/00-brief.md` is the
+task definition and the reason for every decision below, and `design-notes.md` beside
+it records the decisions taken while implementing.
 
 ## Layout
 
 ```
-bin/hookgate.mjs       the only code: `check`, and the two hook handlers
-hooks/hooks.json       the plugin's hook registrations — both point at bin/hookgate.mjs
+bin/hookgate.mjs       the CLI: check · pre-tool-use · stop · post-tool-use · doctor · report
+bin/lib/               config (defaults, .claude/hookgate.json, env), redact (secrets out,
+                       size capped), jev (one POST, injectable fetch), gates (questions and
+                       pure decisions), harness (Claude Code vs Codex shapes), store (audit
+                       log, per-session cache, promotion counters, stop marker), handlers
+                       (the orchestration), report, doctor
+test/                  node:test suites — every fail-open path, cache, one-block-per-stop,
+                       promotion, both harness shapes; `npm test` runs them after `check`
+hooks/hooks.json       Claude Code registrations, ${CLAUDE_PLUGIN_ROOT} paths
+codex/hooks.json       the same handlers for Codex CLI, ${PLUGIN_ROOT} paths — `check`
+                       holds the two to the same handler set
 .claude-plugin/        plugin.json and a single-plugin marketplace.json (marketplace
                        name `hookgate`, so the install is `hookgate@hookgate`)
+.codex-plugin/         plugin.json for Codex, same version — `check` enforces it
 .github/workflows/     ci.yml (check on Node 18/20/22/24, pack on 24), release.yml (on
                        tag hookgate--v*: publish over OIDC, release, close milestone),
                        release-drift.yml (main with a version but no tag for 2 h)
@@ -78,7 +88,10 @@ Do not weaken these; they are the product.
    fetch timeout is shorter. `check` enforces the first.
 6. **Names are not TypeSafe's marks.** The project is `hookgate`; "Jev" and
    "TypeSafe" appear only when naming their product.
-7. **Every idea goes in `BACKLOG.md`** with a stable `HG-n` id — never a scattered
+7. **hookgate narrows, it never widens.** A confident `allow` passes through by
+   default; only `allowMode: "allow"` lets the plugin auto-approve, and audit mode
+   never decides at all. The Stop gate blocks a prompt once, then lets it end.
+8. **Every idea goes in `BACKLOG.md`** with a stable `HG-n` id — never a scattered
    TODO. After editing it, run `node scripts/backlog.mjs roadmap` and commit the
    regenerated `ROADMAP.md`, or CI fails. The issues are synced from the backlog
    on every push to `main` that touches it, one way only: tick the item, do not
@@ -121,8 +134,10 @@ confident, repeated hookgate decision to be promoted to.
 ## Verifying a change
 
 ```bash
-npm test                                             # manifests, hooks.json, fail-open statement
-echo '{"tool_name":"Bash","tool_input":{"command":"ls"}}' | node bin/hookgate.mjs pre-tool-use
+npm test                                             # check + node --test: 33 tests, no network
+echo '{"tool_name":"Bash","tool_input":{"command":"ls"},"cwd":"."}' | node bin/hookgate.mjs pre-tool-use
+TYPESAFE_API_KEY=… node bin/hookgate.mjs doctor      # the only command that needs the key
+HOOKGATE_MODE=audit …                                # judge and log without enforcing; then `report`
 npm pack --dry-run                                   # bin/, hooks/, .claude-plugin/, README, LICENSE
 npm run backlog                                      # ROADMAP.md in step; planner fixture test
 node scripts/backlog.mjs issues                      # what the sync WOULD do; --apply to do it
