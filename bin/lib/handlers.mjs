@@ -4,8 +4,8 @@
 import { execFileSync } from 'node:child_process'
 import { loadConfig } from './config.mjs'
 import { COMMAND_QUESTIONS, COMPLETION_QUESTION, INJECTION_QUESTION, commandState, completionState, decideCommand, decideCompletion, decideInjection, injectionState } from './gates.mjs'
-import { dataDir, detectHarness, permissionOutput, postToolOutput, ruleSyntax, stopOutput } from './harness.mjs'
-import { JevError, systemone } from './jev.mjs'
+import { dataDir, detectHarness, messageOutput, permissionOutput, postToolOutput, ruleSyntax, stopOutput } from './harness.mjs'
+import { JevError, endpointFrom, systemone } from './jev.mjs'
 import { appendDecision, cacheGet, cacheKey, cachePut, commandPrefix, loadSession, notePrefix, saveSession } from './store.mjs'
 
 const INJECTION_TOOLS = new Set(['WebFetch', 'Read', 'Bash', 'WebSearch'])
@@ -27,7 +27,7 @@ async function judge({ gate, state, questions, input, cfg, session, deps }) {
   const key = cacheKey(gate, input.cwd ?? '', state)
   const hit = cacheGet(session, key, cfg.cache.ttlMs, deps.now())
   if (hit) return { answers: hit.answers, model: hit.model, latencyMs: 0, cached: true }
-  const res = await systemone({ state, questions, model: cfg.model, apiKey: deps.env.TYPESAFE_API_KEY, timeoutMs: cfg.timeoutMs, fetchImpl: deps.fetch })
+  const res = await systemone({ state, questions, model: cfg.model, apiKey: deps.env.TYPESAFE_API_KEY, timeoutMs: cfg.timeoutMs, fetchImpl: deps.fetch, endpoint: endpointFrom(deps.env) })
   cachePut(session, key, { answers: res.answers, model: res.model }, deps.now())
   return { ...res, cached: false }
 }
@@ -70,8 +70,7 @@ export async function preToolUse(input, deps = {}) {
     saveSession(dir, input.session_id, session)
     log(dir, 'command', input, cfg, { outcome: decision, choice: risk.choice, confidence: risk.confidence, destructive: res.answers.destructive?.noul, model: res.model, latencyMs: res.latencyMs, cached: res.cached, prefix: commandPrefix(input.tool_input?.command ?? '') })
     const extra = promoted ? { systemMessage: `hookgate: "${promoted.prefix}" has been judged ${promoted.decision} ${promoted.count} times at ≥${Math.round(cfg.promote.confidence * 100)}% confidence — a static rule would save the round trip:\n${ruleSyntax(harness, promoted.prefix, promoted.decision)}` } : {}
-    if (cfg.mode === 'audit') return promoted ? { hookSpecificOutput: { hookEventName: 'PreToolUse', ...extra } } : null
-    if (decision === 'allow' && cfg.allowMode !== 'allow') return promoted ? { hookSpecificOutput: { hookEventName: 'PreToolUse', ...extra } } : null
+    if (cfg.mode === 'audit' || (decision === 'allow' && cfg.allowMode !== 'allow')) return promoted ? messageOutput(harness, 'PreToolUse', extra.systemMessage) : null
     return permissionOutput(harness, decision, reason, extra)
   } catch (e) {
     return onError(e, 'command', harness, cfg, dir, input)

@@ -134,3 +134,31 @@ harness the brief designs for.
   cost and p50/p95 latency with and without cache, `ask` share and dangerous-allowed
   count across a threshold sweep. `hookgate report` grows the columns; the README gets
   a second table, dated, with the Jev version. <!-- hg: prio=high size=M labels=benchmark -->
+
+## v0.1.1 — Audit of 2026-09-22 <!-- ms: phase=now -->
+
+What a read of the whole tree with a security, privacy and robustness eye turned up
+the day the gates landed. Small items, all shipped the same day; kept as items so the
+ids stay in the CHANGELOG.
+
+- [x] **HG-17 — Say exactly what leaves the machine**: a plugin that POSTs shell
+  commands and final messages to a third party owes the reader the list — per gate,
+  field by field — and what it does not send (transcript, session id, file contents).
+  README section, and `check` requires it. <!-- hg: prio=high size=S labels=docs ver=main -->
+- [x] **HG-18 — Bounded, atomic on-disk state**: the audit log grew without limit and
+  session files were written in place, so two hooks racing on parallel tool calls
+  could tear one. Log rotates at 8 MB into one predecessor; sessions are written to a
+  temp file and renamed, and pruned after seven days.
+  <!-- hg: prio=med size=S labels=gate,tests ver=main -->
+- [x] **HG-19 — End-to-end tests of the CLI contract**: nothing exercised
+  stdin → process → stdout with exit codes. `HOOKGATE_ENDPOINT` (also a proxy hook for
+  users) lets `test/e2e.test.mjs` spawn the real binary against a local fake Jev and
+  assert the JSON, the header, that the session id never leaves, that a dead endpoint
+  and garbage stdin both fail open. <!-- hg: prio=high size=S labels=tests ver=main -->
+- [x] **HG-20 — CHANGELOG.md**: Keep a Changelog, `HG-n` ids on every line, `check`
+  requires an `[Unreleased]` section and one for the current version; the release
+  bump renames. <!-- hg: prio=med size=S labels=docs,release ver=main -->
+- [x] **HG-21 — Supply chain: CodeQL and pinned actions**: CodeQL with the
+  security-extended queries on push, PR and weekly; Renovate's
+  `helpers:pinGitHubActionDigests` pins every `uses:` to a digest and keeps it moving.
+  <!-- hg: prio=med size=S labels=project ver=main -->

@@ -27,7 +27,9 @@ bin/lib/               config (defaults, .claude/hookgate.json, env), redact (se
                        log, per-session cache, promotion counters, stop marker), handlers
                        (the orchestration), report, doctor
 test/                  node:test suites — every fail-open path, cache, one-block-per-stop,
-                       promotion, both harness shapes; `npm test` runs them after `check`
+                       promotion, both harness shapes, and e2e.test.mjs spawning the real CLI
+                       against a local fake Jev (HOOKGATE_ENDPOINT); `npm test` runs them after `check`
+CHANGELOG.md           Keep a Changelog with HG-n ids; `check` wants [Unreleased] and the current version
 hooks/hooks.json       Claude Code registrations, ${CLAUDE_PLUGIN_ROOT} paths
 codex/hooks.json       the same handlers for Codex CLI, ${PLUGIN_ROOT} paths — `check`
                        holds the two to the same handler set
@@ -36,7 +38,8 @@ codex/hooks.json       the same handlers for Codex CLI, ${PLUGIN_ROOT} paths —
 .codex-plugin/         plugin.json for Codex, same version — `check` enforces it
 .github/workflows/     ci.yml (check on Node 18/20/22/24, pack on 24), release.yml (on
                        tag hookgate--v*: publish over OIDC, release, close milestone),
-                       release-drift.yml (main with a version but no tag for 2 h)
+                       release-drift.yml (main with a version but no tag for 2 h),
+                       codeql.yml (security-extended, weekly), backlog-issues.yml (the one-way sync)
 site/build.mjs         generates site/dist/index.html FROM README.md (gitignored output);
                        the page adds one thing, the gates index read off hooks/hooks.json
 assets/                logo.svg (single source: favicon, header, hero, README), logo-mono.svg,

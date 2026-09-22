@@ -3,7 +3,7 @@
 // and the one-block-per-stop marker. Every write is best-effort — a full disk must
 // not turn into a blocked tool call.
 import { createHash } from 'node:crypto'
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const safe = (fn) => {
@@ -16,18 +16,24 @@ const safe = (fn) => {
 
 export const hash = (s) => createHash('sha256').update(s).digest('hex').slice(0, 16)
 
+// The audit log rotates once at LOG_MAX bytes: decisions.jsonl → decisions.1.jsonl,
+// the previous .1 dropped. Two files bound the disk; `report` reads both.
+export const LOG_MAX = 8 * 1024 * 1024
+
 export function appendDecision(dir, record) {
   safe(() => {
     mkdirSync(dir, { recursive: true })
-    appendFileSync(join(dir, 'decisions.jsonl'), `${JSON.stringify(record)}\n`)
+    const p = join(dir, 'decisions.jsonl')
+    if (existsSync(p) && statSync(p).size > LOG_MAX) renameSync(p, join(dir, 'decisions.1.jsonl'))
+    appendFileSync(p, `${JSON.stringify(record)}\n`)
   })
 }
 
 export function readDecisions(dir) {
-  const p = join(dir, 'decisions.jsonl')
-  if (!existsSync(p)) return []
-  return readFileSync(p, 'utf8')
-    .split('\n')
+  return ['decisions.1.jsonl', 'decisions.jsonl']
+    .map((f) => join(dir, f))
+    .filter(existsSync)
+    .flatMap((p) => readFileSync(p, 'utf8').split('\n'))
     .filter(Boolean)
     .map((l) => safe(() => JSON.parse(l)))
     .filter(Boolean)
@@ -42,10 +48,30 @@ export function loadSession(dir, sessionId) {
   return safe(() => JSON.parse(readFileSync(sessionFile(dir, sessionId), 'utf8'))) ?? { cache: {}, prefixes: {}, proposed: [], blockedPrompts: [] }
 }
 
-export function saveSession(dir, sessionId, state) {
+// Atomic: write beside, then rename, so two hooks racing (parallel tool calls) can
+// lose an update but never leave a torn file. Session files older than SESSION_TTL
+// are pruned on the way, one in ~20 writes.
+export const SESSION_TTL = 7 * 24 * 3600 * 1000
+
+export function saveSession(dir, sessionId, state, now = Date.now()) {
   safe(() => {
-    mkdirSync(join(dir, 'sessions'), { recursive: true })
-    writeFileSync(sessionFile(dir, sessionId), JSON.stringify(state))
+    const d = join(dir, 'sessions')
+    mkdirSync(d, { recursive: true })
+    const p = sessionFile(dir, sessionId)
+    const tmp = `${p}.${process.pid}.tmp`
+    writeFileSync(tmp, JSON.stringify(state))
+    renameSync(tmp, p)
+    if (Math.random() < 0.05) pruneSessions(dir, now)
+  })
+}
+
+export function pruneSessions(dir, now = Date.now()) {
+  safe(() => {
+    const d = join(dir, 'sessions')
+    for (const f of readdirSync(d)) {
+      const p = join(d, f)
+      if (now - statSync(p).mtimeMs > SESSION_TTL) unlinkSync(p)
+    }
   })
 }
 

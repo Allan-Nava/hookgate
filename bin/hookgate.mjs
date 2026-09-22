@@ -86,14 +86,20 @@ function check() {
   if (!(market.plugins ?? []).some((p) => p.name === 'hookgate' && p.source === './')) fail('marketplace.json must list the hookgate plugin with source "./"')
   if (!/github\.com[/:]Allan-Nava\/hookgate/.test(pkg.repository?.url ?? '')) fail('package.json#repository must name the GitHub repo')
   if (pkg.dependencies && Object.keys(pkg.dependencies).length) fail('no runtime dependencies — a hook runs on every tool call')
-  for (const f of ['bin', 'hooks', 'codex', '.claude-plugin', '.codex-plugin', 'README.md', 'LICENSE']) if (!pkg.files?.includes(f)) fail(`package.json#files is missing ${f}`)
+  for (const f of ['bin', 'hooks', 'codex', '.claude-plugin', '.codex-plugin', 'README.md', 'CHANGELOG.md', 'LICENSE']) if (!pkg.files?.includes(f)) fail(`package.json#files is missing ${f}`)
 
   const claude = checkHooksFile('hooks/hooks.json', '${CLAUDE_PLUGIN_ROOT}', fail)
   const codexHooks = checkHooksFile('codex/hooks.json', '${PLUGIN_ROOT}', fail)
   const handlersOf = (h) => Object.values(h.hooks).flatMap((es) => es.flatMap((e) => e.hooks.map((x) => x.args[0]))).sort().join(',')
   if (handlersOf(claude) !== handlersOf(codexHooks)) fail('hooks/hooks.json and codex/hooks.json must register the same handlers')
 
-  for (const f of ['README.md', 'CONTRIBUTING.md', 'CLAUDE.md', 'LICENSE', 'BACKLOG.md', 'ROADMAP.md']) if (!existsSync(join(ROOT, f))) fail(`${f} is missing`)
+  for (const f of ['README.md', 'CONTRIBUTING.md', 'CLAUDE.md', 'LICENSE', 'BACKLOG.md', 'ROADMAP.md', 'CHANGELOG.md']) if (!existsSync(join(ROOT, f))) fail(`${f} is missing`)
+  if (existsSync(join(ROOT, 'CHANGELOG.md'))) {
+    const log = read('CHANGELOG.md')
+    if (!/^## \[Unreleased\]/m.test(log)) fail('CHANGELOG.md needs an [Unreleased] section — the release bump renames it')
+    if (!log.includes(`## [${pkg.version}]`) && pkg.version !== '0.0.0') fail(`CHANGELOG.md has no section for ${pkg.version}`)
+  }
+  if (!/what leaves the machine/i.test(read('README.md'))) fail('README.md must state what leaves the machine')
   if (!/fail-open|fails open/i.test(read('README.md'))) fail('README.md must state the fail-open rule')
   for (const m of ['bin/lib/config.mjs', 'bin/lib/gates.mjs', 'bin/lib/handlers.mjs', 'bin/lib/harness.mjs', 'bin/lib/jev.mjs', 'bin/lib/redact.mjs', 'bin/lib/store.mjs', 'bin/lib/report.mjs', 'bin/lib/doctor.mjs']) if (!existsSync(join(ROOT, m))) fail(`${m} is missing`)
 

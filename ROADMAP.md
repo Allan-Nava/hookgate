@@ -4,7 +4,7 @@
 
 > This page is **generated** from [BACKLOG.md](BACKLOG.md), the single source of truth for planned work. Regenerate it with `node scripts/backlog.mjs roadmap` after editing the backlog — CI fails when the two disagree.
 
-**16 items · 10 shipped · 6 open · 2 milestones.**
+**21 items · 15 shipped · 6 open · 3 milestones.**
 
 ## At a glance
 
@@ -12,6 +12,7 @@
 |---|---|---|---|---|
 | **v0.1.0 — Two gates, one benchmark** | now | `######....` 63% | 3 | 5 |
 | **v0.2.0 — Observe, promote, port** | next | `######....` 63% | 3 | 5 |
+| **v0.1.1 — Audit of 2026-09-22** | now | `##########` 100% | 0 | 5 |
 
 ## v0.1.0 — Two gates, one benchmark
 
@@ -34,3 +35,11 @@
 - [x] **HG-14** — hookgate doctor: key, connectivity, latency, model, thresholds · med · S · enhancement · `main`
 - [ ] **HG-15** — Screen tool results for injected instructions (PostToolUse additionalContext) · med · L · gate, benchmark
 - [ ] **HG-16** — Benchmark the optimisations: cache, promotion, thresholds · high · M · benchmark
+
+## v0.1.1 — Audit of 2026-09-22
+
+- [x] **HG-17** — Say exactly what leaves the machine · high · S · docs · `main`
+- [x] **HG-18** — Bounded, atomic on-disk state · med · S · gate, tests · `main`
+- [x] **HG-19** — End-to-end tests of the CLI contract · high · S · tests · `main`
+- [x] **HG-20** — CHANGELOG.md · med · S · docs, release · `main`
+- [x] **HG-21** — Supply chain: CodeQL and pinned actions · med · S · project · `main`

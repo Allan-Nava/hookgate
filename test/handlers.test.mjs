@@ -101,7 +101,7 @@ test('three confident identical verdicts propose a rule, once', async () => {
   for (const c of ['npm test', 'npm test -- --watch', 'npm test src/a.test.mjs', 'npm test src/b.test.mjs']) outs.push(await preToolUse(preInput(c), { env: env(d), fetch: f }))
   assert.equal(outs[0], null)
   assert.equal(outs[1], null)
-  assert.match(outs[2].hookSpecificOutput.systemMessage, /"Bash\(npm test \*\)"/)
+  assert.match(outs[2].systemMessage, /"Bash\(npm test \*\)"/)
   assert.equal(outs[3], null, 'proposed only once per prefix per session')
 })
 

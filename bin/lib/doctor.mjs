@@ -4,7 +4,7 @@
 import { existsSync } from 'node:fs'
 import { loadConfig } from './config.mjs'
 import { dataDir, detectHarness } from './harness.mjs'
-import { systemone } from './jev.mjs'
+import { endpointFrom, systemone } from './jev.mjs'
 
 export async function doctor({ cwd = process.cwd(), env = process.env, fetchImpl = globalThis.fetch } = {}) {
   const lines = []
@@ -19,6 +19,7 @@ export async function doctor({ cwd = process.cwd(), env = process.env, fetchImpl
   const harness = detectHarness(env)
   ok(`harness: ${harness} (${env.CLAUDE_PLUGIN_ROOT ? 'CLAUDE_PLUGIN_ROOT' : env.PLUGIN_ROOT ? 'PLUGIN_ROOT' : 'no plugin root in the environment — running outside a hook'})`)
   ok(`data dir: ${dataDir(env)}`)
+  if (env.HOOKGATE_ENDPOINT) warn(`endpoint overridden: ${env.HOOKGATE_ENDPOINT}`)
 
   const { cfg, path, problems } = loadConfig(cwd, env)
   if (existsSync(path)) ok(`config: ${path}`)
@@ -44,6 +45,7 @@ export async function doctor({ cwd = process.cwd(), env = process.env, fetchImpl
       apiKey: env.TYPESAFE_API_KEY,
       timeoutMs: Math.max(cfg.timeoutMs, 5000),
       fetchImpl,
+      endpoint: endpointFrom(env),
     })
     ok(`api: answered in ${res.latencyMs} ms · model ${res.model} · usage ${JSON.stringify(res.usage)}`)
     if (res.latencyMs > cfg.timeoutMs) warn(`that is above the handler timeout of ${cfg.timeoutMs} ms — gates would have fallen through`)

@@ -71,7 +71,8 @@ for work still open.
 
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `ci:`), imperative subject.
 - Keep `npm test` and `npm run backlog` green; add a check when you add an invariant.
-- Reference the `HG-n` id in the subject when the change belongs to a backlog item.
+- Reference the `HG-n` id in the subject when the change belongs to a backlog item, and
+  add a line under `## [Unreleased]` in CHANGELOG.md — `check` fails without that section.
 - `main` is meant to be protected the way qrspi's is: pull request, green CI, no
   direct pushes. Set the ruleset once the repo is public.
 

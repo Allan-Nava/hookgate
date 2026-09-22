@@ -80,6 +80,17 @@ permission flow applies as if hookgate were not installed. A gate that stalls th
 agent is worse than none. `failClosed: true` is the explicit opt-in under which an
 unreachable API makes the command gate `ask`.
 
+**What leaves the machine, exactly.** One HTTPS POST per decision to
+`api.typesafe.ai`, carrying only what the question needs: for the command gate the
+shell command, its description if the agent wrote one, the last two segments of the
+working directory and the permission mode; for the completion gate the agent's final
+message, the stop reason and the first sixty lines of `git status --porcelain`; for
+the injection screen the tool's output. Never the transcript, never file contents the
+agent did not just fetch, never the session id. The audit log on disk keeps the
+verdicts and a command *prefix*, not the command. TypeSafe's handling of what it
+receives is theirs to state: [typesafe.ai legal](https://docs.typesafe.ai/legal.md).
+`HOOKGATE_ENDPOINT` points the plugin at a proxy of your own if that matters.
+
 **State never carries secrets.** Commands and tool outputs can contain tokens; key
 shapes, bearer headers, `KEY=value` assignments, URL passwords and private keys are
 redacted before anything leaves the machine, and state is truncated well under Jev's
