@@ -6,6 +6,10 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 ## [Unreleased]
 
 ### Fixed
+- Numeric and enum config values were never checked, so a string or `null` flowed into
+  `setTimeout` and `truncate`; every field now has a rule, a bad value is reported as a
+  problem (`hookgate doctor` fails on it) and the default takes over. A 200 whose body
+  is not JSON is classified `malformed` rather than `network` (HG-29).
 - The audit log dropped the token usage Jev reported, so cost per decision could not
   be computed. Every judged decision logs `inputTokens` (0 on a cache hit), and
   `hookgate report` prints tokens, total cost and cost per judged decision at the

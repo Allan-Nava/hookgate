@@ -87,7 +87,8 @@ Every key is optional:
 }
 ```
 
-Thresholds scale with risk, as [TypeSafe's confidence guide](https://docs.typesafe.ai/confidence.md)
+Every value is checked: a bad one is reported by `hookgate doctor` and the default takes
+its place, so the gate never runs arithmetic on a string. Thresholds scale with risk, as [TypeSafe's confidence guide](https://docs.typesafe.ai/confidence.md)
 recommends: the defaults are conservative and the benchmark is what moves them.
 
 **Fail-open, always.** No `TYPESAFE_API_KEY`, no network, a timeout, a 5xx or a bug
