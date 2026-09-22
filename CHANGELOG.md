@@ -1,0 +1,35 @@
+# Changelog
+
+All notable changes to hookgate. The format is [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
+versions follow [SemVer](https://semver.org/). Items reference their `HG-n` backlog id.
+
+## [Unreleased]
+
+### Added
+- The command gate (HG-2), the completion gate (HG-3) and the off-by-default
+  injection screen (HG-15, code only), decided by Jev with calibrated confidence.
+- Audit mode and `hookgate report` (HG-10); per-session decision cache (HG-12); rule
+  promotion in the harness's own syntax (HG-13); `hookgate doctor` (HG-14);
+  `failClosed` opt-in (HG-9); Codex CLI answer shape and manifests, unverified (HG-11).
+- `evals/`: 79 hand-labelled commands, 20 tool outputs, and the benchmark runner with
+  a `type: prompt` baseline (HG-4, tooling only — the run is blocked on a key).
+- README section "What leaves the machine, exactly" (HG-17); `HOOKGATE_ENDPOINT` for
+  proxies and end-to-end tests (HG-19); this changelog (HG-20); CodeQL and Renovate
+  digest pinning for actions (HG-21).
+
+### Changed
+- Audit log rotates at 8 MB; session files are written atomically and pruned after
+  seven days (HG-18).
+
+### Fixed
+- A malformed `TYPESAFE_API_KEY` is reported as such instead of an opaque fetch error.
+- The rule-promotion message under Codex used Claude Code's answer shape.
+- The benchmark runner passed an undefined `CLAUDECODE` to the child `claude`.
+
+## [0.0.2] — 2026-09-22
+
+### Added
+- The scaffold: manifests, `hooks.json` with two inert handlers, `check`, CI on Node
+  18/20/22/24, release by tag over npm trusted publishing, Pages site generated from
+  the README, `BACKLOG.md` as the single source of truth with the one-way issue sync.
+  `0.0.1` is burnt on npm by a version published and unpublished in March.

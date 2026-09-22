@@ -22,7 +22,14 @@ export function permissionOutput(harness, decision, reason, extra = {}) {
     const block = decision !== 'allow'
     return { decision: block ? 'block' : 'allow', reason, systemMessage: block ? reason : undefined, ...extra }
   }
-  return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: decision, permissionDecisionReason: reason, ...extra } }
+  // systemMessage is a top-level field of the hook output, beside hookSpecificOutput.
+  return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: decision, permissionDecisionReason: reason }, ...extra }
+}
+
+// A message with no decision: the promotion proposal when the gate itself falls through.
+export function messageOutput(harness, event, systemMessage) {
+  if (harness === 'codex') return { systemMessage }
+  return { hookSpecificOutput: { hookEventName: event }, systemMessage }
 }
 
 export function stopOutput(harness, reason) {

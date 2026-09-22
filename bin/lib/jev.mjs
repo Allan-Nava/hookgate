@@ -1,6 +1,9 @@
 // One POST to TypeSafe's System One endpoint. No SDK: a hook runs on every tool call
 // and start-up cost is the cost. The fetch implementation is injectable for tests.
 export const ENDPOINT = 'https://api.typesafe.ai/v1/systemone'
+// HOOKGATE_ENDPOINT points the handlers at a proxy or, in the end-to-end tests, at a
+// local fake — the only way to exercise the CLI contract without a key.
+export const endpointFrom = (env = process.env) => env.HOOKGATE_ENDPOINT || ENDPOINT
 
 export class JevError extends Error {
   constructor(message, { status, code } = {}) {
