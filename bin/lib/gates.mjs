@@ -44,6 +44,20 @@ export function commandState(input, cfg) {
   }
 }
 
+// The completion gate asks Jev only when the final message could be claiming to be
+// done. Most stops are questions to the user or partial reports; sending each of them
+// would add a round trip to every turn (brief, Q7). Completion lexicon, a ticked task
+// list, or a "nothing left" phrase pass; anything else is skipped before the network.
+const COMPLETION_LEXICON = /\b(done|complete[ds]?|completion|finished|implemented|fixed|resolved|passing|passed|pass(?:es)?\b|ready|shipped|merged|pushed|committed|deployed|released|working|all set|all green|good to go|no (?:further|remaining|more) (?:work|changes|issues|steps))\b/i
+const TICKED_TASK = /(^|\n)\s*[-*]\s*\[x\]/i
+const ALL_TESTS = /\b(all|every)\s+(the\s+)?tests?\b/i
+
+export function claimsCompletion(message) {
+  const m = String(message ?? '')
+  if (!m.trim()) return false
+  return COMPLETION_LEXICON.test(m) || TICKED_TASK.test(m) || ALL_TESTS.test(m)
+}
+
 export function completionState(input, gitStatus, cfg) {
   return {
     final_message: prepare(input.last_assistant_message ?? '', Math.floor(cfg.maxStateChars * 0.6)),

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { DEFAULTS } from '../bin/lib/config.mjs'
-import { commandState, completionState, decideCommand, decideCompletion, decideInjection } from '../bin/lib/gates.mjs'
+import { claimsCompletion, commandState, completionState, decideCommand, decideCompletion, decideInjection } from '../bin/lib/gates.mjs'
 
 const cfg = DEFAULTS
 const ans = (choice, confidence, noul = 0.05) => ({ risk: { type: 'choice', choice, confidence }, destructive: { type: 'noul', noul, confidence: 0.9 } })
@@ -35,4 +35,11 @@ test('state is redacted and shaped', () => {
   assert.equal(s.working_directory, 'projects/repo')
   const c = completionState({ last_assistant_message: 'done', stop_reason: 'end_turn' }, ' M a.js', cfg)
   assert.equal(c.git_status_porcelain, ' M a.js')
+})
+
+test('the completion prefilter lets through claims and skips questions and partial reports', () => {
+  for (const m of ['All tests pass and everything is committed.', 'Done — the fix is in src/a.js.', 'Implemented the parser, ready for review.', '- [x] add tests\n- [x] update docs', 'Pushed to origin/main.', 'That is fixed now.'])
+    assert.equal(claimsCompletion(m), true, m)
+  for (const m of ['Should I also update the README, or leave it for a separate PR?', 'Here is what I found so far: three call sites, two of them in tests.', 'I need the API key before I can run this.', '', undefined])
+    assert.equal(claimsCompletion(m), false, String(m))
 })

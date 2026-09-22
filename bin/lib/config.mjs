@@ -17,6 +17,7 @@ export const DEFAULTS = Object.freeze({
     injection: 0.7, // Noul probability that annotates a tool result
   },
   gates: { command: true, completion: true, injection: false },
+  completion: { prefilter: true }, // skip the Jev call when the final message claims nothing (brief, Q7)
   cache: { ttlMs: 60 * 60 * 1000 },
   promote: { after: 3, confidence: 0.95 },
   codex: { askAs: 'passthrough' }, // passthrough | deny — Codex has no `ask` on PreToolUse

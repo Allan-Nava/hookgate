@@ -27,6 +27,9 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
   digest pinning for actions (HG-21).
 
 ### Changed
+- The completion gate asks Jev only when the final message claims completion; a local
+  prefilter skips questions and partial reports, logged as `skipped` so `report` shows
+  the share that never reached the network (brief Q7).
 - Audit log rotates at 8 MB; session files are written atomically and pruned after
   seven days (HG-18).
 
