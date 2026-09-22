@@ -23,7 +23,9 @@ on GitHub changes nothing; ticking the item here does.
 - The **id never changes**. A new item takes the next free number, never a retired
   one. Moving an item to another milestone is fine; renumbering it is not.
 - `- [ ]` is open, `- [x]` is shipped, and a shipped item says where it went:
-  `ver=0.1.0`, or `ver=main` when it is merged but not yet released.
+  `ver=0.1.0`, or `ver=main` when it is merged but not yet released. An item closed
+  *without* shipping — decided against, superseded — is ticked with `ver=dropped` and
+  its body says why, so the id and the reasoning stay on record and the issue closes.
 - Metadata is a trailing `<!-- hg: ... -->` comment: `prio` (`high|med|low`), `size`
   (`S|M|L|XL`), `labels` (comma-separated, from the vocabulary below), `ver`
   (shipped items only).
@@ -83,10 +85,14 @@ and the reproducible benchmark the README promises. Designed through QRSPI under
 What the first run of the gates teaches, turned into features, plus the second
 harness the brief designs for.
 
-- [ ] **HG-8 — PostToolUse output hygiene**: a hook cannot truncate a tool result,
-  only add context or block; find out whether a `Noul` "is this output worth keeping
-  in context?" that answers with `additionalContext` earns its call. Needs a
-  measurement first. <!-- hg: prio=low size=M labels=gate,benchmark -->
+- [x] **HG-8 — PostToolUse output hygiene**: dropped. A `PostToolUse` hook can only add
+  `additionalContext` or block; it cannot shorten the tool result that already entered
+  the context. A Noul saying "this output is not worth keeping" would therefore *add*
+  tokens to say that something else should have been smaller — net negative by
+  construction, no measurement needed. Output size is the harness's lever
+  (truncation at the source, `PreToolUse` `updatedInput` piping through `head`), not
+  a judgement call; HG-15 keeps the one `PostToolUse` use that earns a Noul.
+  <!-- hg: prio=low size=M labels=gate,benchmark ver=dropped -->
 - [x] **HG-9 — Fail-closed as an explicit opt-in**: `.claude/hookgate.json` gains
   `failClosed: true`, under which an unreachable API means `ask` rather than
   fall-through; never the default. <!-- hg: prio=low size=S labels=gate ver=main -->
