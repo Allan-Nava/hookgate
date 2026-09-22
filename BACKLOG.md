@@ -167,3 +167,10 @@ ids stay in the CHANGELOG.
   security-extended queries on push, PR and weekly; Renovate's
   `helpers:pinGitHubActionDigests` pins every `uses:` to a digest and keeps it moving.
   <!-- hg: prio=med size=S labels=project ver=main -->
+- [x] **HG-22 — Knowledge graph of the repository (graphify)**: `graphify-out/` holds the
+  graph built from the whole tree — 367 nodes, 757 edges, 14 labelled communities —
+  as `graph.json`, `GRAPH_REPORT.md` and `graph.html`, versioned so an agent can
+  `graphify query` it instead of re-reading files; interpreter path and cache are
+  ignored. Rebuild with `/graphify . --update` after a change that moves structure.
+  Known state: 50 dangling-endpoint edges from document nodes naming code symbols
+  differently from the AST. <!-- hg: prio=low size=S labels=docs,project ver=main -->

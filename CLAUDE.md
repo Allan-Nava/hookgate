@@ -30,6 +30,8 @@ test/                  node:test suites — every fail-open path, cache, one-blo
                        promotion, both harness shapes, and e2e.test.mjs spawning the real CLI
                        against a local fake Jev (HOOKGATE_ENDPOINT); `npm test` runs them after `check`
 CHANGELOG.md           Keep a Changelog with HG-n ids; `check` wants [Unreleased] and the current version
+graphify-out/          the repository as a knowledge graph (graph.json, GRAPH_REPORT.md, graph.html),
+                       built by the graphify skill; query it before grepping — see "The graph"
 hooks/hooks.json       Claude Code registrations, ${CLAUDE_PLUGIN_ROOT} paths
 codex/hooks.json       the same handlers for Codex CLI, ${PLUGIN_ROOT} paths, single-command
                        form as Codex documents — `check` holds the two to the same handler set
@@ -145,6 +147,28 @@ extra prompt when it is a pipe: run it with `< /dev/null` from scripts. Verified
 Codex also has **rules**: Starlark `prefix_rule()` files under `.codex/rules/` deciding
 `allow | prompt | forbidden` per command prefix — static, and the natural place for a
 confident, repeated hookgate decision to be promoted to.
+
+## The graph
+
+`graphify-out/graph.json` is the whole repository as a knowledge graph: 367 nodes, 757
+edges, 14 communities labelled by hand (Gate Library & Decisions, CLI Entry & Report,
+Test Suite, Backlog Tooling, Release & Sync Workflows, Redaction …). It is versioned
+so a session can ask before it reads:
+
+```bash
+graphify query "how does a PreToolUse decision reach Codex?"   # BFS over the graph
+graphify path "preToolUse()" "permissionOutput()"                # shortest path
+graphify explain "decideCommand()"                               # one node, plainly
+```
+
+Rebuild after a change that moves structure — a new module, a renamed handler, a new
+workflow — with `/graphify . --update` (incremental) and commit `graph.json`,
+`GRAPH_REPORT.md` and `graph.html`; `.graphify_python`, `.graphify_root` and `cache/`
+are per machine and ignored. Building the semantic half spends tokens (the report says
+how many); code is extracted from the AST for free. Known state of the current graph:
+50 dangling-endpoint edges where document nodes name code symbols differently from the
+AST, and 13 collapsed undirected edges — the report lists them, `--update` will not fix
+them on its own.
 
 ## Verifying a change
 

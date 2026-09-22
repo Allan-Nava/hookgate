@@ -21,9 +21,11 @@ code agree. HG-1 as a QRSPI run remains the maintainer's call.
   benchmark and the only honest way to pick thresholds.
 - **Promotion proposes, never writes.** Three verdicts ≥ 0.95 on one prefix produce one
   `systemMessage` in the detected harness's rule syntax, once per prefix per session.
-- **Codex is an answer shape, not a fork.** Detection by `PLUGIN_ROOT`; `ask` becomes
-  `block` with a reason that says to ask the user, because Codex has no `ask` on
-  `PreToolUse`. Unverified against a live Codex — HG-11 stays open for that.
+- **Codex is an answer shape, not a fork.** Detection by `PLUGIN_ROOT`, `HOOKGATE_HARNESS`
+  or the stdin shape; Codex has no `ask` on `PreToolUse`, so `ask` passes through with
+  the concern as a `systemMessage` (`codex.askAs: deny` refuses instead) — the first
+  cut turned `ask` into `block`, which narrowed more than the judgement supports.
+  Verified live on 0.155.1, see below.
 - **Errors are typed.** `JevError.code` ∈ no-key · timeout · http · malformed · network;
   every one ends in fall-through, `failClosed` turns all but `no-key` into `ask` on the
   command gate only.
