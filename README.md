@@ -99,12 +99,14 @@ same tree, for `npx hookgate doctor` and `npx hookgate report`.
 
 ## Benchmark
 
-The first release carries, in `evals/`, at least fifty shell commands labelled by
-hand as safe, ask or dangerous, run against both gates and against a `type: prompt`
-hook on `claude-opus-5`, and reports agreement with the labels, p50 and p95 latency,
-cost per decision and the share of `ask` per confidence threshold. One run, one
-model version, dated — a data point, not a benchmark suite. If agreement stays under
-about 90%, the command gate ships `ask`-only.
+Not run yet. The set and the runner are in `evals/`: 79 shell commands labelled by
+hand as safe, ask or dangerous, 20 tool outputs clean or injected, and
+`node evals/run.mjs commands --baseline`, which runs the command gate and a
+`type: prompt` hook on `claude-opus-5` over the same commands and reports agreement
+with the labels, p50 and p95 latency, cost per decision and the share of `ask` per
+confidence threshold. One run, one Jev version, dated — a data point, not a benchmark
+suite. If agreement stays under about 90%, the command gate ships `ask`-only. Until
+the table is here, run in audit mode.
 
 ## Two design notes
 
