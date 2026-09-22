@@ -12,6 +12,9 @@ export class JevError extends Error {
 
 export async function systemone({ state, questions, model, apiKey, timeoutMs, fetchImpl = globalThis.fetch, endpoint = ENDPOINT }) {
   if (!apiKey) throw new JevError('TYPESAFE_API_KEY is not set', { code: 'no-key' })
+  // A header value must be Latin-1; a pasted placeholder ("…", quotes, a stray space)
+  // is the usual way a key fails this, and the fetch error that results is opaque.
+  if (!/^[\x21-\x7e]+$/.test(apiKey)) throw new JevError('TYPESAFE_API_KEY contains whitespace or non-ASCII characters — a placeholder pasted instead of the key?', { code: 'bad-key' })
   const ac = new AbortController()
   const timer = setTimeout(() => ac.abort(), timeoutMs)
   const t0 = Date.now()

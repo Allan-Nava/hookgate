@@ -31,6 +31,10 @@ export async function doctor({ cwd = process.cwd(), env = process.env, fetchImpl
     warn('TYPESAFE_API_KEY is not set — every gate falls through')
     return { lines, broken }
   }
+  if (!/^[\x21-\x7e]+$/.test(env.TYPESAFE_API_KEY)) {
+    bad('TYPESAFE_API_KEY contains whitespace or non-ASCII characters — a placeholder pasted instead of the key?')
+    return { lines, broken }
+  }
   ok(`TYPESAFE_API_KEY set (${env.TYPESAFE_API_KEY.length} chars)`)
   try {
     const res = await systemone({
