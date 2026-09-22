@@ -77,7 +77,14 @@ export function parse(text) {
     if (!m) err(cur.line, 'item does not match `- [ ] **HG-n — Title**: body <!-- hg: ... -->`')
     else {
       const hg = meta(raw, 'hg')
-      const body = m[5].replace(/<!--[\s\S]*?-->/g, '').trim()
+      // Strip every HTML comment, including an unterminated one, so nothing that reads
+      // as markup survives into an issue body. Loop: one pass can leave a `<!--` behind.
+      let body = m[5]
+      for (let prev = null; prev !== body; ) {
+        prev = body
+        body = body.replace(/<!--[\s\S]*?(?:-->|$)/g, '')
+      }
+      body = body.trim()
       items.push({ line: cur.line, status: m[1] === 'x' ? 'shipped' : 'open', id: m[2], num: Number(m[3]), title: m[4].trim(), body, meta: hg, ms })
     }
     cur = null
