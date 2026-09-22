@@ -6,6 +6,11 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 ## [Unreleased]
 
 ### Fixed
+- Rule promotion counted a chained command's verdict against its first word and could
+  propose a prefix rule for an interpreter or wrapper. Only one simple command — no
+  chaining, no pipe, no substitution outside quotes — counts, and a never-promote set
+  (`python3`, `bash`, `sudo`, `xargs`, `find`…) excludes programs that run whatever
+  follows; the log carries `promotable` beside the descriptive `prefix` (HG-24, HG-25).
 - A command longer than `maxStateChars` reached Jev with its middle elided, so anything
   hidden there was never judged. The command gate now answers `ask` for such a command
   without a request; audit mode logs `skipped: too-long` and falls through (HG-26).

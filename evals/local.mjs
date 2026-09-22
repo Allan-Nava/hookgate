@@ -22,7 +22,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { claimsCompletion } from '../bin/lib/gates.mjs'
 import { redact } from '../bin/lib/redact.mjs'
-import { commandPrefix } from '../bin/lib/store.mjs'
+import { promotablePrefix } from '../bin/lib/store.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const BIN = join(HERE, '..', 'bin', 'hookgate.mjs')
@@ -90,6 +90,7 @@ function transcripts() {
   let commands = 0
   let repeats = 0
   let redacted = 0
+  let promotable = 0
   let stops = 0
   let stopsClaiming = 0
   const prefixes = new Map()
@@ -125,8 +126,9 @@ function transcripts() {
             seen.set(k, (seen.get(k) ?? 0) + 1)
             if (seen.get(k) > 1) rep++
             if (redact(cmd) !== cmd) redacted++
-            const p = commandPrefix(cmd)
-            prefixes.set(p, (prefixes.get(p) ?? 0) + 1)
+            const p = promotablePrefix(cmd)
+            if (p) promotable++
+            prefixes.set(p ?? '(not promotable)', (prefixes.get(p ?? '(not promotable)') ?? 0) + 1)
           }
           if (c.type === 'text' && c.text) lastAssistantText = c.text
         }
@@ -150,7 +152,7 @@ function transcripts() {
     }
   }
   const top = [...prefixes.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12)
-  return { sessions, commands, repeats, repeatRate: commands ? repeats / commands : 0, medianSessionRepeatRate: q(perSessionRepeatRates, 0.5), redacted, redactedRate: commands ? redacted / commands : 0, stops, stopsClaiming, prefilterSkipRate: stops ? 1 - stopsClaiming / stops : 0, topPrefixes: top }
+  return { sessions, commands, repeats, repeatRate: commands ? repeats / commands : 0, medianSessionRepeatRate: q(perSessionRepeatRates, 0.5), redacted, redactedRate: commands ? redacted / commands : 0, promotable, promotableRate: commands ? promotable / commands : 0, stops, stopsClaiming, prefilterSkipRate: stops ? 1 - stopsClaiming / stops : 0, topPrefixes: top }
 }
 
 // --- main --------------------------------------------------------------------
@@ -171,7 +173,7 @@ if (result.transcripts) {
   lines.push(`- Shell commands: ${t.commands}. Exact repeats within a session: ${t.repeats} (${pct(t.repeatRate)}; median session ${pct(t.medianSessionRepeatRate ?? 0)}) — the cache's ceiling.`)
   lines.push(`- Commands the redactor would change: ${t.redacted} (${pct(t.redactedRate)}).`)
   lines.push(`- Stops (assistant text followed by a human turn): ${t.stops}. Claiming completion: ${t.stopsClaiming}. The prefilter skips ${pct(t.prefilterSkipRate)} of Jev calls on the completion gate.`)
-  lines.push(`- Top command prefixes: ${t.topPrefixes.map(([p, c]) => `\`${p}\` ${c}`).join(' · ')}.`)
+  lines.push(`- Commands a promoted rule may cover (one simple command, no interpreter): ${t.promotable} (${pct(t.promotableRate)}). Top: ${t.topPrefixes.filter(([p]) => p !== '(not promotable)').map(([p, c]) => `\`${p}\` ${c}`).join(' · ')}.`)
   lines.push('')
 }
 console.log(lines.join('\n'))
