@@ -7,6 +7,8 @@
 //   hookgate post-tool-use    PostToolUse handler: the injection screen (stdin JSON, off by default)
 //   hookgate doctor           key, connectivity, latency, model, config, harness
 //   hookgate report           decisions by outcome, latency, ask share — from the audit log
+//   hookgate print-hooks      a .codex/hooks.json for this checkout, absolute paths (Codex
+//                             0.155 dropped plugin-bundled hooks; repo or user hooks remain)
 //   hookgate help
 //
 // Every handler FAILS OPEN. Exit 0 with no JSON on stdout means "no decision": the
@@ -132,6 +134,14 @@ switch (cmd) {
     const { lines, broken } = await doctor()
     console.log(`hookgate doctor\n${lines.join('\n')}`)
     process.exit(broken ? 1 : 0)
+    break
+  }
+  case 'print-hooks': {
+    const tpl = json('codex/hooks.json')
+    const bin = join(ROOT, 'bin', 'hookgate.mjs')
+    for (const entries of Object.values(tpl.hooks)) for (const e of entries) for (const h of e.hooks) h.command = h.command.replace('${PLUGIN_ROOT}/bin/hookgate.mjs', bin)
+    tpl.description = `hookgate — calibrated gates for Codex CLI, pointing at ${bin}. Save as .codex/hooks.json in the repository (or ~/.codex/hooks.json) and trust it when Codex asks.`
+    console.log(JSON.stringify(tpl, null, 2))
     break
   }
   case 'report': {

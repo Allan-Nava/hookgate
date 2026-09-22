@@ -133,7 +133,13 @@ events — `PreToolUse`, `PostToolUse`, `Stop`, `PermissionRequest`, `UserPrompt
 its `decision: "block"` "records feedback without undoing", which is what hookgate
 uses for the injection screen there. Every event takes top-level `systemMessage`,
 `continue`, `stopReason`; exit 2 blocks with stderr as the reason. Not marked
-experimental; `[features] hooks = false` disables. Configured in `~/.codex/hooks.json`,
+experimental; `[features] hooks = false` disables. **Codex 0.155.1 lists `plugin_hooks` as
+removed**: a plugin cannot bundle hooks, so `.codex-plugin/plugin.json` is a manifest
+only and the install path is a repo- or user-level `hooks.json` with absolute paths —
+`hookgate print-hooks` writes it. Repo hooks require persisted **trust** (a prompt in the
+TUI; `--dangerously-bypass-hook-trust` for `codex exec`). `codex exec` reads stdin as
+extra prompt when it is a pipe: run it with `< /dev/null` from scripts. Verified live
+2026-09-22 in a scratch repo with a local fake Jev (`HOOKGATE_ENDPOINT`). Configured in `~/.codex/hooks.json`,
 `<repo>/.codex/hooks.json` or `[hooks]` in `config.toml`; a plugin bundles
 `hooks/hooks.json` and gets `PLUGIN_ROOT` and `PLUGIN_DATA`. Default timeout 600 s.
 Codex also has **rules**: Starlark `prefix_rule()` files under `.codex/rules/` deciding

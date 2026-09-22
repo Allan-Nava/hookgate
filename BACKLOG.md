@@ -106,15 +106,17 @@ harness the brief designs for.
 - [x] **HG-9 — Fail-closed as an explicit opt-in**: `.claude/hookgate.json` gains
   `failClosed: true`, under which an unreachable API means `ask` rather than
   fall-through; never the default. <!-- hg: prio=low size=S labels=gate ver=main -->
-- [ ] **HG-11 — Codex CLI adapter: same handlers, Codex answer shape, second
-  manifest**: detect the harness from `CLAUDE_PLUGIN_ROOT` vs `PLUGIN_ROOT`; contract
-  verified against learn.chatgpt.com/docs/hooks on 2026-09-22 and the adapter aligned —
+- [x] **HG-11 — Codex CLI adapter: same handlers, Codex answer shape, second
+  manifest**: harness from `PLUGIN_ROOT`, `HOOKGATE_HARNESS` or the stdin shape;
+  contract verified against learn.chatgpt.com/docs/hooks and aligned —
   `permissionDecision allow|deny`, `ask` → pass-through with a `systemMessage` (or
   `codex.askAs: deny`), `Stop` identical, injection via `decision: block` feedback;
   `.codex-plugin/plugin.json` beside the Claude one, `npm test` holding both to one
   version, unit and e2e tests under `PLUGIN_ROOT`, CI fall-through per harness.
-  **Remaining: a scratch repo with a live Codex CLI.**
-  <!-- hg: prio=med size=L labels=gate,enhancement -->
+  Verified live 2026-09-22 on Codex 0.155.1: `rm -rf ~/…` blocked by the hook,
+  `git push --force` let through with the concern surfaced. Codex dropped
+  plugin-bundled hooks, so `hookgate print-hooks` writes the repo-level file.
+  <!-- hg: prio=med size=L labels=gate,enhancement ver=main -->
 - [x] **HG-12 — Per-session decision cache: the same command is judged once**: keyed
   by `session_id` and the redacted state hash, TTL, invalidated on `cwd` change; a
   repeat returns in under 5 ms with no request and never outlives the session.
