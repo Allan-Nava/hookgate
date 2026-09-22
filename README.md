@@ -63,8 +63,15 @@ Around the gates:
   refuses instead), and the injection screen uses Codex's `decision: "block"` feedback
   in place of `additionalContext`. Exercised against a live Codex 0.155.1 (see Install).
 
-Configuration lives in `.claude/hookgate.json` in the repository (or `HOOKGATE_CONFIG`);
-every key is optional:
+Configuration is read in trust order: the defaults, then `~/.hookgate.json` (yours),
+then `HOOKGATE_CONFIG` if set, then the repository's `.hookgate.json` (or
+`.claude/hookgate.json`, `.codex/hookgate.json`), then `HOOKGATE_MODE`, `HOOKGATE_MODEL`
+and `HOOKGATE_FAIL_CLOSED=1`. **The repository's file may only tighten** what the layers
+above it say: enable a gate, raise the confidence bar, go `enforce`, turn `failClosed`
+on, add lexicon patterns, ask Codex to deny instead of pass through. A repository you
+just cloned cannot switch the gate off, put it in audit mode, lower a threshold or point
+it at a model or a timeout that would fail open; `hookgate doctor` lists what it tried.
+Every key is optional:
 
 ```json
 {

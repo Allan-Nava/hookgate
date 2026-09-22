@@ -21,7 +21,8 @@ it records the decisions taken while implementing.
 
 ```
 bin/hookgate.mjs       the CLI: check · pre-tool-use · stop · post-tool-use · doctor · report
-bin/lib/               config (defaults, .claude/hookgate.json, env), redact (secrets out,
+bin/lib/               config (defaults → ~/.hookgate.json → HOOKGATE_CONFIG → repo file, which
+                       may only tighten → env), redact (secrets out,
                        size capped), jev (one POST, injectable fetch), gates (questions and
                        pure decisions), harness (Claude Code vs Codex shapes), store (audit
                        log, per-session cache, promotion counters, stop marker), handlers
