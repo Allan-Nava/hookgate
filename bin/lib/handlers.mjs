@@ -60,6 +60,16 @@ export async function preToolUse(input, deps = {}) {
   const dir = dataDir(deps.env)
   if (!cfg.gates.command || input.tool_name !== 'Bash') return null
   if (!deps.env.TYPESAFE_API_KEY) return null
+  const raw = String(input.tool_input?.command ?? '')
+  // A command longer than the state cap would reach Jev with its middle elided, and
+  // whatever sits there — a `rm -rf` after a screen of padding — would never be seen.
+  // A partial judgement is not a judgement: the answer is `ask`, with no request
+  // (HG-26). Audit mode logs it and falls through like everything else.
+  if (raw.length > cfg.maxStateChars) {
+    const reason = `hookgate: this command is ${raw.length.toLocaleString('en-US')} characters, above the ${cfg.maxStateChars.toLocaleString('en-US')} the gate can judge whole — a human should look rather than a judge that sees the head and the tail.`
+    log(dir, 'command', input, cfg, { outcome: cfg.mode === 'audit' ? 'pass' : 'ask', skipped: 'too-long', chars: raw.length, latencyMs: 0, cached: false })
+    return cfg.mode === 'audit' ? null : permissionOutput(harness, 'ask', reason, {}, { codexAskAs: cfg.codex?.askAs })
+  }
   const state = commandState(input, cfg)
   const session = loadSession(dir, input.session_id)
   try {

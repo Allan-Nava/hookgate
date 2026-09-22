@@ -6,6 +6,9 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 ## [Unreleased]
 
 ### Fixed
+- A command longer than `maxStateChars` reached Jev with its middle elided, so anything
+  hidden there was never judged. The command gate now answers `ask` for such a command
+  without a request; audit mode logs `skipped: too-long` and falls through (HG-26).
 - The completion prefilter read English only, so a final message in another language
   never reached Jev: 766 of 1,229 real stops were Italian claims it skipped. The lexicon
   is now per language (English, Italian), always on, with ambiguous words anchored to

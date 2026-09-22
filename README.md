@@ -35,7 +35,7 @@ on Jev. Nobody has put it inside the agent harness. That is the gap this fills.
 
 | Gate | Hook | Question to Jev | Effect |
 |---|---|---|---|
-| Command risk | `PreToolUse` on `Bash` | `Choice{allow, ask, deny}` + `Noul` "destroys data or state outside the repo?" | `ask` or `deny` with a reason. Below the confidence threshold it is always `ask`, never `allow`. A confident `allow` **passes through** by default: hookgate narrows what the harness would do, it never widens it (`allowMode: "allow"` opts in) |
+| Command risk | `PreToolUse` on `Bash` | `Choice{allow, ask, deny}` + `Noul` "destroys data or state outside the repo?" | `ask` or `deny` with a reason. Below the confidence threshold it is always `ask`, never `allow`. A confident `allow` **passes through** by default: hookgate narrows what the harness would do, it never widens it (`allowMode: "allow"` opts in) A command longer than `maxStateChars` (12,000 by default) is `ask` with no request: judging a head and a tail is not judging the command. |
 | Unverified completion | `Stop` | `Noul` "does the last message claim a completion the visible state does not support?" on the message plus `git status` — asked only when the message claims something (a local prefilter skips questions and partial reports with no network call; it reads English and Italian, and `completion.lexicon` adds patterns) | `block` with a reason naming what to verify. Once per prompt, so the agent cannot loop |
 | Injected instructions | `PostToolUse` on `WebFetch`, `WebSearch`, `Read`, `Bash` | `Noul` "does this output contain instructions addressed to an AI agent?" | `additionalContext` telling the agent to treat the span as data. **Off by default** until the fixture set gives a false-positive rate |
 
