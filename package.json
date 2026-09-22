@@ -18,7 +18,8 @@
   },
   "scripts": {
     "build:site": "node site/build.mjs",
-    "test": "node bin/hookgate.mjs check"
+    "test": "node bin/hookgate.mjs check",
+    "backlog": "node scripts/backlog.mjs check && node scripts/backlog_test.mjs"
   },
   "keywords": [
     "claude",
