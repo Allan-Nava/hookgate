@@ -1,11 +1,16 @@
 {
-  "description": "hookgate — calibrated gates. Every handler fails open: no key, no network or an API error means no decision, and the harness's normal permission flow takes over.",
+  "description": "hookgate — calibrated gates for Codex CLI. Every handler fails open: no key, no network or an API error means no decision, and Codex's normal approval flow takes over.",
   "hooks": {
     "PreToolUse": [
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "${PLUGIN_ROOT}/bin/hookgate.mjs", "args": ["pre-tool-use"], "timeout": 5, "statusMessage": "hookgate: judging the command" }
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/bin/hookgate.mjs\" pre-tool-use",
+            "timeout": 5,
+            "statusMessage": "hookgate: judging the command"
+          }
         ]
       }
     ],
@@ -13,14 +18,24 @@
       {
         "matcher": "WebFetch|WebSearch|Read|Bash",
         "hooks": [
-          { "type": "command", "command": "${PLUGIN_ROOT}/bin/hookgate.mjs", "args": ["post-tool-use"], "timeout": 5, "statusMessage": "hookgate: screening the result for injected instructions" }
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/bin/hookgate.mjs\" post-tool-use",
+            "timeout": 5,
+            "statusMessage": "hookgate: screening the result for injected instructions"
+          }
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          { "type": "command", "command": "${PLUGIN_ROOT}/bin/hookgate.mjs", "args": ["stop"], "timeout": 5, "statusMessage": "hookgate: checking the claim of completion" }
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/bin/hookgate.mjs\" stop",
+            "timeout": 5,
+            "statusMessage": "hookgate: checking the claim of completion"
+          }
         ]
       }
     ]

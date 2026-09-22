@@ -31,8 +31,8 @@ test/                  node:test suites — every fail-open path, cache, one-blo
                        against a local fake Jev (HOOKGATE_ENDPOINT); `npm test` runs them after `check`
 CHANGELOG.md           Keep a Changelog with HG-n ids; `check` wants [Unreleased] and the current version
 hooks/hooks.json       Claude Code registrations, ${CLAUDE_PLUGIN_ROOT} paths
-codex/hooks.json       the same handlers for Codex CLI, ${PLUGIN_ROOT} paths — `check`
-                       holds the two to the same handler set
+codex/hooks.json       the same handlers for Codex CLI, ${PLUGIN_ROOT} paths, single-command
+                       form as Codex documents — `check` holds the two to the same handler set
 .claude-plugin/        plugin.json and a single-plugin marketplace.json (marketplace
                        name `hookgate`, so the install is `hookgate@hookgate`)
 .codex-plugin/         plugin.json for Codex, same version — `check` enforces it

@@ -56,7 +56,7 @@ function onError(e, gate, harness, cfg, dir, input) {
 export async function preToolUse(input, deps = {}) {
   deps = { env: process.env, fetch: globalThis.fetch, now: Date.now, ...deps }
   const { cfg } = loadConfig(input.cwd ?? process.cwd(), deps.env)
-  const harness = detectHarness(deps.env)
+  const harness = detectHarness(deps.env, input)
   const dir = dataDir(deps.env)
   if (!cfg.gates.command || input.tool_name !== 'Bash') return null
   if (!deps.env.TYPESAFE_API_KEY) return null
@@ -80,7 +80,7 @@ export async function preToolUse(input, deps = {}) {
 export async function stop(input, deps = {}) {
   deps = { env: process.env, fetch: globalThis.fetch, now: Date.now, gitStatus, ...deps }
   const { cfg } = loadConfig(input.cwd ?? process.cwd(), deps.env)
-  const harness = detectHarness(deps.env)
+  const harness = detectHarness(deps.env, input)
   const dir = dataDir(deps.env)
   if (!cfg.gates.completion || !deps.env.TYPESAFE_API_KEY) return null
   // Never loop the agent: the harness marks a stop caused by a stop hook, and we
@@ -110,7 +110,7 @@ export async function stop(input, deps = {}) {
 export async function postToolUse(input, deps = {}) {
   deps = { env: process.env, fetch: globalThis.fetch, now: Date.now, ...deps }
   const { cfg } = loadConfig(input.cwd ?? process.cwd(), deps.env)
-  const harness = detectHarness(deps.env)
+  const harness = detectHarness(deps.env, input)
   const dir = dataDir(deps.env)
   if (!cfg.gates.injection || !INJECTION_TOOLS.has(input.tool_name) || !deps.env.TYPESAFE_API_KEY) return null
   const state = injectionState(input, cfg)
