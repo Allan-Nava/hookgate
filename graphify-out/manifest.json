@@ -1,0 +1,314 @@
+{
+  ".claude-plugin/marketplace.json": {
+    "mtime": 1790067496.1132774,
+    "seen": 1790079313.487753,
+    "ast_hash": "8e8ef98c25b001ea5c8d57067249a4d5",
+    "semantic_hash": "8e8ef98c25b001ea5c8d57067249a4d5"
+  },
+  ".claude-plugin/plugin.json": {
+    "mtime": 1790067496.1135404,
+    "seen": 1790079313.487756,
+    "ast_hash": "22da55bce9644e80887115da9c3603e0",
+    "semantic_hash": "22da55bce9644e80887115da9c3603e0"
+  },
+  ".codex-plugin/plugin.json": {
+    "mtime": 1790068176.3397825,
+    "seen": 1790079313.487757,
+    "ast_hash": "9a1ea76f3e694e70ef9d2fe7ac839fc6",
+    "semantic_hash": "9a1ea76f3e694e70ef9d2fe7ac839fc6"
+  },
+  "bin/hookgate.mjs": {
+    "mtime": 1790072531.9624376,
+    "seen": 1790079313.487757,
+    "ast_hash": "cb79279c3541743ce55c8c2fc68597cc",
+    "semantic_hash": "cb79279c3541743ce55c8c2fc68597cc"
+  },
+  "bin/lib/config.mjs": {
+    "mtime": 1790071977.0258663,
+    "seen": 1790079313.4877582,
+    "ast_hash": "801019020d39bd26c891f14b1e6c283b",
+    "semantic_hash": "801019020d39bd26c891f14b1e6c283b"
+  },
+  "bin/lib/doctor.mjs": {
+    "mtime": 1790071109.0774448,
+    "seen": 1790079313.4877582,
+    "ast_hash": "977a5bd09575ecd8c32a06c9377529e5",
+    "semantic_hash": "977a5bd09575ecd8c32a06c9377529e5"
+  },
+  "bin/lib/gates.mjs": {
+    "mtime": 1790068176.3428612,
+    "seen": 1790079313.487759,
+    "ast_hash": "f0f5ca1572fe2247752d8c5f1dc7c106",
+    "semantic_hash": "f0f5ca1572fe2247752d8c5f1dc7c106"
+  },
+  "bin/lib/handlers.mjs": {
+    "mtime": 1790071977.0264034,
+    "seen": 1790079313.487759,
+    "ast_hash": "e973dccdeba589c0afaff210238292b9",
+    "semantic_hash": "e973dccdeba589c0afaff210238292b9"
+  },
+  "bin/lib/harness.mjs": {
+    "mtime": 1790071977.0266638,
+    "seen": 1790079313.4877598,
+    "ast_hash": "2169f25828c0cd5410f9d2c9c9941d88",
+    "semantic_hash": "2169f25828c0cd5410f9d2c9c9941d88"
+  },
+  "bin/lib/jev.mjs": {
+    "mtime": 1790071109.0783186,
+    "seen": 1790079313.4877598,
+    "ast_hash": "b2a792fd1318131fb13d81577955430b",
+    "semantic_hash": "b2a792fd1318131fb13d81577955430b"
+  },
+  "bin/lib/redact.mjs": {
+    "mtime": 1790068176.3436196,
+    "seen": 1790079313.4877608,
+    "ast_hash": "f1c0a6cfcb762f03003bdc66332c91d1",
+    "semantic_hash": "f1c0a6cfcb762f03003bdc66332c91d1"
+  },
+  "bin/lib/report.mjs": {
+    "mtime": 1790068176.3438654,
+    "seen": 1790079313.4877608,
+    "ast_hash": "e1effa18fd91b41e8ddad739245d27ae",
+    "semantic_hash": "e1effa18fd91b41e8ddad739245d27ae"
+  },
+  "bin/lib/store.mjs": {
+    "mtime": 1790071306.3876216,
+    "seen": 1790079313.487762,
+    "ast_hash": "ea38811a44eaac01da659b3280a8caf4",
+    "semantic_hash": "ea38811a44eaac01da659b3280a8caf4"
+  },
+  "codex/hooks.json": {
+    "mtime": 1790071977.026904,
+    "seen": 1790079313.487762,
+    "ast_hash": "a1bd8e92f147fc10480088a14b0eabf1",
+    "semantic_hash": "a1bd8e92f147fc10480088a14b0eabf1"
+  },
+  "evals/run.mjs": {
+    "mtime": 1790071109.0788097,
+    "seen": 1790079313.487763,
+    "ast_hash": "1d84a662daa3293a3f00fd5a1f65fd18",
+    "semantic_hash": "1d84a662daa3293a3f00fd5a1f65fd18"
+  },
+  "hooks/hooks.json": {
+    "mtime": 1790068176.3445315,
+    "seen": 1790079313.487763,
+    "ast_hash": "d613dd5bab159db028709048643f6803",
+    "semantic_hash": "d613dd5bab159db028709048643f6803"
+  },
+  "package.json": {
+    "mtime": 1790071109.0791526,
+    "seen": 1790079313.487763,
+    "ast_hash": "a6b35bd784b362f937d325a441b46354",
+    "semantic_hash": "a6b35bd784b362f937d325a441b46354"
+  },
+  "renovate.json": {
+    "mtime": 1790071109.0793371,
+    "seen": 1790079313.487764,
+    "ast_hash": "dcc28e4d7d411215cfa8e553e471426f",
+    "semantic_hash": "dcc28e4d7d411215cfa8e553e471426f"
+  },
+  "scripts/backlog.mjs": {
+    "mtime": 1790071306.3882282,
+    "seen": 1790079313.487765,
+    "ast_hash": "eee17d049909f0f168645fcb38819f9c",
+    "semantic_hash": "eee17d049909f0f168645fcb38819f9c"
+  },
+  "scripts/backlog_test.mjs": {
+    "mtime": 1790065305.3850884,
+    "seen": 1790079313.487765,
+    "ast_hash": "4d73e6eca9bf2ce6ce1c413ee5476aa1",
+    "semantic_hash": "4d73e6eca9bf2ce6ce1c413ee5476aa1"
+  },
+  "site/build.mjs": {
+    "mtime": 1790064622.2319527,
+    "seen": 1790079313.487766,
+    "ast_hash": "3d951be5503a1bea0c334459986d968e",
+    "semantic_hash": "3d951be5503a1bea0c334459986d968e"
+  },
+  "test/e2e.test.mjs": {
+    "mtime": 1790071780.6309772,
+    "seen": 1790079313.487766,
+    "ast_hash": "22adb303a47b0ed79932c65d6ba02a05",
+    "semantic_hash": "22adb303a47b0ed79932c65d6ba02a05"
+  },
+  "test/gates.test.mjs": {
+    "mtime": 1790068176.3449104,
+    "seen": 1790079313.487767,
+    "ast_hash": "452ce99909d8b3645832705d80642cdf",
+    "semantic_hash": "452ce99909d8b3645832705d80642cdf"
+  },
+  "test/handlers.test.mjs": {
+    "mtime": 1790071780.6315973,
+    "seen": 1790079313.487767,
+    "ast_hash": "2a4bc1946112988281a34c50bb5f67e3",
+    "semantic_hash": "2a4bc1946112988281a34c50bb5f67e3"
+  },
+  "test/helpers.mjs": {
+    "mtime": 1790068176.3453767,
+    "seen": 1790079313.4877682,
+    "ast_hash": "d8ff42294bb3fc4a42b323cb4073f40c",
+    "semantic_hash": "d8ff42294bb3fc4a42b323cb4073f40c"
+  },
+  "test/misc.test.mjs": {
+    "mtime": 1790072531.962667,
+    "seen": 1790079313.4877682,
+    "ast_hash": "630dc9b62a480d2b25d1c954ca4ca3c1",
+    "semantic_hash": "630dc9b62a480d2b25d1c954ca4ca3c1"
+  },
+  "test/redact.test.mjs": {
+    "mtime": 1790068176.3457923,
+    "seen": 1790079313.4877682,
+    "ast_hash": "5d0e6a766a44e11ff50ff163161f9328",
+    "semantic_hash": "5d0e6a766a44e11ff50ff163161f9328"
+  },
+  ".github/workflows/backlog-issues.yml": {
+    "mtime": 1790065054.240139,
+    "seen": 1790079313.4877691,
+    "ast_hash": "01f2eb8f54de39de38a3b980be39800a",
+    "semantic_hash": "01f2eb8f54de39de38a3b980be39800a"
+  },
+  ".github/workflows/ci.yml": {
+    "mtime": 1790071780.6278684,
+    "seen": 1790079313.4877691,
+    "ast_hash": "fc23345e222acc419fefb1c68b0ca9ff",
+    "semantic_hash": "fc23345e222acc419fefb1c68b0ca9ff"
+  },
+  ".github/workflows/codeql.yml": {
+    "mtime": 1790071109.074395,
+    "seen": 1790079313.48777,
+    "ast_hash": "f139ed12a94b27187987458cec7664a5",
+    "semantic_hash": "f139ed12a94b27187987458cec7664a5"
+  },
+  ".github/workflows/pages.yml": {
+    "mtime": 1790064485.5773344,
+    "seen": 1790079313.48777,
+    "ast_hash": "d4f0860bb67594223a1e05a17c918383",
+    "semantic_hash": "d4f0860bb67594223a1e05a17c918383"
+  },
+  ".github/workflows/release-drift.yml": {
+    "mtime": 1790063889.035241,
+    "seen": 1790079313.4877708,
+    "ast_hash": "c8a4edfd7ad0766dc2ead3b8accb3c72",
+    "semantic_hash": "c8a4edfd7ad0766dc2ead3b8accb3c72"
+  },
+  ".github/workflows/release.yml": {
+    "mtime": 1790063979.598888,
+    "seen": 1790079313.4877708,
+    "ast_hash": "9e463acce17bfb4d25e1dea461f0ed3e",
+    "semantic_hash": "9e463acce17bfb4d25e1dea461f0ed3e"
+  },
+  "BACKLOG.md": {
+    "mtime": 1790072531.9608662,
+    "seen": 1790079313.4877708,
+    "ast_hash": "292698bcdfb2738f98c3877cfb6cad14",
+    "semantic_hash": "292698bcdfb2738f98c3877cfb6cad14"
+  },
+  "CHANGELOG.md": {
+    "mtime": 1790072531.9611354,
+    "seen": 1790079313.487772,
+    "ast_hash": "41ed3bb601875cb15abbdd4ae261173f",
+    "semantic_hash": "41ed3bb601875cb15abbdd4ae261173f"
+  },
+  "CLAUDE.md": {
+    "mtime": 1790072531.9615743,
+    "seen": 1790079313.487772,
+    "ast_hash": "730c6b3d6a5aacda49953d3370de9ffd",
+    "semantic_hash": "730c6b3d6a5aacda49953d3370de9ffd"
+  },
+  "CONTRIBUTING.md": {
+    "mtime": 1790071109.0757508,
+    "seen": 1790079313.487773,
+    "ast_hash": "6c862006f7a7feed5e89752a8d15d737",
+    "semantic_hash": "6c862006f7a7feed5e89752a8d15d737"
+  },
+  "README.md": {
+    "mtime": 1790072531.961856,
+    "seen": 1790079313.487773,
+    "ast_hash": "ad62b26177460954eb04f1acba4c188f",
+    "semantic_hash": "ad62b26177460954eb04f1acba4c188f"
+  },
+  "ROADMAP.md": {
+    "mtime": 1790072531.9620426,
+    "seen": 1790079313.487774,
+    "ast_hash": "afc05e12d331c78fb8052cae486ff97d",
+    "semantic_hash": "afc05e12d331c78fb8052cae486ff97d"
+  },
+  "assets/social-preview.html": {
+    "mtime": 1790064485.5787802,
+    "seen": 1790079313.487774,
+    "ast_hash": "21b6e0bfcae9d8f4bc001fc6d5afbb1a",
+    "semantic_hash": "21b6e0bfcae9d8f4bc001fc6d5afbb1a"
+  },
+  "scripts/fixtures/backlog.md": {
+    "mtime": 1790065054.2430627,
+    "seen": 1790079313.487775,
+    "ast_hash": "b52ad454aefda72fba0aa4881c8224b5",
+    "semantic_hash": "b52ad454aefda72fba0aa4881c8224b5"
+  },
+  "thoughts/HG-1-jev-gates/00-brief.md": {
+    "mtime": 1790064938.5961268,
+    "seen": 1790079313.487775,
+    "ast_hash": "acccd97537509faeb35d7ffa2731e726",
+    "semantic_hash": "acccd97537509faeb35d7ffa2731e726"
+  },
+  "thoughts/HG-1-jev-gates/00-questions.md": {
+    "mtime": 1790070734.8179977,
+    "seen": 1790079313.487775,
+    "ast_hash": "920c5d59e0e8e6b68588e41dfe12a3cc",
+    "semantic_hash": "920c5d59e0e8e6b68588e41dfe12a3cc"
+  },
+  "thoughts/HG-1-jev-gates/01-research.md": {
+    "mtime": 1790070734.8181796,
+    "seen": 1790079313.487776,
+    "ast_hash": "7922ca756964c746e7c395eb9793ab8b",
+    "semantic_hash": "7922ca756964c746e7c395eb9793ab8b"
+  },
+  "thoughts/HG-1-jev-gates/02-design.md": {
+    "mtime": 1790070734.8184059,
+    "seen": 1790079313.487777,
+    "ast_hash": "de30409c601120e8f4b5da9a6d0bf1ea",
+    "semantic_hash": "de30409c601120e8f4b5da9a6d0bf1ea"
+  },
+  "thoughts/HG-1-jev-gates/03-structure.md": {
+    "mtime": 1790070734.8190012,
+    "seen": 1790079313.487777,
+    "ast_hash": "f00d59cffbad4a6a0c6d64087f607f4d",
+    "semantic_hash": "f00d59cffbad4a6a0c6d64087f607f4d"
+  },
+  "thoughts/HG-1-jev-gates/04-plan.md": {
+    "mtime": 1790070734.8191395,
+    "seen": 1790079313.487778,
+    "ast_hash": "2cd22599b452708734428bde4d16ea2e",
+    "semantic_hash": "2cd22599b452708734428bde4d16ea2e"
+  },
+  "thoughts/HG-1-jev-gates/99-progress.md": {
+    "mtime": 1790070734.8193567,
+    "seen": 1790079313.487778,
+    "ast_hash": "57ad0bbf475ca76923708845f7f80e91",
+    "semantic_hash": "57ad0bbf475ca76923708845f7f80e91"
+  },
+  "thoughts/HG-1-jev-gates/design-notes.md": {
+    "mtime": 1790072531.9628756,
+    "seen": 1790079313.487778,
+    "ast_hash": "837cb9a83e645db1a8baa9f771e72028",
+    "semantic_hash": "837cb9a83e645db1a8baa9f771e72028"
+  },
+  "assets/logo-mono.svg": {
+    "mtime": 1790064485.578448,
+    "seen": 1790079313.4877791,
+    "ast_hash": "8ab9f795cf7b9842c31e4fd04f10a975",
+    "semantic_hash": "8ab9f795cf7b9842c31e4fd04f10a975"
+  },
+  "assets/logo.svg": {
+    "mtime": 1790064485.5786438,
+    "seen": 1790079313.4877791,
+    "ast_hash": "d7f07863490963ba43efcb863c8e07a3",
+    "semantic_hash": "d7f07863490963ba43efcb863c8e07a3"
+  },
+  "assets/social-preview.png": {
+    "mtime": 1790064485.5801291,
+    "seen": 1790079313.48778,
+    "ast_hash": "2a91ff481d58d0e432f07c4f2f825b36",
+    "semantic_hash": "2a91ff481d58d0e432f07c4f2f825b36"
+  }
+}

@@ -4,7 +4,7 @@
 
 > This page is **generated** from [BACKLOG.md](BACKLOG.md), the single source of truth for planned work. Regenerate it with `node scripts/backlog.mjs roadmap` after editing the backlog — CI fails when the two disagree.
 
-**21 items · 16 shipped · 5 open · 3 milestones.**
+**22 items · 17 shipped · 5 open · 3 milestones.**
 
 ## At a glance
 
@@ -12,7 +12,7 @@
 |---|---|---|---|---|
 | **v0.1.0 — Two gates, one benchmark** | now | `######....` 63% | 3 | 5 |
 | **v0.2.0 — Observe, promote, port** | next | `########..` 75% | 2 | 6 |
-| **v0.1.1 — Audit of 2026-09-22** | now | `##########` 100% | 0 | 5 |
+| **v0.1.1 — Audit of 2026-09-22** | now | `##########` 100% | 0 | 6 |
 
 ## v0.1.0 — Two gates, one benchmark
 
@@ -43,3 +43,4 @@
 - [x] **HG-19** — End-to-end tests of the CLI contract · high · S · tests · `main`
 - [x] **HG-20** — CHANGELOG.md · med · S · docs, release · `main`
 - [x] **HG-21** — Supply chain: CodeQL and pinned actions · med · S · project · `main`
+- [x] **HG-22** — Knowledge graph of the repository (graphify) · low · S · docs, project · `main`

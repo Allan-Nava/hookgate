@@ -20,6 +20,8 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
   `.codex/hooks.json` with absolute paths (HG-11).
 - `evals/`: 79 hand-labelled commands, 20 tool outputs, and the benchmark runner with
   a `type: prompt` baseline (HG-4, tooling only — the run is blocked on a key).
+- The repository as a knowledge graph under `graphify-out/`, versioned and queryable
+  (HG-22).
 - README section "What leaves the machine, exactly" (HG-17); `HOOKGATE_ENDPOINT` for
   proxies and end-to-end tests (HG-19); this changelog (HG-20); CodeQL and Renovate
   digest pinning for actions (HG-21).
