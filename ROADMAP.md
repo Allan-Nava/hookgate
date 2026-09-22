@@ -19,7 +19,7 @@
 - [x] **HG-2** — Command-risk gate: PreToolUse on Bash answered by Jev · high · L · gate · `main`
 - [x] **HG-3** — Completion gate: Stop hook that blocks unverified claims of done · high · M · gate · `main`
 - [ ] **HG-4** — Benchmark: ≥50 labelled commands, Jev gate vs type: prompt hook · high · M · benchmark
-- [ ] **HG-5** — First release 0.1.0: bootstrap npm trusted publishing, tag, publish · med · S · release
+- [ ] **HG-5** — First release 0.1.0: trusted publisher, tag, publish · med · S · release
 - [x] **HG-6** — Site generated from README, as qrspi does it · low · S · docs · `main`
 - [x] **HG-7** — Backlog as the single source of truth, enforced by CI · med · M · project · `main`
 - [x] **HG-10** — Audit mode: log every decision and its confidence without enforcing · high · M · gate, enhancement · `main`

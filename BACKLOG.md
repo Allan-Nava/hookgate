@@ -42,6 +42,14 @@ The first release: both gates decided by Jev with calibrated confidence, fail-op
 and the reproducible benchmark the README promises. Designed through QRSPI under
 `thoughts/HG-1-jev-gates/`.
 
+**The benchmark is the gate on this milestone.** Nothing ships as `enforce` by
+default, no threshold moves, and no `hookgate--v0.1.0` is tagged before HG-4 has run
+and its table is in the README: the gates decide on a calibration nobody has
+measured yet, and a plugin that says `deny` to a developer had better have a number
+behind it. The code and the labelled sets are in place; the run needs a TypeSafe API
+key, which is not available as of 2026-09-22 — the milestone waits for it, and audit
+mode is the only recommended mode until then.
+
 - [ ] **HG-1 — Run QRSPI on the brief: Questions → Research → Spec → Plan**: the
   design work for the first release, one fresh session per phase, input
   `thoughts/HG-1-jev-gates/00-brief.md`. Done when `00` to `04` are ticked and the
@@ -58,14 +66,16 @@ and the reproducible benchmark the README promises. Designed through QRSPI under
   reason that names what to verify; at most one block per stop so the agent cannot
   loop. <!-- hg: prio=high size=M labels=gate ver=main -->
 - [ ] **HG-4 — Benchmark: ≥50 labelled commands, Jev gate vs type: prompt hook**:
-  `evals/commands.jsonl` labelled by hand, `evals/run.mjs` dependency-free,
-  agreement, p50/p95 latency, cost per decision, `ask` share per threshold; one
-  dated run with the Jev version the responses reported. Under ~90% agreement the
-  command gate ships `ask`-only. <!-- hg: prio=high size=M labels=benchmark -->
-- [ ] **HG-5 — First release 0.1.0: bootstrap npm trusted publishing, tag, publish**:
-  `0.1.0` published by hand because npm cannot configure a trusted publisher for a
-  package that does not exist, then the publisher, then the tag so `release.yml`
-  cuts the release and closes the milestone. <!-- hg: prio=med size=S labels=release -->
+  `evals/commands.jsonl` (79, labelled by hand) and `evals/run.mjs` are in place;
+  the run reports agreement, p50/p95 latency, cost per decision, `ask` share per
+  threshold; one dated run with the Jev version the responses reported. Under ~90%
+  agreement the command gate ships `ask`-only. **Fundamental: gates the release and
+  every default beyond `ask`.** Blocked on a TypeSafe API key since 2026-09-22.
+  <!-- hg: prio=high size=M labels=benchmark -->
+- [ ] **HG-5 — First release 0.1.0: trusted publisher, tag, publish**: the bootstrap
+  is done (`hookgate@0.0.2` is on npm, `release.yml` proved end to end on its tag);
+  what remains is the trusted publisher on npmjs.com and the tag — **after HG-4**, not
+  before. <!-- hg: prio=med size=S labels=release -->
 - [x] **HG-6 — Site generated from README, as qrspi does it**: `site/build.mjs`
   ported with the gates index read off `hooks/hooks.json`, logo, social preview,
   Pages workflow. <!-- hg: prio=low size=S labels=docs ver=main -->
