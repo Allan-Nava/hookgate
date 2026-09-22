@@ -12,8 +12,8 @@
 |---|---|---|---|---|
 | **v0.1.0 — Two gates, one benchmark** | now | `######....` 63% | 3 | 5 |
 | **v0.2.0 — Observe, promote, port** | next | `########..` 75% | 2 | 6 |
-| **v0.1.1 — Audit of 2026-09-22** | now | `##########` 100% | 0 | 6 |
-| **v0.1.2 — Bugs from the first measurements** | now | `##########` 100% | 0 | 9 |
+| **v0.1.1 — Audit of 2026-09-22** | shipped | `##########` 100% | 0 | 6 |
+| **v0.1.2 — Bugs from the first measurements** | shipped | `##########` 100% | 0 | 9 |
 
 ## v0.1.0 — Two gates, one benchmark
 
