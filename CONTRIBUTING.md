@@ -23,10 +23,17 @@ Unset the key and every gate must fall through.
 instructions addressed to an agent. `evals/run.mjs` runs them:
 
 ```bash
+node evals/local.mjs --json                                   # no key: hook overhead + transcript counts
+node evals/run.mjs commands --baseline-only --limit 10        # no key: the incumbent alone
 TYPESAFE_API_KEY=… node evals/run.mjs commands --limit 5      # smoke run, five commands
 TYPESAFE_API_KEY=… node evals/run.mjs commands --baseline     # the whole set, plus the incumbent
 TYPESAFE_API_KEY=… node evals/run.mjs injection
 ```
+
+`evals/local.mjs` reads Claude Code's own transcripts under `~/.claude/projects` and
+keeps only counts — how many stops the prefilter skips, how often a command repeats
+within a session, what the redactor would touch, which prefixes dominate. Nothing it
+reads leaves the machine and nothing but aggregates is written.
 
 `--baseline` adds what a `type: prompt` hook does today: one `claude -p` call on
 `claude-opus-5` judging the same command, timed and costed from the CLI's own usage

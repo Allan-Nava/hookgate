@@ -128,14 +128,47 @@ same tree, for `npx hookgate doctor` and `npx hookgate report`.
 
 ## Benchmark
 
-Not run yet. The set and the runner are in `evals/`: 79 shell commands labelled by
-hand as safe, ask or dangerous, 20 tool outputs clean or injected, and
-`node evals/run.mjs commands --baseline`, which runs the command gate and a
-`type: prompt` hook on `claude-opus-5` over the same commands and reports agreement
-with the labels, p50 and p95 latency, cost per decision and the share of `ask` per
-confidence threshold. One run, one Jev version, dated — a data point, not a benchmark
-suite. If agreement stays under about 90%, the command gate ships `ask`-only. Until
-the table is here, run in audit mode.
+The Jev half is not run yet — it needs a TypeSafe API key. What has been measured,
+one machine, one day:
+
+**The incumbent.** A `type: prompt`-style judge on `claude-opus-5`, one `claude -p`
+per command from an empty directory, on the first ten labelled commands (all `safe`):
+
+| System | Agreement with labels | p50 | p95 | Cost per decision |
+|---|---:|---:|---:|---:|
+| `type: prompt` hook (claude-opus-5) | 100% | 3,532 ms | 4,675 ms | $0.129 |
+
+Ten commands, 2026-09-22. The cost is the CLI's own `total_cost_usd`, which carries the
+CLI's system prompt on every call — the floor a prompt hook pays, not a model price.
+
+**The plugin's own cost**, thirty spawns each, `evals/local.mjs`:
+
+| Case | p50 | p95 |
+|---|---:|---:|
+| no key: fall-through | 59 ms | 61 ms |
+| cache hit, no request | 61 ms | 62 ms |
+| full round trip to a local fake Jev | 79 ms | 81 ms |
+
+So the fixed price of having hookgate installed is one Node start, about 60 ms per
+`Bash` call; Jev's own latency (70–500 ms by TypeSafe's numbers) comes on top and is
+the part the key will tell.
+
+**What real sessions say**, from 102 local Claude Code transcripts, counts only,
+nothing sent anywhere:
+
+- The completion prefilter skips **81%** of stops: of 1,229 assistant turns that ended
+  with a human reply, 234 claimed completion. Gate 2 asks Jev on roughly one stop in five.
+- The per-session cache's ceiling is **~0%**: 99 exact repeats in 27,111 shell commands.
+  Real commands vary; the cache stays because it is free, not because it pays.
+- The redactor changes **6%** of commands — keys, tokens, URL passwords are there to
+  be caught.
+- Command prefixes, after skipping `cd … &&` hops and `VAR=value` assignments:
+  `python3`, `grep`, `echo`, `cat`, `sed` lead — the rule-promotion candidates.
+
+Full runner: `node evals/run.mjs commands --baseline` over all 79 labelled commands and
+`node evals/run.mjs injection` over the 20 outputs, once a key exists; the pre-stated
+rule stands — under about 90% agreement the command gate ships `ask`-only. Until then,
+run in audit mode.
 
 ## Two design notes
 

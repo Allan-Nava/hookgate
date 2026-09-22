@@ -1,0 +1,82 @@
+{
+  "at": "2026-09-22T12:39:19.354Z",
+  "overhead": {
+    "no key (fall-through)": {
+      "p50": 58.66025,
+      "p95": 61.363833,
+      "n": 30
+    },
+    "cache hit (no request)": {
+      "p50": 60.681375,
+      "p95": 62.025875,
+      "n": 30
+    },
+    "local fake Jev (full round trip, no network)": {
+      "p50": 78.890875,
+      "p95": 81.2345,
+      "n": 30
+    }
+  },
+  "transcripts": {
+    "sessions": 102,
+    "commands": 27111,
+    "repeats": 99,
+    "repeatRate": 0.003651654310058648,
+    "medianSessionRepeatRate": 0,
+    "redacted": 1508,
+    "redactedRate": 0.055623178783519606,
+    "stops": 1229,
+    "stopsClaiming": 234,
+    "prefilterSkipRate": 0.8096013018714402,
+    "topPrefixes": [
+      [
+        "python3",
+        5604
+      ],
+      [
+        "grep",
+        2510
+      ],
+      [
+        "echo",
+        2385
+      ],
+      [
+        "cat",
+        2051
+      ],
+      [
+        "sed",
+        2046
+      ],
+      [
+        "for",
+        1283
+      ],
+      [
+        "ssh",
+        1223
+      ],
+      [
+        "ls",
+        760
+      ],
+      [
+        "curl",
+        486
+      ],
+      [
+        "git add",
+        372
+      ],
+      [
+        "node",
+        332
+      ],
+      [
+        "mkdir",
+        299
+      ]
+    ]
+  }
+}

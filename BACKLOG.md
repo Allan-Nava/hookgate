@@ -134,11 +134,12 @@ harness the brief designs for.
   `additionalContext`; off by default until a fixture set in `evals/` gives the
   false-positive rate. <!-- hg: prio=med size=L labels=gate,benchmark -->
 - [ ] **HG-16 — Benchmark the optimisations: cache, promotion, thresholds**: from the
-  audit log and from `evals/`, measure what each optimisation buys — cache hit rate
-  and the requests it saves per session, decisions a promoted rule would have absorbed,
-  cost and p50/p95 latency with and without cache, `ask` share and dangerous-allowed
-  count across a threshold sweep. `hookgate report` grows the columns; the README gets
-  a second table, dated, with the Jev version. <!-- hg: prio=high size=M labels=benchmark -->
+  audit log and from `evals/`, measure what each optimisation buys. **Half done
+  2026-09-22 without a key** (`evals/local.mjs`, README): hook overhead 59 ms p50;
+  prefilter skips 81% of stops; cache ceiling ~0% on 27k real commands; redactor
+  touches 6%; prefix logic fixed for `cd` hops. Still needed with a key: cost and
+  latency with and without cache, decisions a promoted rule would absorb, the
+  threshold sweep on real Jev answers. <!-- hg: prio=high size=M labels=benchmark -->
 
 ## v0.1.1 — Audit of 2026-09-22 <!-- ms: phase=now -->
 

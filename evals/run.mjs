@@ -5,13 +5,15 @@
 //
 //   node evals/run.mjs commands            the command gate against evals/commands.jsonl
 //   node evals/run.mjs commands --baseline  …plus a `type: prompt`-style judge on claude-opus-5
+//   node evals/run.mjs commands --baseline-only   the incumbent alone — needs no TypeSafe key
 //   node evals/run.mjs injection           the injection screen against evals/injection.jsonl
 //   node evals/run.mjs --limit 5 …         a smoke run
 //
 // Dependency-free, Node 18+.
 
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { DEFAULTS } from '../bin/lib/config.mjs'
@@ -21,10 +23,12 @@ import { systemone } from '../bin/lib/jev.mjs'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const argv = process.argv.slice(2)
 const which = argv.find((a) => !a.startsWith('--')) ?? 'commands'
-const baseline = argv.includes('--baseline')
+const baselineOnly = argv.includes('--baseline-only')
+const baseline = argv.includes('--baseline') || baselineOnly
 const li = argv.indexOf('--limit')
 const limit = li >= 0 ? Number(argv[li + 1]) : Infinity
 const PRICE_PER_TOKEN = 42 / 1e9 // $42 per billion input tokens; output is free
+const BASELINE_CWD = mkdtempSync(join(tmpdir(), 'hookgate-baseline-'))
 
 const rows = (f) => readFileSync(join(HERE, f), 'utf8').trim().split('\n').map(JSON.parse).slice(0, limit)
 const q = (xs, p) => (xs.length ? [...xs].sort((a, b) => a - b)[Math.min(xs.length - 1, Math.floor(p * xs.length))] : null)
@@ -44,7 +48,9 @@ function promptHookJudge(command) {
   const t0 = Date.now()
   const env = { ...process.env }
   delete env.CLAUDECODE // allow nesting `claude -p` inside a Claude Code session
-  const out = execFileSync('claude', ['-p', prompt, '--model', 'claude-opus-5', '--output-format', 'json', '--max-turns', '1'], { encoding: 'utf8', env, timeout: 120000 })
+  // Run from an empty directory: from this checkout `claude -p` would load hookgate's
+  // CLAUDE.md and pay for it on every judgement, which a real prompt hook does not.
+  const out = execFileSync('claude', ['-p', prompt, '--model', 'claude-opus-5', '--output-format', 'json', '--max-turns', '1'], { encoding: 'utf8', env, cwd: BASELINE_CWD, timeout: 120000 })
   const latencyMs = Date.now() - t0
   const j = JSON.parse(out)
   const word = String(j.result ?? '').trim().toLowerCase().match(/allow|ask|deny/)?.[0] ?? 'unparsed'
@@ -55,12 +61,15 @@ async function runCommands() {
   const items = rows('commands.jsonl')
   const out = []
   for (const [i, it] of items.entries()) {
-    const jev = await jevCommand(it.command)
-    const { decision } = decideCommand(jev.answers, DEFAULTS)
-    const rec = { ...it, expected: LABEL_TO_DECISION[it.label], jev: { decision, choice: jev.answers.risk?.choice, confidence: jev.answers.risk?.confidence, destructive: jev.answers.destructive?.noul, latencyMs: jev.latencyMs, tokens: jev.tokens, model: jev.model } }
+    const rec = { ...it, expected: LABEL_TO_DECISION[it.label] }
+    if (!baselineOnly) {
+      const jev = await jevCommand(it.command)
+      const { decision } = decideCommand(jev.answers, DEFAULTS)
+      rec.jev = { decision, choice: jev.answers.risk?.choice, confidence: jev.answers.risk?.confidence, destructive: jev.answers.destructive?.noul, latencyMs: jev.latencyMs, tokens: jev.tokens, model: jev.model }
+    }
     if (baseline) rec.prompt = promptHookJudge(it.command)
     out.push(rec)
-    process.stderr.write(`${String(i + 1).padStart(3)}/${items.length}  ${rec.expected.padEnd(5)} jev=${String(decision).padEnd(5)} ${String(jev.latencyMs).padStart(5)} ms${baseline ? `  prompt=${rec.prompt.decision.padEnd(8)} ${String(rec.prompt.latencyMs).padStart(6)} ms` : ''}  ${it.command.slice(0, 60)}\n`)
+    process.stderr.write(`${String(i + 1).padStart(3)}/${items.length}  ${rec.expected.padEnd(5)}${rec.jev ? ` jev=${String(rec.jev.decision).padEnd(5)} ${String(rec.jev.latencyMs).padStart(5)} ms` : ''}${baseline ? `  prompt=${rec.prompt.decision.padEnd(8)} ${String(rec.prompt.latencyMs).padStart(6)} ms` : ''}  ${it.command.slice(0, 60)}\n`)
   }
   return out
 }
@@ -82,20 +91,23 @@ async function runInjection() {
 
 function tableCommands(recs) {
   const n = recs.length
-  const agree = recs.filter((r) => r.jev.decision === r.expected).length / n
-  const lat = recs.map((r) => r.jev.latencyMs)
-  const cost = recs.reduce((a, r) => a + (r.jev.tokens ?? 0) * PRICE_PER_TOKEN, 0) / n
-  const askShare = (t) => recs.filter((r) => decideCommand({ risk: { choice: r.jev.choice, confidence: r.jev.confidence }, destructive: { noul: r.jev.destructive } }, { thresholds: { ...DEFAULTS.thresholds, confidence: t } }).decision === 'ask').length / n
-  const dangerousAllowed = recs.filter((r) => r.label === 'dangerous' && r.jev.decision === 'allow').length
-  const lines = ['| System | Agreement with labels | p50 | p95 | Cost per decision | ask @0.5 | @0.6 | @0.7 | @0.8 | @0.9 |', '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
-  lines.push(`| hookgate (Jev ${recs[0]?.jev.model}) | ${pct(agree)} | ${q(lat, 0.5)} ms | ${q(lat, 0.95)} ms | $${cost.toFixed(6)} | ${[0.5, 0.6, 0.7, 0.8, 0.9].map((t) => pct(askShare(t))).join(' | ')} |`)
+  const lines = ['| System | Agreement with labels | p50 | p95 | Cost per decision | ask @0.5 | @0.6 | @0.7 | @0.8 | @0.9 | dangerous allowed |', '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
+  if (recs[0]?.jev) {
+    const agree = recs.filter((r) => r.jev.decision === r.expected).length / n
+    const lat = recs.map((r) => r.jev.latencyMs)
+    const cost = recs.reduce((a, r) => a + (r.jev.tokens ?? 0) * PRICE_PER_TOKEN, 0) / n
+    const askShare = (t) => recs.filter((r) => decideCommand({ risk: { choice: r.jev.choice, confidence: r.jev.confidence }, destructive: { noul: r.jev.destructive } }, { thresholds: { ...DEFAULTS.thresholds, confidence: t } }).decision === 'ask').length / n
+    const dangerousAllowed = recs.filter((r) => r.label === 'dangerous' && r.jev.decision === 'allow').length
+    lines.push(`| hookgate (Jev ${recs[0].jev.model}) | ${pct(agree)} | ${q(lat, 0.5)} ms | ${q(lat, 0.95)} ms | $${cost.toFixed(6)} | ${[0.5, 0.6, 0.7, 0.8, 0.9].map((t) => pct(askShare(t))).join(' | ')} | ${dangerousAllowed} |`)
+  }
   if (recs[0]?.prompt) {
     const pa = recs.filter((r) => r.prompt.decision === r.expected).length / n
     const pl = recs.map((r) => r.prompt.latencyMs)
     const pc = recs.reduce((a, r) => a + (r.prompt.costUsd ?? 0), 0) / n
-    lines.push(`| \`type: prompt\` hook (claude-opus-5) | ${pct(pa)} | ${q(pl, 0.5)} ms | ${q(pl, 0.95)} ms | $${pc.toFixed(4)} | — | — | — | — | — |`)
+    const da = recs.filter((r) => r.label === 'dangerous' && r.prompt.decision === 'allow').length
+    lines.push(`| \`type: prompt\` hook (claude-opus-5) | ${pct(pa)} | ${q(pl, 0.5)} ms | ${q(pl, 0.95)} ms | $${pc.toFixed(4)} | — | — | — | — | — | ${da} |`)
   }
-  lines.push('', `${n} commands · dangerous commands the gate would have allowed: ${dangerousAllowed} · one run, ${new Date().toISOString().slice(0, 10)}`)
+  lines.push('', `${n} commands · one run, ${new Date().toISOString().slice(0, 10)}`)
   return lines.join('\n')
 }
 
@@ -114,11 +126,11 @@ function tableInjection(recs) {
   ].join('\n')
 }
 
-if (!process.env.TYPESAFE_API_KEY) {
-  console.error('TYPESAFE_API_KEY is not set — this run costs money and needs a key; nothing was called')
+if (!baselineOnly && !process.env.TYPESAFE_API_KEY) {
+  console.error('TYPESAFE_API_KEY is not set — this run costs money and needs a key; nothing was called (use --baseline-only for the incumbent alone)')
   process.exit(2)
 }
-if (!/^[\x21-\x7e]+$/.test(process.env.TYPESAFE_API_KEY)) {
+if (!baselineOnly && !/^[\x21-\x7e]+$/.test(process.env.TYPESAFE_API_KEY)) {
   console.error('TYPESAFE_API_KEY contains whitespace or non-ASCII characters — a placeholder pasted instead of the key? Export the real key in your shell first: read -s TYPESAFE_API_KEY && export TYPESAFE_API_KEY')
   process.exit(2)
 }
@@ -131,6 +143,6 @@ try {
 }
 const table = which === 'injection' ? tableInjection(recs) : tableCommands(recs)
 mkdirSync(join(HERE, 'results'), { recursive: true })
-const file = join(HERE, 'results', `${new Date().toISOString().slice(0, 10)}-${which}-${(recs[0]?.jev.model ?? 'jev').replace(/[^\w.-]/g, '_')}.json`)
+const file = join(HERE, 'results', `${new Date().toISOString().slice(0, 10)}-${which}-${(recs[0]?.jev?.model ?? (baselineOnly ? 'baseline-only' : 'jev')).replace(/[^\w.-]/g, '_')}.json`)
 writeFileSync(file, JSON.stringify({ at: new Date().toISOString(), which, baseline, thresholds: DEFAULTS.thresholds, records: recs }, null, 2))
 console.log(`\n${table}\n\nwritten ${resolve(file)}`)

@@ -26,7 +26,14 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
   proxies and end-to-end tests (HG-19); this changelog (HG-20); CodeQL and Renovate
   digest pinning for actions (HG-21).
 
+### Added (measured, no key)
+- `evals/local.mjs`: hook overhead and transcript-derived counts; `--baseline-only` on
+  the runner; the README Benchmark section carries the incumbent's ten-command numbers,
+  the plugin's own cost, and what 102 real sessions say (HG-16, half).
+
 ### Changed
+- Command-prefix logic skips `cd … &&`, `cd …;`, newline-separated `cd` hops and
+  `VAR=value` assignments before naming a prefix; `cd` no longer dominates promotion.
 - The completion gate asks Jev only when the final message claims completion; a local
   prefilter skips questions and partial reports, logged as `skipped` so `report` shows
   the share that never reached the network (brief Q7).
