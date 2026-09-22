@@ -48,7 +48,7 @@ function log(dir, gate, input, cfg, extra) {
 function onError(e, gate, harness, cfg, dir, input) {
   const code = e instanceof JevError ? e.code : 'exception'
   log(dir, gate, input, cfg, { outcome: 'error', error: code, message: e.message })
-  if (code === 'no-key') return null
+  if (code === 'no-key' || code === 'bad-key') return null
   if (cfg.failClosed && gate === 'command') return permissionOutput(harness, 'ask', `hookgate: could not reach Jev (${e.message}) and failClosed is on — asking instead of falling through.`)
   return null
 }

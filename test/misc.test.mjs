@@ -72,3 +72,10 @@ test('doctor: no key is a warning, a broken config is BAD, a reachable API is ok
   assert.ok(r.lines.some((l) => /api: answered in/.test(l)))
   assert.equal(r.broken, false)
 })
+
+test('a non-ASCII key is a bad-key error, not an opaque fetch failure', async () => {
+  const { systemone } = await import('../bin/lib/jev.mjs')
+  await assert.rejects(systemone({ state: 'x', questions: {}, model: 'jev-latest', apiKey: 'sk-…', timeoutMs: 100, fetchImpl: fakeFetch({}) }), (e) => e.code === 'bad-key')
+  const r = await doctor({ cwd: tmp(), env: { HOOKGATE_DATA: tmp(), TYPESAFE_API_KEY: 'sk-…' } })
+  assert.equal(r.broken, true)
+})

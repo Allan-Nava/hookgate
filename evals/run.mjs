@@ -116,7 +116,17 @@ if (!process.env.TYPESAFE_API_KEY) {
   console.error('TYPESAFE_API_KEY is not set — this run costs money and needs a key; nothing was called')
   process.exit(2)
 }
-const recs = which === 'injection' ? await runInjection() : await runCommands()
+if (!/^[\x21-\x7e]+$/.test(process.env.TYPESAFE_API_KEY)) {
+  console.error('TYPESAFE_API_KEY contains whitespace or non-ASCII characters — a placeholder pasted instead of the key? Export the real key in your shell first: read -s TYPESAFE_API_KEY && export TYPESAFE_API_KEY')
+  process.exit(2)
+}
+let recs
+try {
+  recs = which === 'injection' ? await runInjection() : await runCommands()
+} catch (e) {
+  console.error(`run stopped: ${e.message}${e.code ? ` (${e.code})` : ''}`)
+  process.exit(1)
+}
 const table = which === 'injection' ? tableInjection(recs) : tableCommands(recs)
 mkdirSync(join(HERE, 'results'), { recursive: true })
 const file = join(HERE, 'results', `${new Date().toISOString().slice(0, 10)}-${which}-${(recs[0]?.jev.model ?? 'jev').replace(/[^\w.-]/g, '_')}.json`)
