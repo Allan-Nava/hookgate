@@ -4,7 +4,7 @@
 
 > This page is **generated** from [BACKLOG.md](BACKLOG.md), the single source of truth for planned work. Regenerate it with `node scripts/backlog.mjs roadmap` after editing the backlog — CI fails when the two disagree.
 
-**30 items · 23 shipped · 7 open · 4 milestones.**
+**30 items · 24 shipped · 6 open · 4 milestones.**
 
 ## At a glance
 
@@ -13,7 +13,7 @@
 | **v0.1.0 — Two gates, one benchmark** | now | `######....` 63% | 3 | 5 |
 | **v0.2.0 — Observe, promote, port** | next | `########..` 75% | 2 | 6 |
 | **v0.1.1 — Audit of 2026-09-22** | now | `##########` 100% | 0 | 6 |
-| **v0.1.2 — Bugs from the first measurements** | now | `########..` 75% | 2 | 6 |
+| **v0.1.2 — Bugs from the first measurements** | now | `#########.` 88% | 1 | 7 |
 
 ## v0.1.0 — Two gates, one benchmark
 
@@ -53,6 +53,6 @@
 - [x] **HG-25** — Never propose a rule for an interpreter or wrapper prefix · high · S · gate · `main`
 - [x] **HG-26** — A command longer than `maxStateChars` is judged with its middle elided · high · S · gate · `main`
 - [x] **HG-27** — A repository can switch the gates off through its own config · med · S · gate · `main`
-- [ ] **HG-28** — The audit log has no token usage, so cost per decision cannot be computed · med · S · benchmark
+- [x] **HG-28** — The audit log has no token usage, so cost per decision cannot be computed · med · S · benchmark · `main`
 - [ ] **HG-29** — Validate the numbers in the config and classify a non-JSON body · low · S · tests
 - [x] **HG-30** — Scorecard: one metric per open bug, on base and head of every pull request · high · M · benchmark, tests · `main`

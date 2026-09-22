@@ -44,7 +44,8 @@ Around the gates:
 - **Audit mode** (`"mode": "audit"` or `HOOKGATE_MODE=audit`): every gate judges for real,
   logs one JSON line per decision to the plugin data directory, and always falls
   through. `hookgate report` prints decisions by outcome, p50/p95 latency, cache hit
-  rate and the share that would be `ask` at each threshold. Start here.
+  rate, input tokens and cost per judged decision at TypeSafe's published price, and
+  the share that would be `ask` at each threshold. Start here.
 - **Per-session cache**: the same command in the same session is judged once; a repeat
   answers in microseconds with no request, and never outlives the session.
 - **Rule promotion**: three verdicts above 95% confidence on one command prefix produce

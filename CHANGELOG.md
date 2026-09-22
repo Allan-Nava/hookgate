@@ -6,6 +6,10 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 ## [Unreleased]
 
 ### Fixed
+- The audit log dropped the token usage Jev reported, so cost per decision could not
+  be computed. Every judged decision logs `inputTokens` (0 on a cache hit), and
+  `hookgate report` prints tokens, total cost and cost per judged decision at the
+  published input price, one dated constant shared with `evals/run.mjs` (HG-28).
 - A repository's own `.hookgate.json` could switch the gates off, go audit, or set a
   model or timeout that fails open. Configuration now has a trust order — defaults,
   `~/.hookgate.json`, `HOOKGATE_CONFIG`, then the repository file, then the environment

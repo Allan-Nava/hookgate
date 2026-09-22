@@ -231,12 +231,14 @@ a number to reach; the rest are open.
   `config.mjs` with the direction per field; `model` and `timeoutMs` never from the
   repository; `HOOKGATE_USER_CONFIG` for tests.
   <!-- hg: prio=med size=S labels=gate ver=main -->
-- [ ] **HG-28 — The audit log has no token usage, so cost per decision cannot be
+- [x] **HG-28 — The audit log has no token usage, so cost per decision cannot be
   computed**: `systemone` returns `usage`, `judge` carries it, `log` drops it. HG-16's
   "cost with and without cache" and the README's cost column need it. Fix: log
   `usage.input_tokens` per decision, and `report` prints tokens and cost per decision
   at TypeSafe's published input price, with the price and its date in one constant.
-  <!-- hg: prio=med size=S labels=benchmark -->
+  Shipped: `inputTokens` on every judged record, `PRICE_PER_INPUT_TOKEN` +
+  `PRICE_DATE` in `report.mjs`, `evals/run.mjs` imports them.
+  <!-- hg: prio=med size=S labels=benchmark ver=main -->
 - [ ] **HG-29 — Validate the numbers in the config and classify a non-JSON body**:
   `timeoutMs`, `maxStateChars`, `cache.ttlMs`, `promote.after` and
   `promote.confidence` are never checked, so a string or `null` flows into

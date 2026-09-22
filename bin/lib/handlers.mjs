@@ -26,11 +26,15 @@ function gitStatus(cwd) {
 async function judge({ gate, state, questions, input, cfg, session, deps }) {
   const key = cacheKey(gate, input.cwd ?? '', state)
   const hit = cacheGet(session, key, cfg.cache.ttlMs, deps.now())
-  if (hit) return { answers: hit.answers, model: hit.model, latencyMs: 0, cached: true }
+  if (hit) return { answers: hit.answers, model: hit.model, latencyMs: 0, cached: true, usage: { input_tokens: 0 } }
   const res = await systemone({ state, questions, model: cfg.model, apiKey: deps.env.TYPESAFE_API_KEY, timeoutMs: cfg.timeoutMs, fetchImpl: deps.fetch, endpoint: endpointFrom(deps.env) })
   cachePut(session, key, { answers: res.answers, model: res.model }, deps.now())
   return { ...res, cached: false }
 }
+
+// Input tokens the response reported (HG-28): what a decision cost. `null` when the
+// response carried no usage, so the report can say "unknown" rather than "free".
+const tokens = (res) => (typeof res.usage?.input_tokens === 'number' ? res.usage.input_tokens : null)
 
 function log(dir, gate, input, cfg, extra) {
   appendDecision(dir, {
@@ -79,7 +83,7 @@ export async function preToolUse(input, deps = {}) {
     const promotable = promotablePrefix(raw)
     const promoted = notePrefix(session, promotable, risk.choice, risk.confidence ?? 0, cfg)
     saveSession(dir, input.session_id, session)
-    log(dir, 'command', input, cfg, { outcome: decision, choice: risk.choice, confidence: risk.confidence, destructive: res.answers.destructive?.noul, model: res.model, latencyMs: res.latencyMs, cached: res.cached, prefix: commandPrefix(raw), promotable })
+    log(dir, 'command', input, cfg, { outcome: decision, choice: risk.choice, confidence: risk.confidence, destructive: res.answers.destructive?.noul, model: res.model, latencyMs: res.latencyMs, cached: res.cached, inputTokens: tokens(res), prefix: commandPrefix(raw), promotable })
     const extra = promoted ? { systemMessage: `hookgate: "${promoted.prefix}" has been judged ${promoted.decision} ${promoted.count} times at ≥${Math.round(cfg.promote.confidence * 100)}% confidence — a static rule would save the round trip:\n${ruleSyntax(harness, promoted.prefix, promoted.decision)}` } : {}
     if (cfg.mode === 'audit' || (decision === 'allow' && cfg.allowMode !== 'allow')) return promoted ? messageOutput(harness, 'PreToolUse', extra.systemMessage) : null
     return permissionOutput(harness, decision, reason, extra, { codexAskAs: cfg.codex?.askAs })
@@ -110,7 +114,7 @@ export async function stop(input, deps = {}) {
     const res = await judge({ gate: 'completion', state, questions: COMPLETION_QUESTION, input, cfg, session, deps })
     const { decision, reason } = decideCompletion(res.answers, cfg)
     const a = res.answers.unverified ?? {}
-    log(dir, 'completion', input, cfg, { outcome: decision ?? 'pass', unverified: a.noul, confidence: a.confidence, model: res.model, latencyMs: res.latencyMs, cached: res.cached })
+    log(dir, 'completion', input, cfg, { outcome: decision ?? 'pass', unverified: a.noul, confidence: a.confidence, model: res.model, latencyMs: res.latencyMs, cached: res.cached, inputTokens: tokens(res) })
     if (decision === 'block' && cfg.mode !== 'audit') {
       session.blockedPrompts = [...(session.blockedPrompts ?? []), promptKey].slice(-50)
       saveSession(dir, input.session_id, session)
@@ -137,7 +141,7 @@ export async function postToolUse(input, deps = {}) {
     const { decision, reason } = decideInjection(res.answers, cfg)
     const a = res.answers.injected ?? {}
     saveSession(dir, input.session_id, session)
-    log(dir, 'injection', input, cfg, { outcome: decision ?? 'pass', injected: a.noul, confidence: a.confidence, model: res.model, latencyMs: res.latencyMs, cached: res.cached })
+    log(dir, 'injection', input, cfg, { outcome: decision ?? 'pass', injected: a.noul, confidence: a.confidence, model: res.model, latencyMs: res.latencyMs, cached: res.cached, inputTokens: tokens(res) })
     if (decision === 'annotate' && cfg.mode !== 'audit') return postToolOutput(harness, reason)
     return null
   } catch (e) {

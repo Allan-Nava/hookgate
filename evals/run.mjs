@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url'
 import { DEFAULTS } from '../bin/lib/config.mjs'
 import { COMMAND_QUESTIONS, INJECTION_QUESTION, commandState, decideCommand, decideInjection, injectionState } from '../bin/lib/gates.mjs'
 import { systemone } from '../bin/lib/jev.mjs'
+import { PRICE_PER_INPUT_TOKEN as PRICE_PER_TOKEN } from '../bin/lib/report.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const argv = process.argv.slice(2)
@@ -27,7 +28,6 @@ const baselineOnly = argv.includes('--baseline-only')
 const baseline = argv.includes('--baseline') || baselineOnly
 const li = argv.indexOf('--limit')
 const limit = li >= 0 ? Number(argv[li + 1]) : Infinity
-const PRICE_PER_TOKEN = 42 / 1e9 // $42 per billion input tokens; output is free
 const BASELINE_CWD = mkdtempSync(join(tmpdir(), 'hookgate-baseline-'))
 
 const rows = (f) => readFileSync(join(HERE, f), 'utf8').trim().split('\n').map(JSON.parse).slice(0, limit)

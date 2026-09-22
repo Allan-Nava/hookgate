@@ -86,17 +86,29 @@ test('promotablePrefix: one simple command, never an interpreter or wrapper (HG-
 
 test('report aggregates the audit log', () => {
   const s = summarize([
-    { gate: 'command', outcome: 'allow', confidence: 0.9, latencyMs: 120, cached: false, model: 'jev-1.13.0' },
-    { gate: 'command', outcome: 'ask', confidence: 0.6, latencyMs: 300, cached: false, model: 'jev-1.13.0' },
-    { gate: 'command', outcome: 'ask', confidence: 0.6, cached: true, model: 'jev-1.13.0' },
-    { gate: 'completion', outcome: 'block', confidence: 0.8, latencyMs: 200 },
+    { gate: 'command', outcome: 'allow', confidence: 0.9, latencyMs: 120, cached: false, model: 'jev-1.13.0', inputTokens: 1000 },
+    { gate: 'command', outcome: 'ask', confidence: 0.6, latencyMs: 300, cached: false, model: 'jev-1.13.0', inputTokens: 3000 },
+    { gate: 'command', outcome: 'ask', confidence: 0.6, cached: true, model: 'jev-1.13.0', inputTokens: 0 },
+    { gate: 'command', outcome: 'ask', skipped: 'too-long' },
+    { gate: 'completion', outcome: 'block', confidence: 0.8, latencyMs: 200, model: 'jev-1.13.0' },
   ])
-  assert.equal(s.command.total, 3)
-  assert.equal(s.command.outcomes.ask, 2)
+  assert.equal(s.command.total, 4)
+  assert.equal(s.command.outcomes.ask, 3)
   assert.equal(s.command.p50, 300)
-  assert.ok(Math.abs(s.command.cacheHitRate - 1 / 3) < 1e-9)
+  assert.ok(Math.abs(s.command.cacheHitRate - 1 / 4) < 1e-9)
   assert.equal(s.command.askShareAt[0.7], 2 / 3)
-  assert.match(render(s), /command — 3 decisions/)
+  // cost (HG-28): 4,000 tokens over three judged decisions (the cache hit counts as
+  // judged and free; the too-long ask never reached Jev); the completion record
+  // carries no usage and says so
+  assert.equal(s.command.judged, 3)
+  assert.equal(s.command.inputTokens, 4000)
+  assert.ok(Math.abs(s.command.costTotal - 4000 * 42e-9) < 1e-12)
+  assert.ok(Math.abs(s.command.costPerJudged - (4000 * 42e-9) / 3) < 1e-12)
+  assert.equal(s.completion.tokensUnknown, 1)
+  assert.equal(s.completion.costPerJudged, null)
+  assert.match(render(s), /command — 4 decisions/)
+  assert.match(render(s), /4,000 input tokens over 3 judged/)
+  assert.match(render(s), /1 without usage/)
   assert.equal(render({}), 'no decisions logged yet')
 })
 

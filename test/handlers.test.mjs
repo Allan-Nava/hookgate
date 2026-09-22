@@ -107,6 +107,16 @@ test('audit mode judges, logs, and falls through', async () => {
   assert.equal(log[0].model, 'jev-1.13.0')
 })
 
+test('every judged decision logs the input tokens the response reported; a cache hit logs 0 (HG-28)', async () => {
+  const d = tmp()
+  await preToolUse(preInput('npm test'), { env: env(d), fetch: fakeFetch(allow) })
+  await preToolUse(preInput('npm test'), { env: env(d), fetch: fakeFetch(allow) })
+  const log = readFileSync(join(d, 'decisions.jsonl'), 'utf8').trim().split('\n').map(JSON.parse)
+  assert.equal(log[0].inputTokens, 42)
+  assert.equal(log[1].cached, true)
+  assert.equal(log[1].inputTokens, 0)
+})
+
 test('the same command in the same session is judged once (cache)', async () => {
   const f = fakeFetch(ask)
   const d = tmp()
