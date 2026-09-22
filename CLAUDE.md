@@ -157,10 +157,11 @@ confident, repeated hookgate decision to be promoted to.
 
 ## The graph
 
-`graphify-out/graph.json` is the whole repository as a knowledge graph: 367 nodes, 757
-edges, 14 communities labelled by hand (Gate Library & Decisions, CLI Entry & Report,
-Test Suite, Backlog Tooling, Release & Sync Workflows, Redaction …). It is versioned
-so a session can ask before it reads:
+`graphify-out/graph.json` is the whole repository as a knowledge graph: 453 nodes, 896
+edges, 20 communities labelled by hand (Gate design and contracts; Config, store and
+Jev client; Release, benchmark and backlog rules; Scorecard and v0.1.2 bugs; Gates,
+questions and eval runner; Test suites …), rebuilt 2026-09-22 after 0.0.3. It is
+versioned so a session can ask before it reads:
 
 ```bash
 graphify query "how does a PreToolUse decision reach Codex?"   # BFS over the graph
@@ -172,10 +173,13 @@ Rebuild after a change that moves structure — a new module, a renamed handler,
 workflow — with `/graphify . --update` (incremental) and commit `graph.json`,
 `GRAPH_REPORT.md` and `graph.html`; `.graphify_python`, `.graphify_root` and `cache/`
 are per machine and ignored. Building the semantic half spends tokens (the report says
-how many); code is extracted from the AST for free. Known state of the current graph:
-50 dangling-endpoint edges where document nodes name code symbols differently from the
-AST, and 13 collapsed undirected edges — the report lists them, `--update` will not fix
-them on its own.
+how many); code is extracted from the AST for free. The 2026-09-22 rebuild passes the
+health check with no dangling, missing or collapsed edges: the semantic pass was told
+the AST ids of the code symbols the documents name (`bin_lib_config_loadconfig` and
+kin), which is what removed the 50 dangling edges of the first build — give the same
+hint next time. Semantic extraction goes through Gemini when `GEMINI_API_KEY` is set
+(the venv has the `[gemini]` extra: `openai` + `tiktoken` over the OpenAI-compatible
+endpoint) and through a subagent otherwise.
 
 ## Verifying a change
 
