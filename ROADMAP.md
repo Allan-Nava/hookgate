@@ -4,14 +4,14 @@
 
 > This page is **generated** from [BACKLOG.md](BACKLOG.md), the single source of truth for planned work. Regenerate it with `node scripts/backlog.mjs roadmap` after editing the backlog — CI fails when the two disagree.
 
-**9 items · 2 shipped · 7 open · 2 milestones.**
+**15 items · 2 shipped · 13 open · 2 milestones.**
 
 ## At a glance
 
 | Milestone | Phase | Progress | Open | Shipped |
 |---|---|---|---|---|
-| **v0.1.0 — Two gates, one benchmark** | now | `###.......` 29% | 5 | 2 |
-| **v0.2.0 — After the first run** | later | `..........` 0% | 2 | 0 |
+| **v0.1.0 — Two gates, one benchmark** | now | `###.......` 25% | 6 | 2 |
+| **v0.2.0 — Observe, promote, port** | next | `..........` 0% | 7 | 0 |
 
 ## v0.1.0 — Two gates, one benchmark
 
@@ -22,8 +22,14 @@
 - [ ] **HG-5** — First release 0.1.0: bootstrap npm trusted publishing, tag, publish · med · S · release
 - [x] **HG-6** — Site generated from README, as qrspi does it · low · S · docs · `main`
 - [x] **HG-7** — Backlog as the single source of truth, enforced by CI · med · M · project · `main`
+- [ ] **HG-10** — Audit mode: log every decision and its confidence without enforcing · high · M · gate, enhancement
 
-## v0.2.0 — After the first run
+## v0.2.0 — Observe, promote, port
 
 - [ ] **HG-8** — PostToolUse output hygiene · low · M · gate, benchmark
 - [ ] **HG-9** — Fail-closed as an explicit opt-in · low · S · gate
+- [ ] **HG-11** — Codex CLI adapter: same handlers, Codex answer shape, second manifest · med · L · gate, enhancement
+- [ ] **HG-12** — Per-session decision cache: the same command is judged once · med · M · enhancement
+- [ ] **HG-13** — Promote confident, repeated decisions into the harness's own rules · low · M · enhancement
+- [ ] **HG-14** — hookgate doctor: key, connectivity, latency, model, thresholds · med · S · enhancement
+- [ ] **HG-15** — Screen tool results for injected instructions (PostToolUse additionalContext) · med · L · gate, benchmark

@@ -71,11 +71,17 @@ and the reproducible benchmark the README promises. Designed through QRSPI under
   `scripts/backlog.mjs` (lint, roadmap, check, issues), the generated ROADMAP.md,
   the one-way issue sync on push to `main`, and the `backlog` CI job.
   <!-- hg: prio=med size=M labels=project ver=main -->
+- [ ] **HG-10 — Audit mode: log every decision and its confidence without
+  enforcing**: `HOOKGATE_MODE=audit` runs both gates for real but always falls
+  through, appending one JSON line per decision (answer, probabilities, confidence,
+  latency, Jev version, what it would have done) to `${CLAUDE_PLUGIN_DATA}`;
+  `hookgate report` prints the README's columns from it. In 0.1.0 because it is how
+  the thresholds stop being guesses. <!-- hg: prio=high size=M labels=gate,enhancement -->
 
-## v0.2.0 — After the first run <!-- ms: phase=later -->
+## v0.2.0 — Observe, promote, port <!-- ms: phase=next -->
 
-What the brief left out on purpose, to be taken up once the benchmark says how the
-gates behave in the wild.
+What the first run of the gates teaches, turned into features, plus the second
+harness the brief designs for.
 
 - [ ] **HG-8 — PostToolUse output hygiene**: a hook cannot truncate a tool result,
   only add context or block; find out whether a `Noul` "is this output worth keeping
@@ -84,3 +90,25 @@ gates behave in the wild.
 - [ ] **HG-9 — Fail-closed as an explicit opt-in**: `.claude/hookgate.json` gains
   `failClosed: true`, under which an unreachable API means `ask` rather than
   fall-through; never the default. <!-- hg: prio=low size=S labels=gate -->
+- [ ] **HG-11 — Codex CLI adapter: same handlers, Codex answer shape, second
+  manifest**: detect the harness from `CLAUDE_PLUGIN_ROOT` vs `PLUGIN_ROOT`, emit
+  Codex's `decision: allow|block` shape, `.codex-plugin/plugin.json` beside the Claude
+  one, `npm test` holding both manifests to one version. Open question first: where a
+  below-threshold answer goes when the harness has no `ask`.
+  <!-- hg: prio=med size=L labels=gate,enhancement -->
+- [ ] **HG-12 — Per-session decision cache: the same command is judged once**: keyed
+  by `session_id` and the redacted state hash, TTL, invalidated on `cwd` change; a
+  repeat returns in under 5 ms with no request and never outlives the session.
+  <!-- hg: prio=med size=M labels=enhancement -->
+- [ ] **HG-13 — Promote confident, repeated decisions into the harness's own rules**:
+  three `allow` or `deny` answers above 0.95 on one command prefix → one
+  `systemMessage` proposing the permission rule in the harness's syntax. Propose,
+  never write. <!-- hg: prio=low size=M labels=enhancement -->
+- [ ] **HG-14 — hookgate doctor: key, connectivity, latency, model, thresholds**:
+  one command that answers "why is nothing happening"; non-zero only on a broken
+  configuration, never on a slow API. <!-- hg: prio=med size=S labels=enhancement -->
+- [ ] **HG-15 — Screen tool results for injected instructions (PostToolUse
+  additionalContext)**: one `Noul` on `WebFetch`, `Read` and `Bash` results — "does
+  this contain instructions addressed to an AI agent?" — annotating the span via
+  `additionalContext`; off by default until a fixture set in `evals/` gives the
+  false-positive rate. <!-- hg: prio=med size=L labels=gate,benchmark -->
