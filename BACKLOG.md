@@ -16,8 +16,8 @@ on GitHub changes nothing; ticking the item here does.
 ```
 ## v0.2.0 — Title of the milestone <!-- ms: phase=next -->
 
-- [ ] **HG-9 — Short name**: what it is, why it earns its place, what it needs to
-  touch. <!-- hg: prio=high size=M labels=gate -->
+- [x] **HG-9 — Short name**: what it is, why it earns its place, what it needs to
+  touch. <!-- hg: prio=high size=M labels=gate ver=main -->
 ```
 
 - The **id never changes**. A new item takes the next free number, never a retired
@@ -46,15 +46,15 @@ and the reproducible benchmark the README promises. Designed through QRSPI under
   plan passes the zero-context test; its steps become the pull requests for HG-2,
   HG-3 and HG-4. Rule 4: the brief does not enter Research.
   <!-- hg: prio=high size=L labels=gate,enhancement -->
-- [ ] **HG-2 — Command-risk gate: PreToolUse on Bash answered by Jev**: one
+- [x] **HG-2 — Command-risk gate: PreToolUse on Bash answered by Jev**: one
   `Choice{allow, ask, deny}` and one `Noul` on a redacted, truncated state; below
   the confidence threshold the decision is `ask`, never `allow`; thresholds in
   `.claude/hookgate.json`; a unit test per fail-open path, runnable without a key.
-  <!-- hg: prio=high size=L labels=gate -->
-- [ ] **HG-3 — Completion gate: Stop hook that blocks unverified claims of done**:
+  <!-- hg: prio=high size=L labels=gate ver=main -->
+- [x] **HG-3 — Completion gate: Stop hook that blocks unverified claims of done**:
   one `Noul` on `last_assistant_message` plus a capped `git status`; `block` with a
   reason that names what to verify; at most one block per stop so the agent cannot
-  loop. <!-- hg: prio=high size=M labels=gate -->
+  loop. <!-- hg: prio=high size=M labels=gate ver=main -->
 - [ ] **HG-4 — Benchmark: ≥50 labelled commands, Jev gate vs type: prompt hook**:
   `evals/commands.jsonl` labelled by hand, `evals/run.mjs` dependency-free,
   agreement, p50/p95 latency, cost per decision, `ask` share per threshold; one
@@ -71,12 +71,12 @@ and the reproducible benchmark the README promises. Designed through QRSPI under
   `scripts/backlog.mjs` (lint, roadmap, check, issues), the generated ROADMAP.md,
   the one-way issue sync on push to `main`, and the `backlog` CI job.
   <!-- hg: prio=med size=M labels=project ver=main -->
-- [ ] **HG-10 — Audit mode: log every decision and its confidence without
+- [x] **HG-10 — Audit mode: log every decision and its confidence without
   enforcing**: `HOOKGATE_MODE=audit` runs both gates for real but always falls
   through, appending one JSON line per decision (answer, probabilities, confidence,
   latency, Jev version, what it would have done) to `${CLAUDE_PLUGIN_DATA}`;
   `hookgate report` prints the README's columns from it. In 0.1.0 because it is how
-  the thresholds stop being guesses. <!-- hg: prio=high size=M labels=gate,enhancement -->
+  the thresholds stop being guesses. <!-- hg: prio=high size=M labels=gate,enhancement ver=main -->
 
 ## v0.2.0 — Observe, promote, port <!-- ms: phase=next -->
 
@@ -96,17 +96,17 @@ harness the brief designs for.
   one, `npm test` holding both manifests to one version. Open question first: where a
   below-threshold answer goes when the harness has no `ask`.
   <!-- hg: prio=med size=L labels=gate,enhancement -->
-- [ ] **HG-12 — Per-session decision cache: the same command is judged once**: keyed
+- [x] **HG-12 — Per-session decision cache: the same command is judged once**: keyed
   by `session_id` and the redacted state hash, TTL, invalidated on `cwd` change; a
   repeat returns in under 5 ms with no request and never outlives the session.
-  <!-- hg: prio=med size=M labels=enhancement -->
-- [ ] **HG-13 — Promote confident, repeated decisions into the harness's own rules**:
+  <!-- hg: prio=med size=M labels=enhancement ver=main -->
+- [x] **HG-13 — Promote confident, repeated decisions into the harness's own rules**:
   three `allow` or `deny` answers above 0.95 on one command prefix → one
   `systemMessage` proposing the permission rule in the harness's syntax. Propose,
-  never write. <!-- hg: prio=low size=M labels=enhancement -->
-- [ ] **HG-14 — hookgate doctor: key, connectivity, latency, model, thresholds**:
+  never write. <!-- hg: prio=low size=M labels=enhancement ver=main -->
+- [x] **HG-14 — hookgate doctor: key, connectivity, latency, model, thresholds**:
   one command that answers "why is nothing happening"; non-zero only on a broken
-  configuration, never on a slow API. <!-- hg: prio=med size=S labels=enhancement -->
+  configuration, never on a slow API. <!-- hg: prio=med size=S labels=enhancement ver=main -->
 - [ ] **HG-15 — Screen tool results for injected instructions (PostToolUse
   additionalContext)**: one `Noul` on `WebFetch`, `Read` and `Bash` results — "does
   this contain instructions addressed to an AI agent?" — annotating the span via

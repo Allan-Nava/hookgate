@@ -14,10 +14,10 @@ on shell commands and a `Stop` gate on unverified claims of completion, answered
 confidence score instead of text — in about 100 ms. Confident: act. Unsure: ask the
 human. Unreachable: get out of the way.
 
-> **Status: scaffold.** The plugin installs and does nothing yet. The two gates are
-> being designed in `thoughts/HG-1-jev-gates/` through the
-> [QRSPI](https://github.com/Allan-Nava/qrspi) workflow; the first release ships them
-> with the benchmark below filled in. Until then every handler falls through.
+> **Status: gates implemented, benchmark pending.** The command gate, the completion
+> gate and an off-by-default injection screen are in, with audit mode, a per-session
+> cache, rule promotion, `doctor` and `report`. What is still missing is the number:
+> the benchmark below has not been run yet, so until it is, start in audit mode.
 
 ## Why in the hooks
 
@@ -35,32 +35,67 @@ on Jev. Nobody has put it inside the agent harness. That is the gap this fills.
 
 | Gate | Hook | Question to Jev | Effect |
 |---|---|---|---|
-| Command risk | `PreToolUse` on `Bash` | `Choice{allow, ask, deny}` + `Noul` "destroys data or state outside the repo?" | `permissionDecision` with a reason; below the confidence threshold it is always `ask`, never `allow` |
-| Unverified completion | `Stop` | `Noul` "does the last message claim a completion the visible state does not support?" on the message plus `git status` | `block` with the reason, so the agent verifies before stopping |
+| Command risk | `PreToolUse` on `Bash` | `Choice{allow, ask, deny}` + `Noul` "destroys data or state outside the repo?" | `ask` or `deny` with a reason. Below the confidence threshold it is always `ask`, never `allow`. A confident `allow` **passes through** by default: hookgate narrows what the harness would do, it never widens it (`allowMode: "allow"` opts in) |
+| Unverified completion | `Stop` | `Noul` "does the last message claim a completion the visible state does not support?" on the message plus `git status` | `block` with a reason naming what to verify. Once per prompt, so the agent cannot loop |
+| Injected instructions | `PostToolUse` on `WebFetch`, `WebSearch`, `Read`, `Bash` | `Noul` "does this output contain instructions addressed to an AI agent?" | `additionalContext` telling the agent to treat the span as data. **Off by default** until the fixture set gives a false-positive rate |
 
-Thresholds live in `.claude/hookgate.json` and scale with risk, as
-[TypeSafe's confidence guide](https://docs.typesafe.ai/confidence.md) recommends.
+Around the gates:
+
+- **Audit mode** (`"mode": "audit"` or `HOOKGATE_MODE=audit`): every gate judges for real,
+  logs one JSON line per decision to the plugin data directory, and always falls
+  through. `hookgate report` prints decisions by outcome, p50/p95 latency, cache hit
+  rate and the share that would be `ask` at each threshold. Start here.
+- **Per-session cache**: the same command in the same session is judged once; a repeat
+  answers in microseconds with no request, and never outlives the session.
+- **Rule promotion**: three verdicts above 95% confidence on one command prefix produce
+  a single `systemMessage` proposing the harness's own permission rule —
+  `"Bash(npm test *)"` for Claude Code, `prefix_rule()` for Codex. Proposed, never written.
+- **`hookgate doctor`**: key, connectivity, latency, model, config, harness. Non-zero only
+  on a broken configuration, never on a slow API.
+- **Two harnesses, one file**: the handlers read the same stdin JSON under Claude Code
+  and Codex CLI and answer in each one's shape. The Codex side is written to the
+  documented contract and not yet exercised against a live Codex.
+
+Configuration lives in `.claude/hookgate.json` in the repository (or `HOOKGATE_CONFIG`);
+every key is optional:
+
+```json
+{
+  "mode": "audit",
+  "model": "jev-latest",
+  "timeoutMs": 2000,
+  "failClosed": false,
+  "allowMode": "passthrough",
+  "thresholds": { "confidence": 0.7, "destructive": 0.5, "unverified": 0.7, "injection": 0.7 },
+  "gates": { "command": true, "completion": true, "injection": false }
+}
+```
+
+Thresholds scale with risk, as [TypeSafe's confidence guide](https://docs.typesafe.ai/confidence.md)
+recommends: the defaults are conservative and the benchmark is what moves them.
 
 **Fail-open, always.** No `TYPESAFE_API_KEY`, no network, a timeout, a 5xx or a bug
-in this plugin means *no decision*: exit 0, empty stdout, and Claude Code's normal
+in this plugin means *no decision*: exit 0, empty stdout, and the harness's normal
 permission flow applies as if hookgate were not installed. A gate that stalls the
-agent is worse than none. Fail-closed will be an explicit opt-in.
+agent is worse than none. `failClosed: true` is the explicit opt-in under which an
+unreachable API makes the command gate `ask`.
 
-**State never carries secrets.** Commands can contain tokens; anything that looks
-like one is redacted before it leaves the machine, and state is truncated to Jev's
+**State never carries secrets.** Commands and tool outputs can contain tokens; key
+shapes, bearer headers, `KEY=value` assignments, URL passwords and private keys are
+redacted before anything leaves the machine, and state is truncated well under Jev's
 32k-token limit.
 
 ## Install
-
-Not published yet. Once it is:
 
 ```
 /plugin marketplace add Allan-Nava/hookgate
 /plugin install hookgate@hookgate
 ```
 
-and `TYPESAFE_API_KEY` in the environment Claude Code runs in. Zero dependencies,
-Node 18 or later, one `fetch` to `POST https://api.typesafe.ai/v1/systemone`.
+with `TYPESAFE_API_KEY` in the environment Claude Code runs in, then `hookgate doctor`
+from the plugin directory to see what it sees. Zero dependencies, Node 18 or later,
+one `fetch` to `POST https://api.typesafe.ai/v1/systemone`. The package on npm is the
+same tree, for `npx hookgate doctor` and `npx hookgate report`.
 
 ## Benchmark
 

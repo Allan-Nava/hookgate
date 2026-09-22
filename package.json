@@ -9,7 +9,9 @@
   "files": [
     "bin",
     "hooks",
+    "codex",
     ".claude-plugin",
+    ".codex-plugin",
     "README.md",
     "LICENSE"
   ],
@@ -18,7 +20,7 @@
   },
   "scripts": {
     "build:site": "node site/build.mjs",
-    "test": "node bin/hookgate.mjs check",
+    "test": "node bin/hookgate.mjs check && node --test",
     "backlog": "node scripts/backlog.mjs check && node scripts/backlog_test.mjs"
   },
   "keywords": [
