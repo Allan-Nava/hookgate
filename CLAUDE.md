@@ -4,7 +4,8 @@ Guidance for Claude Code when working in this repository.
 
 ## What this repo is
 
-`hookgate` is a **Claude Code plugin** whose whole product is two hook handlers:
+`hookgate` is a **Claude Code plugin** — and, from 0.2.0, a Codex CLI plugin from the
+same file — whose whole product is two hook handlers:
 `PreToolUse` on `Bash` (is this command safe to run?) and `Stop` (is this claim of
 completion true?). Both are answered by TypeSafe's Jev, a System One model that
 returns typed decisions with a calibrated confidence — no text, no parsing — and both
@@ -92,6 +93,18 @@ carries `confidence` 0–1, a statistic of how concentrated the distribution is.
 version, pin it when answers must not drift. Limits: 64k tokens per request, 32k for
 state; 250k tokens/s and 1,200 requests/min, adjusting. Price $42 per billion input
 tokens, output free. Text only. Errors 401, 422, 429, 529.
+
+**Codex CLI hooks** (learn.chatgpt.com/codex/hooks, read 2026-09-22): the same
+events — `PreToolUse`, `PostToolUse`, `Stop`, `PermissionRequest`, `UserPromptSubmit`,
+`SessionStart`… — and the same stdin fields (`session_id`, `cwd`, `hook_event_name`,
+`tool_name`, `tool_input`, plus `turn_id`). The answer differs: `decision: "allow" |
+"block"`, `updatedInput`, `additionalContext`, `systemMessage`, `continue: false`;
+exit 2 blocks with stderr as the reason. Configured in `~/.codex/hooks.json`,
+`<repo>/.codex/hooks.json` or `[hooks]` in `config.toml`; a plugin bundles
+`hooks/hooks.json` and gets `PLUGIN_ROOT` and `PLUGIN_DATA`. Default timeout 600 s.
+Codex also has **rules**: Starlark `prefix_rule()` files under `.codex/rules/` deciding
+`allow | prompt | forbidden` per command prefix — static, and the natural place for a
+confident, repeated hookgate decision to be promoted to.
 
 ## Verifying a change
 
