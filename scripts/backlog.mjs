@@ -10,6 +10,7 @@
 //   node scripts/backlog.mjs check      fail if ROADMAP.md is stale (CI gate)
 //   node scripts/backlog.mjs stats      one-line summary
 //   node scripts/backlog.mjs issues     plan the GitHub issue sync; touches nothing
+//                                       (create, retitle, move to the right milestone, close, reopen)
 //     --apply                           execute the plan
 //     --milestones v0.1.0,v0.2.0        limit to these milestones (by version)
 //
@@ -188,14 +189,14 @@ function existingIssues() {
   let rows
   if (process.env.BACKLOG_ISSUES_SNAPSHOT) rows = readFileSync(process.env.BACKLOG_ISSUES_SNAPSHOT, 'utf8').trim().split('\n').filter(Boolean).map((l) => l.split('\t'))
   else {
-    const list = JSON.parse(sh('gh', ['issue', 'list', '--state', 'all', '--limit', '500', '--json', 'number,title,state']))
+    const list = JSON.parse(sh('gh', ['issue', 'list', '--state', 'all', '--limit', '500', '--json', 'number,title,state,milestone']))
     rows = list.map((i) => {
       const id = i.title.split(DASH)[0]
-      return [id, String(i.number), i.state.toLowerCase(), i.title]
+      return [id, String(i.number), i.state.toLowerCase(), i.title, i.milestone?.title ?? '']
     })
   }
   const map = new Map()
-  for (const [id, num, state, title] of rows) if (/^HG-\d+$/.test(id)) map.set(id, { num, state, title })
+  for (const [id, num, state, title, milestone] of rows) if (/^HG-\d+$/.test(id)) map.set(id, { num, state, title, milestone })
   return map
 }
 
@@ -203,6 +204,7 @@ function existingIssues() {
 //   CREATE  open item with no issue        REOPEN  open item whose issue is closed
 //   CLOSE   shipped item whose issue is open  RETITLE title drifted (any state)
 //   OK      already right                  SKIP    shipped and never had an issue
+//   MILESTONE  the issue sits under a different milestone than the item's heading
 export function plan(model, existing, only = []) {
   const actions = []
   for (const it of model.items) {
@@ -210,6 +212,7 @@ export function plan(model, existing, only = []) {
     const ex = existing.get(it.id)
     const want = `${it.id}${DASH}${it.title}`
     if (ex && ex.title !== want) actions.push(['RETITLE', it.id, ex.num])
+    if (ex && ex.milestone !== undefined && it.ms && ex.milestone !== it.ms.title) actions.push(['MILESTONE', it.id, ex.num])
     if (it.status === 'open') {
       if (!ex) actions.push(['CREATE', it.id, '-'])
       else if (ex.state === 'closed') actions.push(['REOPEN', it.id, ex.num])
@@ -264,6 +267,10 @@ function apply(model, actions) {
     } else if (action === 'RETITLE') {
       sh('gh', ['issue', 'edit', num, '--title', title])
       console.log(`  retitled ${id}  #${num}  -> ${title}`)
+    } else if (action === 'MILESTONE') {
+      ensureMilestone(it.ms.title)
+      sh('gh', ['issue', 'edit', num, '--milestone', it.ms.title])
+      console.log(`  moved ${id}  #${num}  -> ${it.ms.title}`)
     } else if (action === 'CLOSE') {
       sh('gh', ['issue', 'close', num, '--comment', 'Shipped: the backlog item is ticked in BACKLOG.md. Closed by `scripts/backlog.mjs issues --apply`.'])
       console.log(`  closed ${id}  #${num}`)
@@ -316,7 +323,7 @@ function main() {
       const actions = plan(model, existingIssues(), only)
       for (const a of actions) console.log(a.join('\t'))
       const count = (k) => actions.filter((a) => a[0] === k).length
-      console.log(`\n${count('CREATE')} to create · ${count('RETITLE')} to retitle · ${count('CLOSE')} to close · ${count('REOPEN')} to reopen · ${count('OK')} ok · ${count('SKIP')} skipped`)
+      console.log(`\n${count('CREATE')} to create · ${count('RETITLE')} to retitle · ${count('MILESTONE')} to move · ${count('CLOSE')} to close · ${count('REOPEN')} to reopen · ${count('OK')} ok · ${count('SKIP')} skipped`)
       if (doApply) apply(model, actions.filter((a) => !['OK', 'SKIP'].includes(a[0])))
       else console.log('(plan only — pass --apply to execute)')
       break

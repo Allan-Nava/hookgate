@@ -1,4 +1,4 @@
-HG-1	11	open	HG-1 — Open, has issue
-HG-3	13	closed	HG-3 — Open, issue closed
-HG-4	14	open	HG-4 — Shipped, issue open
-HG-6	16	open	HG-6 — Old name
+HG-1	11	open	HG-1 — Open, has issue	v9.9.0 — Fixture milestone
+HG-3	13	closed	HG-3 — Open, issue closed	v9.9.0 — Fixture milestone
+HG-4	14	open	HG-4 — Shipped, issue open	v9.9.0 — Fixture milestone
+HG-6	16	open	HG-6 — Old name	v0.0.1 — Elsewhere
