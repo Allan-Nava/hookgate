@@ -43,3 +43,14 @@ test('the completion prefilter lets through claims and skips questions and parti
   for (const m of ['Should I also update the README, or leave it for a separate PR?', 'Here is what I found so far: three call sites, two of them in tests.', 'I need the API key before I can run this.', '', undefined])
     assert.equal(claimsCompletion(m), false, String(m))
 })
+
+test('the prefilter reads Italian claims and takes extra patterns from the config (HG-23)', () => {
+  for (const m of ['Fatto. I test passano e la modifica è committata.', 'Tutto pronto, ho pushato il branch.', 'Risolto: ora funziona.', 'Mergiata la PR e rilasciata la 1.2.0.', 'Non servono altre modifiche.'])
+    assert.equal(claimsCompletion(m), true, m)
+  for (const m of ['Quale dei due approcci preferisci?', 'Mi serve la API key per continuare; senza, ogni gate passa oltre.', 'Sto leggendo il loader; non ho ancora modificato nulla.', 'Aspetto che la CI finisca.'])
+    assert.equal(claimsCompletion(m), false, m)
+  assert.equal(claimsCompletion('Listo, todo funciona.'), false)
+  assert.equal(claimsCompletion('Listo, todo funciona.', ['\\blisto\\b']), true)
+  assert.equal(claimsCompletion('Listo, todo funciona.', '\\blisto\\b'), true)
+  assert.equal(claimsCompletion('Listo', ['[unclosed']), false, 'a bad pattern is ignored, not thrown')
+})

@@ -4,7 +4,7 @@
 
 > This page is **generated** from [BACKLOG.md](BACKLOG.md), the single source of truth for planned work. Regenerate it with `node scripts/backlog.mjs roadmap` after editing the backlog — CI fails when the two disagree.
 
-**30 items · 18 shipped · 12 open · 4 milestones.**
+**30 items · 19 shipped · 11 open · 4 milestones.**
 
 ## At a glance
 
@@ -13,7 +13,7 @@
 | **v0.1.0 — Two gates, one benchmark** | now | `######....` 63% | 3 | 5 |
 | **v0.2.0 — Observe, promote, port** | next | `########..` 75% | 2 | 6 |
 | **v0.1.1 — Audit of 2026-09-22** | now | `##########` 100% | 0 | 6 |
-| **v0.1.2 — Bugs from the first measurements** | now | `#.........` 13% | 7 | 1 |
+| **v0.1.2 — Bugs from the first measurements** | now | `###.......` 25% | 6 | 2 |
 
 ## v0.1.0 — Two gates, one benchmark
 
@@ -48,7 +48,7 @@
 
 ## v0.1.2 — Bugs from the first measurements
 
-- [ ] **HG-23** — Completion prefilter is English-only · high · M · gate, benchmark
+- [x] **HG-23** — Completion prefilter is English-only · high · M · gate, benchmark · `main`
 - [ ] **HG-24** — Promotion attributes a chained command's verdict to its first word · high · M · gate, enhancement
 - [ ] **HG-25** — Never propose a rule for an interpreter or wrapper prefix · high · S · gate
 - [ ] **HG-26** — A command longer than `maxStateChars` is judged with its middle elided · high · S · gate
