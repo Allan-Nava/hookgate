@@ -24,10 +24,37 @@ hand-labelled commands, the same set against a `type: prompt` hook on
 threshold, the Jev version the response reported, the date. Re-run on every Jev
 version change: `jev-latest` may answer differently without a code change.
 
+## Backlog, roadmap, issues
+
+`BACKLOG.md` is the single source of truth: every planned item has a stable `HG-n`
+id and a trailing `<!-- hg: prio=… size=… labels=… -->`; a shipped item is ticked and
+says where it went (`ver=0.1.0`, or `ver=main` until released). `ROADMAP.md` is
+generated from it:
+
+```bash
+node scripts/backlog.mjs lint       # ids unique, metadata complete, milestones well-formed
+node scripts/backlog.mjs roadmap    # regenerate ROADMAP.md — commit it with the backlog change
+node scripts/backlog.mjs check      # what CI runs: fails when ROADMAP.md is stale
+node scripts/backlog.mjs issues     # the plan for the GitHub issues; --apply executes it
+```
+
+The issues are the third view. `.github/workflows/backlog-issues.yml` runs the sync
+on every push to `main` that changes `BACKLOG.md`: it opens an issue for a new open
+item (title `HG-n — Title`, labels from the metadata plus `prio-*`, the milestone
+named by the heading), retitles one whose name changed, closes one whose item was
+ticked, reopens one whose item was un-ticked, and never creates an issue for an item
+that shipped without one. It runs one way only; closing an issue on GitHub changes
+nothing. Run it by hand with `workflow_dispatch` and `dry_run` to see the plan.
+
+The planner is tested against `scripts/fixtures/` without a network call, because
+its failure modes are all decisions: a duplicate opened on every push, an issue closed
+for work still open.
+
 ## Pull requests
 
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `ci:`), imperative subject.
-- Keep `npm test` green; add a check when you add an invariant.
+- Keep `npm test` and `npm run backlog` green; add a check when you add an invariant.
+- Reference the `HG-n` id in the subject when the change belongs to a backlog item.
 - `main` is meant to be protected the way qrspi's is: pull request, green CI, no
   direct pushes. Set the ruleset once the repo is public.
 

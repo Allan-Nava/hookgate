@@ -31,6 +31,13 @@ site/build.mjs         generates site/dist/index.html FROM README.md (gitignored
                        the page adds one thing, the gates index read off hooks/hooks.json
 assets/                logo.svg (single source: favicon, header, hero, README), logo-mono.svg,
                        social-preview.html and the PNG rendered from it with headless Chrome
+BACKLOG.md             the single source of truth for planned work: stable HG-n ids,
+                       `<!-- hg: ... -->` metadata, one `## vX.Y.Z — Theme` heading per
+                       GitHub milestone
+ROADMAP.md             GENERATED from BACKLOG.md by scripts/backlog.mjs — never edit
+scripts/backlog.mjs    lint · roadmap · check · stats · issues [--apply]; contributor
+                       tooling, kept out of the tarball by package.json#files
+scripts/backlog_test.mjs  the planner against a fixture: the decisions are what can go wrong
 thoughts/              QRSPI artifacts for this repo's own work
 CONTRIBUTING.md        local loop, benchmark protocol, release runbook
 ```
@@ -71,6 +78,11 @@ Do not weaken these; they are the product.
    fetch timeout is shorter. `check` enforces the first.
 6. **Names are not TypeSafe's marks.** The project is `hookgate`; "Jev" and
    "TypeSafe" appear only when naming their product.
+7. **Every idea goes in `BACKLOG.md`** with a stable `HG-n` id — never a scattered
+   TODO. After editing it, run `node scripts/backlog.mjs roadmap` and commit the
+   regenerated `ROADMAP.md`, or CI fails. The issues are synced from the backlog
+   on every push to `main` that touches it, one way only: tick the item, do not
+   close the issue. Commits, pull requests and `thoughts/` reference the id.
 
 ## Facts the code depends on (dated — re-verify before every tag)
 
@@ -112,6 +124,8 @@ confident, repeated hookgate decision to be promoted to.
 npm test                                             # manifests, hooks.json, fail-open statement
 echo '{"tool_name":"Bash","tool_input":{"command":"ls"}}' | node bin/hookgate.mjs pre-tool-use
 npm pack --dry-run                                   # bin/, hooks/, .claude-plugin/, README, LICENSE
+npm run backlog                                      # ROADMAP.md in step; planner fixture test
+node scripts/backlog.mjs issues                      # what the sync WOULD do; --apply to do it
 ```
 
 ## Conventions
