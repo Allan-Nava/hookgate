@@ -165,8 +165,9 @@ ids stay in the CHANGELOG.
   requires an `[Unreleased]` section and one for the current version; the release
   bump renames. <!-- hg: prio=med size=S labels=docs,release ver=0.0.3 -->
 - [x] **HG-21 — Supply chain: CodeQL and pinned actions**: CodeQL with the
-  security-extended queries on push, PR and weekly; Renovate's
-  `helpers:pinGitHubActionDigests` pins every `uses:` to a digest and keeps it moving.
+  security-extended queries on push, PR and weekly. Renovate, which was to pin every
+  `uses:` to a digest, was switched off on 2026-09-23 as noise for a package with no
+  runtime dependencies; actions stay on major tags, bumped by hand.
   <!-- hg: prio=med size=S labels=project ver=0.0.3 -->
 - [x] **HG-22 — Knowledge graph of the repository (graphify)**: `graphify-out/` holds the
   graph built from the whole tree — 453 nodes, 896 edges, 20 labelled communities,
