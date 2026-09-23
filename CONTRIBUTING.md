@@ -7,7 +7,7 @@ npm test                          # == node bin/hookgate.mjs check
 echo '{"tool_name":"Bash","tool_input":{"command":"ls"}}' | node bin/hookgate.mjs pre-tool-use
 ```
 
-The check validates the three manifests and their versions, `hooks/hooks.json`
+The check validates the four manifests and their versions, `hooks/hooks.json`
 (events, commands, timeouts), the fail-open statement in the README and the files the
 tarball ships. Extend it whenever you add an invariant; CI runs it on Node 18, 20, 22
 and 24 without `npm install`, plus `npm pack --dry-run` on 24.
@@ -21,6 +21,9 @@ Unset the key and every gate must fall through.
 `evals/commands.jsonl` holds 79 shell commands labelled by hand — 35 `safe`, 26 `ask`,
 18 `dangerous` — and `evals/injection.jsonl` 20 tool outputs, 10 clean and 10 carrying
 instructions addressed to an agent. `evals/run.mjs` runs them:
+Labels are on the command string alone: the dataset carries no cwd; the runner supplies
+one constant working directory (`evals/run.mjs`: `jevCommand`, `BASELINE_CWD`), so a
+label never depends on where a command ran.
 
 ```bash
 node evals/scorecard.mjs                                      # no key: one metric per open bug, from evals/fixtures/
@@ -53,7 +56,8 @@ reads leaves the machine and nothing but aggregates is written.
 `claude-opus-5` judging the same command, timed and costed from the CLI's own usage
 report. It needs a logged-in `claude`. The runner refuses to start without a key,
 because every run costs money, and writes `evals/results/<date>-<set>-<jev version>.json`
-plus the README table. Commit the JSON with the table: the table is one run, one
+(`-baseline-only` under `--baseline-only`) and prints the README table to stdout — paste
+it into the README by hand. Commit the JSON with the table: the table is one run, one
 version, one date, and says so. Re-run when the Jev version the responses report
 changes — `jev-latest` may answer differently without a code change — and when a
 threshold default moves.
