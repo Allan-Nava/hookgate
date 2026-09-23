@@ -50,12 +50,20 @@ behind it. The code and the labelled sets are in place; the run needs a TypeSafe
 key, which is not available as of 2026-09-22 — the milestone waits for it, and audit
 mode is the only recommended mode until then.
 
-- [ ] **HG-1 — Run QRSPI on the brief: Questions → Research → Spec → Plan**: the
+- [x] **HG-1 — Run QRSPI on the brief: Questions → Research → Spec → Plan**: the
   design work for the first release, one fresh session per phase, input
   `thoughts/HG-1-jev-gates/00-brief.md`. Done when `00` to `04` are ticked and the
   plan passes the zero-context test; its steps become the pull requests for HG-2,
-  HG-3 and HG-4. Rule 4: the brief does not enter Research.
-  <!-- hg: prio=high size=L labels=gate,enhancement -->
+  HG-3 and HG-4. Rule 4: the brief does not enter Research. Run 2026-09-23, after
+  the gates had shipped: each phase a fresh subagent reading only its artifact.
+  Research found ten places where code, answers and docs disagree (two safety
+  bugs: a repository file could set `failClosed`; fail-closed `ask` fired in audit
+  mode); a targeted round settled six open facts by reading the raw hook
+  references and one live Codex probe; Design fixed 0.1.0 as a corrective release
+  with a pre-stated decision table for the default mode; Structure gives 11 steps,
+  Plan 568 lines that pass the zero-context test. The maintainer's boxes in `01`
+  and `02` (reviewed, approved) are still theirs to tick. Implementation is HG-32.
+  <!-- hg: prio=high size=L labels=gate,enhancement ver=main -->
 - [x] **HG-2 — Command-risk gate: PreToolUse on Bash answered by Jev**: one
   `Choice{allow, ask, deny}` and one `Noul` on a redacted, truncated state; below
   the confidence threshold the decision is `ask`, never `allow`; thresholds in
@@ -65,6 +73,16 @@ mode is the only recommended mode until then.
   one `Noul` on `last_assistant_message` plus a capped `git status`; `block` with a
   reason that names what to verify; at most one block per stop so the agent cannot
   loop. <!-- hg: prio=high size=M labels=gate ver=0.0.3 -->
+- [ ] **HG-32 — Implement the HG-1 plan, steps S1–S6, S8**: from
+  `thoughts/HG-1-jev-gates/04-plan.md`, one pull request per step or per parallel
+  chain: `failClosed` leaves the repository-tightenable set (S1, design D2); audit
+  mode never decides, not even on error (S2, D3); `detectHarness` reordered so the
+  stdin shape beats the inherited `CLAUDECODE`, with the deciding signal exposed and
+  shown by `doctor` (S3–S4, D5); the D4 decision table and the Stop smoke-check
+  runbook in CONTRIBUTING (S5); the docs reconciliation (S6, D8); the live Stop
+  smoke check against Claude Code with a fake Jev (S8, human). S7 (full `claude -p`
+  baseline, ≈$10, human) is HG-4's first half; S9–S11 are HG-4 and HG-5.
+  <!-- hg: prio=high size=L labels=gate,tests -->
 - [ ] **HG-4 — Benchmark: ≥50 labelled commands, Jev gate vs type: prompt hook**:
   `evals/commands.jsonl` (79, labelled by hand) and `evals/run.mjs` are in place;
   the run reports agreement, p50/p95 latency, cost per decision, `ask` share per

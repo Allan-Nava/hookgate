@@ -2,7 +2,9 @@
 
 Not QRSPI artifacts: the gates were implemented directly on 2026-09-22 from the brief,
 and these are the decisions taken on the way, with their reasons, so the brief and the
-code agree. HG-1 as a QRSPI run remains the maintainer's call.
+code agree. The QRSPI run itself happened on 2026-09-23 — `00-questions.md` to
+`04-plan.md` beside this file are its record, and `01-research.md` "Facts that
+contradict the assumptions" is where these notes were checked against the code.
 
 - **Passthrough on allow.** A `PreToolUse` `allow` bypasses the harness's own prompt.
   The brief's `Choice{allow, ask, deny}` is kept as the question, but by default a
