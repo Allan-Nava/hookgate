@@ -3,7 +3,7 @@
 // its diagnosis.
 import { existsSync } from 'node:fs'
 import { loadConfig } from './config.mjs'
-import { dataDir, detectHarness } from './harness.mjs'
+import { dataDir, detectHarnessSignal } from './harness.mjs'
 import { endpointFrom, systemone } from './jev.mjs'
 
 export async function doctor({ cwd = process.cwd(), env = process.env, fetchImpl = globalThis.fetch } = {}) {
@@ -16,14 +16,18 @@ export async function doctor({ cwd = process.cwd(), env = process.env, fetchImpl
     broken = true
   }
 
-  const harness = detectHarness(env)
-  ok(`harness: ${harness} (${env.CLAUDE_PLUGIN_ROOT ? 'CLAUDE_PLUGIN_ROOT' : env.PLUGIN_ROOT ? 'PLUGIN_ROOT' : 'no plugin root in the environment — running outside a hook'})`)
+  const { harness, signal } = detectHarnessSignal(env, {})
+  ok(`harness: ${harness} (decided by ${signal === 'default' ? 'default — no harness signal in the environment, running outside a hook' : signal})`)
   ok(`data dir: ${dataDir(env)}`)
   if (env.HOOKGATE_ENDPOINT) warn(`endpoint overridden: ${env.HOOKGATE_ENDPOINT}`)
 
   const { cfg, path, userPath, problems, ignored } = loadConfig(cwd, env)
   ok(existsSync(userPath) ? `user config: ${userPath}` : `user config: none (${userPath})`)
-  if (existsSync(path)) ok(`${env.HOOKGATE_CONFIG ? 'config' : 'repository config (may only tighten)'}: ${path}`)
+  if (env.HOOKGATE_CONFIG) {
+    warn('repository config skipped: HOOKGATE_CONFIG is set')
+    if (existsSync(path)) ok(`config: ${path}`)
+    else warn(`config: ${path} does not exist (HOOKGATE_CONFIG)`)
+  } else if (existsSync(path)) ok(`${env.HOOKGATE_CONFIG ? 'config' : 'repository config (may only tighten)'}: ${path}`)
   else ok(`repository config: none (${path})`)
   for (const p of problems) bad(`config: ${p}`)
   for (const i of ignored) warn(`config: ${i}`)

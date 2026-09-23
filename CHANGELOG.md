@@ -5,6 +5,10 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 
 ## [Unreleased]
 
+### Added
+- `hookgate doctor` names the signal that chose the harness and warns `repository config
+  skipped: HOOKGATE_CONFIG is set` when that variable bypasses the repository file (HG-1, D5).
+
 ### Changed
 - Renovate switched off (`renovate.json`: `enabled: false`): no runtime dependencies to
   track, and the action pins it proposed were noise. Actions stay on major tags.

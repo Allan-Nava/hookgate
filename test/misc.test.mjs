@@ -178,6 +178,24 @@ test('doctor: no key is a warning, a broken config is BAD, a reachable API is ok
   assert.equal(r.broken, false)
 })
 
+test('doctor names the detection signal and the HOOKGATE_CONFIG skip (HG-1 D5, deferral 10)', async () => {
+  const d = tmp()
+  let r = await doctor({ cwd: d, env: { HOOKGATE_DATA: d, HOOKGATE_HARNESS: 'codex' } })
+  assert.ok(r.lines.some((l) => /harness: codex \(decided by HOOKGATE_HARNESS\)/.test(l)))
+  r = await doctor({ cwd: d, env: { HOOKGATE_DATA: d } })
+  assert.ok(r.lines.some((l) => /harness: claude \(decided by default/.test(l)))
+  assert.ok(!r.lines.some((l) => /repository config skipped/.test(l)))
+  assert.equal(r.broken, false)
+  writeFileSync(join(d, 'cfg.json'), '{}')
+  r = await doctor({ cwd: d, env: { HOOKGATE_DATA: d, HOOKGATE_CONFIG: join(d, 'cfg.json') } })
+  assert.ok(r.lines.some((l) => /^\s+warn\s+repository config skipped: HOOKGATE_CONFIG is set/.test(l)))
+  assert.ok(r.lines.some((l) => /ok\s+config: .*cfg\.json/.test(l)))
+  assert.equal(r.broken, false)
+  r = await doctor({ cwd: d, env: { HOOKGATE_DATA: d, HOOKGATE_CONFIG: join(d, 'nope.json') } })
+  assert.ok(r.lines.some((l) => /warn\s+config: .*nope\.json does not exist/.test(l)))
+  assert.equal(r.broken, false)
+})
+
 test('print-hooks emits a Codex hooks file with absolute paths to this checkout', async () => {
   const { execFileSync } = await import('node:child_process')
   const { dirname } = await import('node:path')
