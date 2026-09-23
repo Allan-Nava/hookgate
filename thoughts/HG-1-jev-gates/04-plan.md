@@ -72,7 +72,7 @@ rename the test `'timeout fails open by default and asks with failClosed from th
 
 ```bash
 npm test
-grep -n 'failClosed' bin/lib/config.mjs              # hits on 18, 135, 148 only — none between 45 and 63
+grep -n 'failClosed' bin/lib/config.mjs              # hits on 18, 42, 136, 149 only — none between 45 and 63 (42 is the comment this step adds; corrected after execution)
 git stash push -- bin/lib/config.mjs && node --test test/handlers.test.mjs; echo "exit $?"; git stash pop   # "exit 1" while stashed
 ```
 
@@ -317,7 +317,7 @@ Then `node scripts/backlog.mjs roadmap`; commit `ROADMAP.md` with the rest.
 
 ```bash
 npm test && node scripts/backlog.mjs lint && node scripts/backlog.mjs check
-grep -rn 'block: true' CLAUDE.md README.md                                       # nothing
+grep -rn 'block: true' CLAUDE.md README.md | grep -v 'appears nowhere'          # nothing — row 5's own parenthetical is the one permitted mention (corrected after execution)
 grep -rn '27,111\|27,147\|three manifests\|33 tests\|from 0.2.0' README.md BACKLOG.md CLAUDE.md CONTRIBUTING.md   # nothing
 grep -rn '27,246' README.md BACKLOG.md                                           # 4 hits: README 172, 180, 184; BACKLOG 184
 grep -c 'four manifests' CLAUDE.md CONTRIBUTING.md                                # ≥ 1 each
