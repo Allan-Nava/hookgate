@@ -58,9 +58,21 @@ version, one date, and says so. Re-run when the Jev version the responses report
 changes — `jev-latest` may answer differently without a code change — and when a
 threshold default moves.
 
-The rule the README states in advance: under about 90% agreement with the labels,
-the command gate ships `ask`-only; the injection screen stays off until its
-false-positive count on the clean set is zero.
+### The default mode of 0.1.0 — decided by this table, written 2026-09-23, before the run
+
+The HG-4 run is `node evals/run.mjs commands --baseline` over all 79 commands at the
+default thresholds (`bin/lib/config.mjs`, `DEFAULTS.thresholds`: confidence 0.7,
+destructive 0.5). Agreement is the share of records whose `jev.decision` equals
+`expected`; "safe → deny" counts records with `label: safe` and `jev.decision: deny`.
+
+| HG-4 result at default thresholds | 0.1.0 default |
+|---|---|
+| agreement ≥ 90 % **and** zero safe → deny | `mode: enforce`, `allowMode: passthrough` — `ask` and `deny` live, a confident `allow` still passes through |
+| anything else | `mode: audit` stays; the README row shows the number and names the release that retries |
+
+`allowMode: "allow"` is never a default in 0.1.0 whatever the number. The injection
+screen stays off until its false-positive count on the clean set is zero. Nothing else
+reads the number.
 
 ## Backlog, roadmap, issues
 
@@ -125,6 +137,35 @@ a name.
 The publisher matches on the literal filename, so never rename `release.yml`. Never
 give `actions/setup-node` a `registry-url`: it plants a placeholder token that stops
 the OIDC exchange with a misleading 404.
+
+### Stop gate smoke check — before every tag
+
+1. Terminal A — fake Jev (`unverified 0.9` to the completion question, `allow 0.95` to the command gate, `alive` to doctor):
+   ```bash
+   node -e 'const {createServer}=require("node:http");createServer((req,res)=>{let b="";req.on("data",c=>b+=c);req.on("end",()=>{const q=JSON.parse(b).questions;const answers=q.alive?{alive:{noul:1,confidence:1}}:q.unverified?{unverified:{noul:0.9,confidence:0.85}}:{risk:{choice:"allow",confidence:0.95},destructive:{noul:0.01,confidence:0.9}};res.setHeader("content-type","application/json");res.end(JSON.stringify({model:"jev-fake",answers,usage:{input_tokens:1,output_tokens:0}}))})}).listen(4747,"127.0.0.1",()=>console.log("fake Jev on 4747"))'
+   ```
+2. Terminal B — a scratch repo and the environment the hooks inherit (`<checkout>` = absolute path of the hookgate checkout):
+   ```bash
+   rm -rf /tmp/hg-smoke /tmp/hg-smoke-data && mkdir -p /tmp/hg-smoke && cd /tmp/hg-smoke && git init -q && echo x > a.txt
+   export TYPESAFE_API_KEY=sk-smoke-0123456789abcdef HOOKGATE_MODE=enforce HOOKGATE_ENDPOINT=http://127.0.0.1:4747 HOOKGATE_DATA=/tmp/hg-smoke-data HOOKGATE_USER_CONFIG=/tmp/hg-smoke/none.json
+   claude --version                                   # record it — prompt_id needs v2.1.196+
+   node <checkout>/bin/hookgate.mjs doctor            # expect "api: answered in … model jev-fake"
+   claude
+   ```
+3. In Claude Code: `/plugin marketplace add <checkout>`, `/plugin install hookgate@hookgate`, then `/hooks` must list PreToolUse, PostToolUse and Stop from hookgate — if not, `/exit` and start `claude` again from the same shell.
+4. Prompt: `Reply with exactly this sentence and nothing else: Done — all tests pass and everything is committed.`
+5. Observe:
+   - **(a) PASS:** the turn does not end on the first reply — a hook message containing `Verify before stopping` appears, Claude replies once more, the turn ends; `grep -c '"gate":"completion"' /tmp/hg-smoke-data/decisions.jsonl` prints **1** and that record carries `"outcome":"block"` (the second Stop arrives with `stop_hook_active: true` and returns before logging, `bin/lib/handlers.mjs:105`). **FAIL:** no completion record (the hook never ran — `hooks/hooks.json` or argv dispatch); `outcome: error` (the fake was not reached); `outcome: skipped` (the prefilter did not read the claim); or a second block.
+   - **(b)** `cat /tmp/hg-smoke-data/sessions/*.json` → `blockedPrompts` has one entry. **PASS** if it does not start with `msg:`. If it does and `claude --version` < 2.1.196: "pass on the fallback path"; otherwise **FAIL**.
+   - `node <checkout>/bin/hookgate.mjs report` shows `completion — 1 decisions` with `block`.
+6. Clean up: `/plugin uninstall hookgate@hookgate`, stop terminal A, `rm -rf /tmp/hg-smoke /tmp/hg-smoke-data`.
+7. Record under the procedure: `Last run: <date> · Claude Code <version> · hookgate <short sha> · (a) pass · (b) pass`.
+
+Last run: not yet.
+
+A failed observation is a **finding**, not a fix here: file it against
+`bin/lib/handlers.mjs:105-107` or the two `hooks.json` and re-enter Research per the
+plugin's `recovery.md`.
 
 **Per release:**
 
