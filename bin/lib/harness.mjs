@@ -3,15 +3,30 @@
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
-// Order: an explicit HOOKGATE_HARNESS, then the plugin variables each harness sets,
-// then the stdin shape — a repo-level hooks.json sets no plugin variable at all, and
-// Codex's stdin carries `turn_id` and `model` where Claude Code carries `prompt_id`.
+// Which signal decided, in the order tried. The hook's own signals come first: an
+// explicit HOOKGATE_HARNESS, then the plugin root each harness sets for this very
+// process, then the stdin shape — the event itself, so a repo-level hooks.json that
+// sets no plugin variable is still recognised (Codex's stdin carries `turn_id` and
+// `model` where Claude Code carries `prompt_id`). Only then the ambient variables:
+// CLAUDECODE and CLAUDE_PROJECT_DIR outlive the shell that set them, so a Codex hook
+// launched from a terminal opened inside Claude Code inherits them and must not be
+// answered in Claude Code's shape. `signal` is one of 'HOOKGATE_HARNESS',
+// 'CLAUDE_PLUGIN_ROOT', 'PLUGIN_ROOT', 'stdin', 'CLAUDECODE', 'CLAUDE_PROJECT_DIR',
+// 'CODEX_HOME', 'default'.
+export function detectHarnessSignal(env = process.env, input = {}) {
+  if (env.HOOKGATE_HARNESS === 'codex' || env.HOOKGATE_HARNESS === 'claude') return { harness: env.HOOKGATE_HARNESS, signal: 'HOOKGATE_HARNESS' }
+  if (env.CLAUDE_PLUGIN_ROOT) return { harness: 'claude', signal: 'CLAUDE_PLUGIN_ROOT' }
+  if (env.PLUGIN_ROOT) return { harness: 'codex', signal: 'PLUGIN_ROOT' }
+  if (input && input.turn_id && !input.prompt_id) return { harness: 'codex', signal: 'stdin' }
+  if (input && input.prompt_id && !input.turn_id) return { harness: 'claude', signal: 'stdin' }
+  if (env.CLAUDECODE) return { harness: 'claude', signal: 'CLAUDECODE' }
+  if (env.CLAUDE_PROJECT_DIR) return { harness: 'claude', signal: 'CLAUDE_PROJECT_DIR' }
+  if (env.CODEX_HOME) return { harness: 'codex', signal: 'CODEX_HOME' }
+  return { harness: 'claude', signal: 'default' }
+}
+
 export function detectHarness(env = process.env, input = {}) {
-  if (env.HOOKGATE_HARNESS === 'codex' || env.HOOKGATE_HARNESS === 'claude') return env.HOOKGATE_HARNESS
-  if (env.CLAUDE_PLUGIN_ROOT || env.CLAUDE_PROJECT_DIR || env.CLAUDECODE) return 'claude'
-  if (env.PLUGIN_ROOT || env.CODEX_HOME) return 'codex'
-  if (input && input.turn_id && !input.prompt_id) return 'codex'
-  return 'claude'
+  return detectHarnessSignal(env, input).harness
 }
 
 export function dataDir(env = process.env) {

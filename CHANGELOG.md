@@ -5,9 +5,19 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
 
 ## [Unreleased]
 
+### Added
+- `hookgate doctor` names the signal that chose the harness and warns `repository config
+  skipped: HOOKGATE_CONFIG is set` when that variable bypasses the repository file (HG-1, D5).
+
 ### Changed
 - Renovate switched off (`renovate.json`: `enabled: false`): no runtime dependencies to
   track, and the action pins it proposed were noise. Actions stay on major tags.
+
+### Fixed
+- Harness detection trusts the hook's own signals before ambient ones: `HOOKGATE_HARNESS`,
+  then `CLAUDE_PLUGIN_ROOT` / `PLUGIN_ROOT`, then the stdin shape, then `CLAUDECODE` /
+  `CLAUDE_PROJECT_DIR` / `CODEX_HOME`. A Codex hook launched from a shell opened inside
+  Claude Code was answered in Claude Code's shape (HG-1, D5).
 
 ## [0.0.3] — 2026-09-22
 

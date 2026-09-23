@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { DEFAULTS, loadConfig } from '../bin/lib/config.mjs'
 import { doctor } from '../bin/lib/doctor.mjs'
-import { detectHarness, permissionOutput, ruleSyntax } from '../bin/lib/harness.mjs'
+import { detectHarness, detectHarnessSignal, permissionOutput, ruleSyntax } from '../bin/lib/harness.mjs'
 import { render, summarize } from '../bin/lib/report.mjs'
 import { commandPrefix, promotablePrefix } from '../bin/lib/store.mjs'
 import { fakeFetch, tmp } from './helpers.mjs'
@@ -90,6 +90,26 @@ test('harness detection and shapes', () => {
   assert.match(ruleSyntax('claude', 'git push', 'deny'), /"Bash\(git push \*\)"/)
 })
 
+test('harness detection: explicit → hook root → stdin shape → ambient variable (HG-1 D5)', () => {
+  const rows = [
+    [{ HOOKGATE_HARNESS: 'claude', PLUGIN_ROOT: '/x' }, { turn_id: 't1' }, 'claude', 'HOOKGATE_HARNESS'],
+    [{ CLAUDE_PLUGIN_ROOT: '/x', PLUGIN_ROOT: '/y' }, {}, 'claude', 'CLAUDE_PLUGIN_ROOT'],
+    [{ PLUGIN_ROOT: '/x', CLAUDECODE: '1' }, {}, 'codex', 'PLUGIN_ROOT'],
+    // The leak: a Codex hook run from a shell opened inside Claude Code inherits CLAUDECODE.
+    [{ CLAUDECODE: '1', CLAUDE_PROJECT_DIR: '/p' }, { turn_id: 't1', model: 'gpt' }, 'codex', 'stdin'],
+    // The mirror: Claude-shaped stdin with a stray CODEX_HOME.
+    [{ CODEX_HOME: '/c' }, { session_id: 's1', prompt_id: 'p1' }, 'claude', 'stdin'],
+    [{ CLAUDECODE: '1' }, {}, 'claude', 'CLAUDECODE'],
+    [{ CLAUDE_PROJECT_DIR: '/p' }, {}, 'claude', 'CLAUDE_PROJECT_DIR'],
+    [{ CODEX_HOME: '/c' }, {}, 'codex', 'CODEX_HOME'],
+    [{}, {}, 'claude', 'default'],
+  ]
+  for (const [env, input, harness, signal] of rows) {
+    assert.deepEqual(detectHarnessSignal(env, input), { harness, signal }, JSON.stringify({ env, input }))
+    assert.equal(detectHarness(env, input), harness, JSON.stringify({ env, input }))
+  }
+})
+
 test('command prefixes take the subcommand for the tools that have one', () => {
   assert.equal(commandPrefix('git push --force origin main'), 'git push')
   assert.equal(commandPrefix('npm test'), 'npm test')
@@ -155,6 +175,24 @@ test('doctor: no key is a warning, a broken config is BAD, a reachable API is ok
   writeFileSync(join(d, '.claude', 'hookgate.json'), '{}')
   r = await doctor({ cwd: d, env: { HOOKGATE_DATA: d, TYPESAFE_API_KEY: 'k' }, fetchImpl: fakeFetch({ alive: { noul: 1, confidence: 1 } }) })
   assert.ok(r.lines.some((l) => /api: answered in/.test(l)))
+  assert.equal(r.broken, false)
+})
+
+test('doctor names the detection signal and the HOOKGATE_CONFIG skip (HG-1 D5, deferral 10)', async () => {
+  const d = tmp()
+  let r = await doctor({ cwd: d, env: { HOOKGATE_DATA: d, HOOKGATE_HARNESS: 'codex' } })
+  assert.ok(r.lines.some((l) => /harness: codex \(decided by HOOKGATE_HARNESS\)/.test(l)))
+  r = await doctor({ cwd: d, env: { HOOKGATE_DATA: d } })
+  assert.ok(r.lines.some((l) => /harness: claude \(decided by default/.test(l)))
+  assert.ok(!r.lines.some((l) => /repository config skipped/.test(l)))
+  assert.equal(r.broken, false)
+  writeFileSync(join(d, 'cfg.json'), '{}')
+  r = await doctor({ cwd: d, env: { HOOKGATE_DATA: d, HOOKGATE_CONFIG: join(d, 'cfg.json') } })
+  assert.ok(r.lines.some((l) => /^\s+warn\s+repository config skipped: HOOKGATE_CONFIG is set/.test(l)))
+  assert.ok(r.lines.some((l) => /ok\s+config: .*cfg\.json/.test(l)))
+  assert.equal(r.broken, false)
+  r = await doctor({ cwd: d, env: { HOOKGATE_DATA: d, HOOKGATE_CONFIG: join(d, 'nope.json') } })
+  assert.ok(r.lines.some((l) => /warn\s+config: .*nope\.json does not exist/.test(l)))
   assert.equal(r.broken, false)
 })
 
