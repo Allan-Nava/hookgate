@@ -10,6 +10,10 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
   skipped: HOOKGATE_CONFIG is set` when that variable bypasses the repository file (HG-1, D5).
 
 ### Changed
+- A repository config can no longer set `failClosed`; the key is ignored and
+  `hookgate doctor` lists it. A repository-level `failClosed: true` stops working
+  silently — move it to `~/.hookgate.json` (or `HOOKGATE_CONFIG`, or
+  `HOOKGATE_FAIL_CLOSED=1`) (HG-1, D2).
 - Renovate switched off (`renovate.json`: `enabled: false`): no runtime dependencies to
   track, and the action pins it proposed were noise. Actions stay on major tags.
 

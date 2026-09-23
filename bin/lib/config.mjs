@@ -39,12 +39,13 @@ const merge = (a, b) => {
 
 // Which direction is "tighter", per field. A repository value that is not tighter
 // than the trusted one is ignored and reported. Fields with no rule — model,
-// timeoutMs — cannot be set by a repository at all: a wrong model or a 1 ms timeout
-// is a fail-open path dressed as configuration.
+// timeoutMs, failClosed — cannot be set by a repository at all: a wrong model or a
+// 1 ms timeout is a fail-open path dressed as configuration, and fail-closed turns
+// every outage into a prompt on every command — a denial-of-service lever a cloned
+// repository must not hold.
 const num = (x) => typeof x === 'number' && Number.isFinite(x)
 const TIGHTEN = {
   mode: (t, r) => r === 'enforce',
-  failClosed: (t, r) => r === true,
   allowMode: (t, r) => r === 'passthrough',
   'thresholds.confidence': (t, r) => num(r) && r >= t,
   'thresholds.destructive': (t, r) => num(r) && r <= t,
