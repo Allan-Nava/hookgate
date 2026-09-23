@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## What this repo is
 
-`hookgate` is a **Claude Code plugin** — and, from 0.2.0, a Codex CLI plugin from the
+`hookgate` is a **Claude Code plugin** — and, since 0.0.3, a Codex CLI plugin from the
 same file — whose whole product is two hook handlers:
 `PreToolUse` on `Bash` (is this command safe to run?) and `Stop` (is this claim of
 completion true?). Both are answered by TypeSafe's Jev, a System One model that
@@ -115,8 +115,7 @@ Do not weaken these; they are the product.
 receives JSON on stdin — `session_id`, `cwd`, `hook_event_name`, `tool_name`,
 `tool_input`, `tool_use_id` on PreToolUse; `last_assistant_message`, `stop_reason` on
 Stop. It answers with JSON on stdout: `hookSpecificOutput.permissionDecision`
-(`allow|deny|ask`) and `permissionDecisionReason` on PreToolUse; `block: true` with
-a reason on Stop; `systemMessage` for the transcript. Exit 0 = read the JSON; exit 2 =
+(`allow|deny|ask`) and `permissionDecisionReason` on PreToolUse; `{"decision": "block", "reason": "…"}` on Stop (`block: true` appears nowhere in the reference); `systemMessage` for the transcript. Exit 0 = read the JSON; exit 2 =
 block, stderr is the reason; other = proceed. Plugin hooks live in
 `hooks/hooks.json` with `${CLAUDE_PLUGIN_ROOT}` paths; default command timeout 600 s,
 so ours is set explicitly. `type: prompt` hooks are the LLM-judged incumbent.
@@ -184,7 +183,7 @@ endpoint) and through a subagent otherwise.
 ## Verifying a change
 
 ```bash
-npm test                                             # check + node --test: 33 tests, no network
+npm test                                             # check + node --test, no network
 echo '{"tool_name":"Bash","tool_input":{"command":"ls"},"cwd":"."}' | node bin/hookgate.mjs pre-tool-use
 TYPESAFE_API_KEY=… node bin/hookgate.mjs doctor      # the only command that needs the key
 HOOKGATE_MODE=audit …                                # judge and log without enforcing; then `report`
@@ -197,6 +196,6 @@ node scripts/backlog.mjs issues                      # what the sync WOULD do; -
 
 - Prose in English, British-leaning spelling, em-dashes, no marketing filler, no
   decorative emoji.
-- Versions must match across the three manifests; `npm test` fails if they drift.
+- Versions must match across the four manifests (package.json, .claude-plugin/plugin.json, .claude-plugin/marketplace.json, .codex-plugin/plugin.json); `npm test` fails if they drift.
 - Anything measured gets a date and the Jev version the response reported.
 - Commit messages and pull requests carry no tool-attribution footer.

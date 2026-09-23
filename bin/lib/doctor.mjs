@@ -27,7 +27,7 @@ export async function doctor({ cwd = process.cwd(), env = process.env, fetchImpl
     warn('repository config skipped: HOOKGATE_CONFIG is set')
     if (existsSync(path)) ok(`config: ${path}`)
     else warn(`config: ${path} does not exist (HOOKGATE_CONFIG)`)
-  } else if (existsSync(path)) ok(`${env.HOOKGATE_CONFIG ? 'config' : 'repository config (may only tighten)'}: ${path}`)
+  } else if (existsSync(path)) ok(`repository config (may only tighten): ${path}`)
   else ok(`repository config: none (${path})`)
   for (const p of problems) bad(`config: ${p}`)
   for (const i of ignored) warn(`config: ${i}`)

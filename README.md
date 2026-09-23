@@ -106,7 +106,7 @@ unreachable API makes the command gate `ask`.
 `api.typesafe.ai`, carrying only what the question needs: for the command gate the
 shell command, its description if the agent wrote one, the last two segments of the
 working directory and the permission mode; for the completion gate the agent's final
-message, the stop reason and the first sixty lines of `git status --porcelain`; for
+message, the stop reason and the first sixty lines of `git status --porcelain --branch`, capped at 3,600 characters (30 % of `maxStateChars`, middle elided); for
 the injection screen the tool's output. Never the transcript, never file contents the
 agent did not just fetch, never the session id. The audit log on disk keeps the
 verdicts and a command *prefix*, not the command. TypeSafe's handling of what it
@@ -171,7 +171,7 @@ So the fixed price of having hookgate installed is one Node start, about 60 ms p
 `Bash` call; Jev's own latency (70–500 ms by TypeSafe's numbers) comes on top and is
 the part the key will tell.
 
-**What real sessions say**, from 102 local Claude Code transcripts, counts only,
+**What real sessions say**, from 102 local Claude Code transcripts — 27,246 shell commands and 1,229 stops, `evals/results/2026-09-22-local.json`, 2026-09-22 — counts only,
 nothing sent anywhere:
 
 - The completion prefilter skips **29%** of stops: of 1,229 assistant turns that ended
@@ -179,11 +179,11 @@ nothing sent anywhere:
   said 81%, with an English-only lexicon reading Italian transcripts: 766 of those
   "skipped" stops were claims it could not read (HG-23). Gate 2 asks Jev on roughly two
   stops in three; the prefilter buys less than it seemed, and now says so.
-- The per-session cache's ceiling is **~0%**: 99 exact repeats in 27,111 shell commands.
+- The per-session cache's ceiling is **~0%**: 99 exact repeats in the 27,246 commands.
   Real commands vary; the cache stays because it is free, not because it pays.
 - The redactor changes **6%** of commands — keys, tokens, URL passwords are there to
   be caught.
-- A promoted rule may cover **6%** of commands: 1,744 of 27,147 are one simple command
+- A promoted rule may cover **6%** of commands: 1,744 of the 27,246 are one simple command
   whose program is not an interpreter (HG-24, HG-25). `sed`, `grep`, `cat`, `head`,
   `tail` lead. The other 94% chain, pipe or run a script — a prefix rule on them would
   say more than the judgement did.

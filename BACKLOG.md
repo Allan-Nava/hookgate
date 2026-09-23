@@ -23,7 +23,7 @@ on GitHub changes nothing; ticking the item here does.
 - The **id never changes**. A new item takes the next free number, never a retired
   one. Moving an item to another milestone is fine; renumbering it is not.
 - `- [ ]` is open, `- [x]` is shipped, and a shipped item says where it went:
-  `ver=0.1.0`, or `ver=0.0.3` when it is merged but not yet released. An item closed
+  `ver=0.1.0`, or `ver=main` when it is merged but not yet released. An item closed
   *without* shipping — decided against, superseded — is ticked with `ver=dropped` and
   its body says why, so the id and the reasoning stay on record and the issue closes.
 - Metadata is a trailing `<!-- hg: ... -->` comment: `prio` (`high|med|low`), `size`
@@ -154,7 +154,7 @@ harness the brief designs for.
 - [ ] **HG-16 — Benchmark the optimisations: cache, promotion, thresholds**: from the
   audit log and from `evals/`, measure what each optimisation buys. **Half done
   2026-09-22 without a key** (`evals/local.mjs`, README): hook overhead 59 ms p50;
-  prefilter skips 81% of stops; cache ceiling ~0% on 27k real commands; redactor
+  prefilter skips 29% of stops (81% before HG-23); cache ceiling ~0% on 27k real commands; redactor
   touches 6%; prefix logic fixed for `cd` hops. Still needed with a key: cost and
   latency with and without cache, decisions a promoted rule would absorb, the
   threshold sweep on real Jev answers. <!-- hg: prio=high size=M labels=benchmark -->
@@ -199,8 +199,8 @@ ids stay in the CHANGELOG.
 
 ## v0.1.2 — Bugs from the first measurements <!-- ms: phase=shipped -->
 
-What running `evals/local.mjs` over 102 real sessions (27,147 shell commands, 1,229
-stops) and a second read of the handlers turned up on 2026-09-22. Each item was one
+What running `evals/local.mjs` over 102 real sessions (27,246 shell commands, 1,229 stops —
+`evals/results/2026-09-22-local.json`) and a second read of the handlers turned up on 2026-09-22. Each item was one
 pull request, taken one at a time, highest priority first, with HG-30's scorecard
 saying by how much it moved; all shipped the same day in `0.0.3`.
 

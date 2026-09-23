@@ -15,7 +15,7 @@ export const DEFAULTS = Object.freeze({
   mode: 'audit',
   model: 'jev-latest', // or a pinned id the response reported, e.g. jev-1.13.0
   timeoutMs: 2000, // the handler's own fetch timeout; hooks.json allows 5 s
-  failClosed: false, // true: an unreachable API means `ask`, never fall-through (HG-9)
+  failClosed: false, // true: an unreachable API means `ask` in enforce mode, never fall-through; audit still falls through (HG-9, HG-1 D3)
   allowMode: 'passthrough', // passthrough | allow — whether a confident `allow` widens permissions
   thresholds: {
     confidence: 0.7, // below this every answer is `ask`
