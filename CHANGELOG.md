@@ -22,6 +22,9 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
   then `CLAUDE_PLUGIN_ROOT` / `PLUGIN_ROOT`, then the stdin shape, then `CLAUDECODE` /
   `CLAUDE_PROJECT_DIR` / `CODEX_HOME`. A Codex hook launched from a shell opened inside
   Claude Code was answered in Claude Code's shape (HG-1, D5).
+- Audit mode never decides: with `failClosed: true` an unreachable API returned `ask`
+  even in audit. It now logs `outcome: error` and falls through; fail-closed applies in
+  `enforce` only (HG-1, D3).
 
 ## [0.0.3] — 2026-09-22
 

@@ -113,6 +113,20 @@ test('a repository config cannot turn failClosed on: ignored, listed, and a time
   assert.equal(out.hookSpecificOutput.permissionDecision, 'ask')
 })
 
+test('audit mode never decides, including on a timeout with failClosed (HG-1 D3)', async () => {
+  const d = tmp()
+  writeFileSync(join(d, 'user-hookgate.json'), JSON.stringify({ timeoutMs: 100, failClosed: true }))
+  assert.equal(await preToolUse(preInput('rm -rf /'), { env: env(d, { HOOKGATE_MODE: 'audit' }), fetch: fakeFetch(deny, { delayMs: 500 }) }), null)
+  const log = readFileSync(join(d, 'decisions.jsonl'), 'utf8').trim().split('\n').map(JSON.parse)
+  assert.equal(log.length, 1)
+  assert.equal(log[0].outcome, 'error')
+  assert.equal(log[0].error, 'timeout')
+  assert.equal(log[0].mode, 'audit')
+  // control: the same file in enforce still asks
+  const out = await preToolUse(preInput('rm -rf /'), { env: env(d), fetch: fakeFetch(deny, { delayMs: 500 }) })
+  assert.equal(out.hookSpecificOutput.permissionDecision, 'ask')
+})
+
 test('HTTP 5xx and malformed bodies fail open, and the log names the fault (HG-29)', async () => {
   assert.equal(await preToolUse(preInput('rm -rf /'), { env: env(tmp()), fetch: fakeFetch(deny, { status: 529 }) }), null)
   assert.equal(await preToolUse(preInput('rm -rf /'), { env: env(tmp()), fetch: fakeFetch({ risk: { choice: 'weird' } }) }), null)
