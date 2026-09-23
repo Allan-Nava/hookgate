@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { DEFAULTS, loadConfig } from '../bin/lib/config.mjs'
 import { doctor } from '../bin/lib/doctor.mjs'
-import { detectHarness, permissionOutput, ruleSyntax } from '../bin/lib/harness.mjs'
+import { detectHarness, detectHarnessSignal, permissionOutput, ruleSyntax } from '../bin/lib/harness.mjs'
 import { render, summarize } from '../bin/lib/report.mjs'
 import { commandPrefix, promotablePrefix } from '../bin/lib/store.mjs'
 import { fakeFetch, tmp } from './helpers.mjs'
@@ -88,6 +88,26 @@ test('harness detection and shapes', () => {
   assert.deepEqual(permissionOutput('codex', 'ask', 'r'), { systemMessage: 'r' })
   assert.match(ruleSyntax('codex', 'npm test', 'allow'), /prefix_rule/)
   assert.match(ruleSyntax('claude', 'git push', 'deny'), /"Bash\(git push \*\)"/)
+})
+
+test('harness detection: explicit → hook root → stdin shape → ambient variable (HG-1 D5)', () => {
+  const rows = [
+    [{ HOOKGATE_HARNESS: 'claude', PLUGIN_ROOT: '/x' }, { turn_id: 't1' }, 'claude', 'HOOKGATE_HARNESS'],
+    [{ CLAUDE_PLUGIN_ROOT: '/x', PLUGIN_ROOT: '/y' }, {}, 'claude', 'CLAUDE_PLUGIN_ROOT'],
+    [{ PLUGIN_ROOT: '/x', CLAUDECODE: '1' }, {}, 'codex', 'PLUGIN_ROOT'],
+    // The leak: a Codex hook run from a shell opened inside Claude Code inherits CLAUDECODE.
+    [{ CLAUDECODE: '1', CLAUDE_PROJECT_DIR: '/p' }, { turn_id: 't1', model: 'gpt' }, 'codex', 'stdin'],
+    // The mirror: Claude-shaped stdin with a stray CODEX_HOME.
+    [{ CODEX_HOME: '/c' }, { session_id: 's1', prompt_id: 'p1' }, 'claude', 'stdin'],
+    [{ CLAUDECODE: '1' }, {}, 'claude', 'CLAUDECODE'],
+    [{ CLAUDE_PROJECT_DIR: '/p' }, {}, 'claude', 'CLAUDE_PROJECT_DIR'],
+    [{ CODEX_HOME: '/c' }, {}, 'codex', 'CODEX_HOME'],
+    [{}, {}, 'claude', 'default'],
+  ]
+  for (const [env, input, harness, signal] of rows) {
+    assert.deepEqual(detectHarnessSignal(env, input), { harness, signal }, JSON.stringify({ env, input }))
+    assert.equal(detectHarness(env, input), harness, JSON.stringify({ env, input }))
+  }
 })
 
 test('command prefixes take the subcommand for the tools that have one', () => {
