@@ -56,7 +56,7 @@ export async function doctor({ cwd = process.cwd(), env = process.env, fetchImpl
     ok(`api: answered in ${res.latencyMs} ms · model ${res.model} · usage ${JSON.stringify(res.usage)}`)
     if (res.latencyMs > cfg.timeoutMs) warn(`that is above the handler timeout of ${cfg.timeoutMs} ms — gates would have fallen through`)
   } catch (e) {
-    warn(`api: ${e.message} — gates fall through${cfg.failClosed ? ', except the command gate, which asks (failClosed)' : ''}`)
+    warn(`api: ${e.message} — gates fall through${cfg.failClosed && cfg.mode === 'enforce' ? ', except the command gate, which asks (failClosed)' : ''}`)
   }
   return { lines, broken }
 }

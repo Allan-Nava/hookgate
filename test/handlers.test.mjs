@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { postToolUse, preToolUse, stop } from '../bin/lib/handlers.mjs'
+import { loadConfig } from '../bin/lib/config.mjs'
 import { env, fakeFetch, preInput, tmp } from './helpers.mjs'
 
 const allow = { risk: { choice: 'allow', confidence: 0.93 }, destructive: { noul: 0.02, confidence: 0.9 } }
@@ -80,14 +81,49 @@ test('the request carries redacted state and both questions', async () => {
   assert.deepEqual(Object.keys(body.questions).sort(), ['destructive', 'risk'])
 })
 
-test('timeout fails open by default and asks with failClosed', async () => {
+test('timeout fails open by default and asks with failClosed from the user file', async () => {
   const slow = fakeFetch(deny, { delayMs: 500 })
   const d = tmp()
   mkdirSync(join(d, 'repo', '.claude'), { recursive: true })
   writeFileSync(join(d, 'user-hookgate.json'), JSON.stringify({ timeoutMs: 100 }))
   assert.equal(await preToolUse(preInput('rm -rf /', { cwd: join(d, 'repo') }), { env: env(d), fetch: slow }), null)
-  writeFileSync(join(d, 'repo', '.claude', 'hookgate.json'), JSON.stringify({ failClosed: true }))
+  writeFileSync(join(d, 'user-hookgate.json'), JSON.stringify({ timeoutMs: 100, failClosed: true }))
   const out = await preToolUse(preInput('rm -rf /', { cwd: join(d, 'repo') }), { env: env(d), fetch: fakeFetch(deny, { delayMs: 500 }) })
+  assert.equal(out.hookSpecificOutput.permissionDecision, 'ask')
+})
+
+test('a repository config cannot turn failClosed on: ignored, listed, and a timeout still falls through (HG-1 D2)', async () => {
+  const d = tmp()
+  mkdirSync(join(d, 'repo', '.claude'), { recursive: true })
+  writeFileSync(join(d, 'user-hookgate.json'), JSON.stringify({ timeoutMs: 100 }))
+  writeFileSync(join(d, 'repo', '.claude', 'hookgate.json'), JSON.stringify({ failClosed: true }))
+  // config layer: the key has no TIGHTEN rule, so it is ignored and reported, not an error
+  const { cfg, problems, ignored } = loadConfig(join(d, 'repo'), env(d))
+  assert.equal(cfg.failClosed, false)
+  assert.equal(ignored.length, 1)
+  assert.match(ignored[0], /failClosed may not be set by a repository/)
+  assert.deepEqual(problems, [])
+  // handler, enforce: the timeout still falls through and is logged as an error
+  assert.equal(await preToolUse(preInput('rm -rf /', { cwd: join(d, 'repo') }), { env: env(d), fetch: fakeFetch(deny, { delayMs: 500 }) }), null)
+  const log = readFileSync(join(d, 'decisions.jsonl'), 'utf8').trim().split('\n').map(JSON.parse)
+  assert.equal(log.at(-1).outcome, 'error')
+  assert.equal(log.at(-1).error, 'timeout')
+  // the environment still wins: HOOKGATE_FAIL_CLOSED=1 is the user's, not the repository's
+  const out = await preToolUse(preInput('rm -rf /', { cwd: join(d, 'repo') }), { env: env(d, { HOOKGATE_FAIL_CLOSED: '1' }), fetch: fakeFetch(deny, { delayMs: 500 }) })
+  assert.equal(out.hookSpecificOutput.permissionDecision, 'ask')
+})
+
+test('audit mode never decides, including on a timeout with failClosed (HG-1 D3)', async () => {
+  const d = tmp()
+  writeFileSync(join(d, 'user-hookgate.json'), JSON.stringify({ timeoutMs: 100, failClosed: true }))
+  assert.equal(await preToolUse(preInput('rm -rf /'), { env: env(d, { HOOKGATE_MODE: 'audit' }), fetch: fakeFetch(deny, { delayMs: 500 }) }), null)
+  const log = readFileSync(join(d, 'decisions.jsonl'), 'utf8').trim().split('\n').map(JSON.parse)
+  assert.equal(log.length, 1)
+  assert.equal(log[0].outcome, 'error')
+  assert.equal(log[0].error, 'timeout')
+  assert.equal(log[0].mode, 'audit')
+  // control: the same file in enforce still asks
+  const out = await preToolUse(preInput('rm -rf /'), { env: env(d), fetch: fakeFetch(deny, { delayMs: 500 }) })
   assert.equal(out.hookSpecificOutput.permissionDecision, 'ask')
 })
 

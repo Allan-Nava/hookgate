@@ -48,12 +48,14 @@ function log(dir, gate, input, cfg, extra) {
   })
 }
 
-// Errors: fail-open by default; fail-closed turns an unreachable API into `ask`.
+// Errors: fail-open by default; fail-closed turns an unreachable API into `ask` — in
+// enforce only. Audit logs `outcome: 'error'` and falls through like every other audit
+// decision (D3).
 function onError(e, gate, harness, cfg, dir, input) {
   const code = e instanceof JevError ? e.code : 'exception'
   log(dir, gate, input, cfg, { outcome: 'error', error: code, message: e.message })
   if (code === 'no-key' || code === 'bad-key') return null
-  if (cfg.failClosed && gate === 'command') return permissionOutput(harness, 'ask', `hookgate: could not reach Jev (${e.message}) and failClosed is on — asking instead of falling through.`, {}, { codexAskAs: cfg.codex?.askAs })
+  if (cfg.failClosed && gate === 'command' && cfg.mode === 'enforce') return permissionOutput(harness, 'ask', `hookgate: could not reach Jev (${e.message}) and failClosed is on — asking instead of falling through.`, {}, { codexAskAs: cfg.codex?.askAs })
   return null
 }
 

@@ -71,10 +71,12 @@ Configuration is read in trust order: the defaults, then `~/.hookgate.json` (you
 then `HOOKGATE_CONFIG` if set, then the repository's `.hookgate.json` (or
 `.claude/hookgate.json`, `.codex/hookgate.json`), then `HOOKGATE_MODE`, `HOOKGATE_MODEL`
 and `HOOKGATE_FAIL_CLOSED=1`. **The repository's file may only tighten** what the layers
-above it say: enable a gate, raise the confidence bar, go `enforce`, turn `failClosed`
-on, add lexicon patterns, ask Codex to deny instead of pass through. A repository you
-just cloned cannot switch the gate off, put it in audit mode, lower a threshold or point
-it at a model or a timeout that would fail open; `hookgate doctor` lists what it tried.
+above it say: enable a gate, raise the confidence bar, go `enforce`, add lexicon
+patterns, ask Codex to deny instead of pass through. A repository you just cloned
+cannot switch the gate off, put it in audit mode, lower a threshold, point it at a
+model or a timeout that would fail open, or turn `failClosed` on — it comes only from
+`~/.hookgate.json`, `HOOKGATE_CONFIG` or `HOOKGATE_FAIL_CLOSED=1`; `hookgate doctor`
+lists what it tried.
 Every key is optional:
 
 ```json

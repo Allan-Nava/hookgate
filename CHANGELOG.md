@@ -10,6 +10,10 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
   skipped: HOOKGATE_CONFIG is set` when that variable bypasses the repository file (HG-1, D5).
 
 ### Changed
+- A repository config can no longer set `failClosed`; the key is ignored and
+  `hookgate doctor` lists it. A repository-level `failClosed: true` stops working
+  silently — move it to `~/.hookgate.json` (or `HOOKGATE_CONFIG`, or
+  `HOOKGATE_FAIL_CLOSED=1`) (HG-1, D2).
 - Renovate switched off (`renovate.json`: `enabled: false`): no runtime dependencies to
   track, and the action pins it proposed were noise. Actions stay on major tags.
 
@@ -18,6 +22,9 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
   then `CLAUDE_PLUGIN_ROOT` / `PLUGIN_ROOT`, then the stdin shape, then `CLAUDECODE` /
   `CLAUDE_PROJECT_DIR` / `CODEX_HOME`. A Codex hook launched from a shell opened inside
   Claude Code was answered in Claude Code's shape (HG-1, D5).
+- Audit mode never decides: with `failClosed: true` an unreachable API returned `ask`
+  even in audit. It now logs `outcome: error` and falls through; fail-closed applies in
+  `enforce` only (HG-1, D3).
 
 ## [0.0.3] — 2026-09-22
 
