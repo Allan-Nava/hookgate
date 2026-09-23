@@ -4,22 +4,23 @@
 
 > This page is **generated** from [BACKLOG.md](BACKLOG.md), the single source of truth for planned work. Regenerate it with `node scripts/backlog.mjs roadmap` after editing the backlog — CI fails when the two disagree.
 
-**31 items · 26 shipped · 5 open · 4 milestones.**
+**32 items · 27 shipped · 5 open · 4 milestones.**
 
 ## At a glance
 
 | Milestone | Phase | Progress | Open | Shipped |
 |---|---|---|---|---|
-| **v0.1.0 — Two gates, one benchmark** | now | `######....` 63% | 3 | 5 |
+| **v0.1.0 — Two gates, one benchmark** | now | `#######...` 67% | 3 | 6 |
 | **v0.2.0 — Observe, promote, port** | next | `########..` 75% | 2 | 6 |
 | **v0.1.1 — Audit of 2026-09-22** | shipped | `##########` 100% | 0 | 6 |
 | **v0.1.2 — Bugs from the first measurements** | shipped | `##########` 100% | 0 | 9 |
 
 ## v0.1.0 — Two gates, one benchmark
 
-- [ ] **HG-1** — Run QRSPI on the brief: Questions → Research → Spec → Plan · high · L · gate, enhancement
+- [x] **HG-1** — Run QRSPI on the brief: Questions → Research → Spec → Plan · high · L · gate, enhancement · `main`
 - [x] **HG-2** — Command-risk gate: PreToolUse on Bash answered by Jev · high · L · gate · `0.0.3`
 - [x] **HG-3** — Completion gate: Stop hook that blocks unverified claims of done · high · M · gate · `0.0.3`
+- [ ] **HG-32** — Implement the HG-1 plan, steps S1–S6, S8 · high · L · gate, tests
 - [ ] **HG-4** — Benchmark: ≥50 labelled commands, Jev gate vs type: prompt hook · high · M · benchmark
 - [ ] **HG-5** — First release 0.1.0: trusted publisher, tag, publish · med · S · release
 - [x] **HG-6** — Site generated from README, as qrspi does it · low · S · docs · `0.0.3`

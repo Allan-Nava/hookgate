@@ -92,61 +92,61 @@ each) or by nobody.
 
 - **Risk if unresolved:** a `PreToolUse` `allow` bypasses the permission prompt entirely; one false `allow` on a destructive command runs it with no human in the loop, which is the single worst outcome the plugin can produce. The ticket's "Done when" says `allow|ask|deny` but its "Open risks" says `ask`-only under 90% — and the benchmark does not exist before the code does, so the release order decides which it is. It also fixes the shipped default thresholds, which the ticket calls configurable without naming a number.
 - **Default assumption:** the code emits all three; the shipped default config sets the `allow` threshold to a value only reachable once the benchmark has run (effectively `ask`-only), and the README table is what justifies lowering it. `deny` is emitted from 0.1.0 whenever `Noul` says "destroys state outside the repo" above threshold.
-- **Answer:** _(to be filled — human)_
+- **Answer:** Default accepted. As shipped in 0.0.3: the code emits all three; `allowMode: "passthrough"` is the default, so a confident `allow` emits no decision and the harness prompts as it would have; `allowMode: "allow"` is the opt-in after the benchmark. `deny` is emitted from the first release. The whole plugin ships `mode: audit` by default until HG-4 runs (v0.1.0 rule in BACKLOG.md).
 
 ### Q2 · May a repo-committed `.claude/hookgate.json` loosen the gate, or only tighten it?
 
 - **Risk if unresolved:** if a cloned repo's config can lower thresholds or add `allow` rules, cloning a hostile repo turns the safety gate into an auto-approver — the plugin becomes the attack surface. If it can only tighten, per-repo tuning of `allow` is impossible and every repo inherits the user-level floor.
 - **Default assumption:** two layers. User-level config (`~/.claude/hookgate.json`) sets the floor and owns `--fail-closed`; a repo-level file may only raise thresholds and add `deny` patterns. Anything in the repo file that would loosen is ignored with a `permissionDecisionReason` saying so.
-- **Answer:** _(to be filled — human)_
+- **Answer:** Default accepted, and shipped as HG-27: `~/.hookgate.json` and `HOOKGATE_CONFIG` are the trusted layers; the repository file may only tighten, field by field (`TIGHTEN` in `bin/lib/config.mjs`); `model` and `timeoutMs` never come from the repository; ignored fields are listed by `hookgate doctor` rather than in a `permissionDecisionReason`.
 
 ### Q3 · Who labels the ≥50 benchmark commands, by what rule is `ask` split from `dangerous`, and is the label about the command text alone or command plus `cwd`?
 
 - **Risk if unresolved:** the agreement percentage — the number that decides whether `allow` ever ships (Q1) — is only as good as the labels. Without a written rule, `rm -rf build/` versus `rm -rf ~/` versus `git push --force` get labelled by mood, and the same maintainer disagrees with themselves a week later. If `cwd` is part of the truth, the benchmark harness has to supply it and Jev has to be sent it.
 - **Default assumption:** the maintainer labels alone, with a one-paragraph rule written into `CONTRIBUTING.md` before labelling starts: `dangerous` = irreversible loss or exfiltration outside the repo (`rm` outside cwd, `curl … | sh`, credentials in flight, force-push to a shared branch); `ask` = reversible-but-consequential or needs the human's context (package installs, network writes, `git reset --hard`, anything with `sudo`); `safe` = read-only or repo-local and undoable. Labels are on the command string with a fixed synthetic `cwd` inside a git repo; a second labeller is welcome but not required for 0.1.0.
-- **Answer:** _(to be filled — human)_
+- **Answer:** Default accepted with one deviation: the 79 commands in `evals/commands.jsonl` (35 safe · 26 ask · 18 dangerous) were labelled by the agent working with the maintainer, not by the maintainer alone, against the rule written in CONTRIBUTING.md; the maintainer reviews the labels before HG-4 runs. Labels are on the command string with a fixed synthetic cwd.
 
 ### Q4 · Is shipping every Bash command from every repo to a third-party API acceptable, and what exactly is redacted before it leaves?
 
 - **Risk if unresolved:** the hook fires on every tool call in every repo the plugin is installed in. Commands carry hostnames, customer names, internal paths, and — despite redaction — tokens in shapes no regex anticipated. If the maintainer has repos where this is not acceptable, the plugin needs a per-repo off switch or the install becomes unusable there, and nobody discovers it until a command has already been sent.
 - **Default assumption:** acceptable for the maintainer's own use; the README states plainly what is sent. Redaction: values that look like credentials (`sk-…`, `ghp_…`, `AKIA…`, `Bearer …`, `-p`/`--password`/`--token` arguments, any `KEY=`/`TOKEN=`/`SECRET=` assignment, base64-ish runs ≥ 20 chars) are replaced with `<redacted>`; `cwd` is sent as the repo basename, not the absolute path; the `last_assistant_message` is sent as-is after the same pass. No per-repo off switch in 0.1.0 beyond not installing the plugin — the `enabled: false` key in `.claude/hookgate.json` is a candidate if Q2 lands on "repo may tighten".
-- **Answer:** _(to be filled — human)_
+- **Answer:** Default accepted. Shipped: `bin/lib/redact.mjs` (keys, tokens, JWTs, URL credentials, `KEY=`/`TOKEN=` assignments, `--password`-style flags, 40+ hex runs); cwd is sent as its last two path segments; README section "What leaves the machine, exactly" is required by `check`. No per-repo off switch beyond not installing: a repository config cannot disable a gate (Q2).
 
 ### Q5 · How many times may the `Stop` gate block in one turn before it lets Claude stop?
 
 - **Risk if unresolved:** a `Stop` hook that returns `block` makes Claude continue and stop again; if Jev still says "unverified", it blocks again. The loop burns exactly the tokens the plugin exists to save, and a user watching it has no way out but killing the session. Whether the second block is a feature ("it really is not done") or a bug is a maintainer call.
 - **Default assumption:** at most one block per stop sequence — when the incoming event carries `stop_hook_active: true`, exit 0 without calling Jev. The reason on the single block tells Claude what to verify, so the second attempt carries evidence.
-- **Answer:** _(to be filled — human)_
+- **Answer:** Default accepted, shipped doubled: `stop_hook_active` from the harness plus a per-prompt marker in the session file, so one block per prompt even if the harness flag is missing.
 
 ### Q6 · What does "git state" mean for the `Stop` gate, and is the transcript ever read?
 
 - **Risk if unresolved:** "plus git state" can mean anything from `git status --porcelain` to a diff of every changed file; the latter blows the 32k-token state cap and the 2 s budget on a large change, and running git at all fails in a `cwd` that is not a repo. Reading `transcript_path` would let the gate see whether tests actually ran — the honest definition of "verified" — but a long session's transcript is megabytes and turns a 100 ms gate into a seconds-long one.
 - **Default assumption:** git state = dirty-file count and the list of changed paths from `git status --porcelain`, capped at 50 lines, empty (not an error) outside a repo. The transcript is not read in 0.1.0; "unverified" is judged from `last_assistant_message` alone plus that summary — a message that says "tests pass" while `git status` shows no test file touched and no evidence of a run is what `Noul` is asked about.
-- **Answer:** _(to be filled — human)_
+- **Answer:** Default accepted: `git status --porcelain --branch` capped at 60 lines, empty outside a repo; the transcript is never read.
 
 ### Q7 · Does the `Stop` gate call Jev on every stop, or only when the last message claims completion?
 
 - **Risk if unresolved:** most stops are questions to the user or partial reports. Calling Jev on each one adds latency and cost to every turn — visible, since Claude Code shows nothing until the hook returns — and risks blocking a message that never claimed to be finished. The benchmark's "cost per decision" for Gate 2 changes by an order of magnitude depending on this.
 - **Default assumption:** a local prefilter first: if the message contains no completion language (done, complete, finished, implemented, fixed, passing, ready, "all tests") and no ticked task list, exit 0 without a network call. Only messages that pass the prefilter go to Jev.
-- **Answer:** _(to be filled — human)_
+- **Answer:** Default accepted, shipped as `claimsCompletion()` — and then corrected by HG-23: the lexicon is per language (English, Italian), `completion.lexicon` adds patterns. Measured on 1,229 real stops: the prefilter skips 29%, not the 81% an English-only lexicon first reported.
 
 ### Q8 · How is the `type: prompt` / `claude-opus-5` reference run reproducibly over 50 commands?
 
 - **Risk if unresolved:** a real `type: prompt` hook only fires inside an interactive Claude Code session; driving 50 commands through it by hand is neither reproducible nor something CI can re-run at every `jev-latest` version. If the benchmark instead calls the Messages API directly, the README has to say so or the "same set against a `type: prompt` hook" claim is untrue.
 - **Default assumption:** the reference is the Messages API called with the exact prompt text a `type: prompt` hook would receive, same model, no thinking, one call per command; `CONTRIBUTING.md` names this a proxy and notes the harness's own prompt wrapper is not reproduced. Latency is measured from the same machine on the same day for both columns. The run costs real money and is done by the maintainer, not in CI.
-- **Answer:** _(to be filled — human)_
+- **Answer:** Default **not** taken. The reference is `claude -p` on `claude-opus-5` from an empty temporary directory (`evals/run.mjs --baseline`), which carries the CLI system prompt and costs what a `type: prompt` hook really costs ($0.129 per decision, p50 3.5 s on ten commands); the Messages API alone would understate both. CONTRIBUTING.md names it a proxy. Run by the maintainer, not in CI.
 
 ### Q9 · Under `--fail-closed`, what does each gate return when the key is missing or the API is down — and does fail-closed apply to `Stop` at all?
 
 - **Risk if unresolved:** fail-closed on `PreToolUse` has two readings (`ask` or `deny`), and the second makes Claude Code unusable the moment TypeSafe has an outage. Fail-closed on `Stop` means `block` on every stop while the API is down — Claude can never finish, which is a loop with no exit (see Q5). Whether a timeout counts as "API down" is implicit in the ticket but decides what a slow network does to every command.
 - **Default assumption:** `--fail-closed` affects `PreToolUse` only and means `ask`, never `deny`; `Stop` is always fail-open. A timeout, a non-2xx response, and a malformed body are all "API down". The flag is honoured only from user-level config, not from the repo file (Q2).
-- **Answer:** _(to be filled — human)_
+- **Answer:** Default accepted: `failClosed: true` turns timeout, HTTP, malformed and network errors into `ask` on the command gate only; `no-key` and `bad-key` always fall through; Stop is always fail-open; the flag is honoured from the user file and the environment, never from the repository file.
 
 ### Q10 · How much Codex must exist in 0.1.0 for the "two harnesses, one file" claim — the output-shape switch only, or a committed `.codex-plugin/` too?
 
 - **Risk if unresolved:** Codex hooks may still be experimental and lack `ask`; designing an abstraction for an API that changes before 0.2.0 either wastes the work or bends the Claude Code path around a guess. Too little, and 0.2.0 discovers the handler cannot be shared without a fork — the constraint the ticket rules out.
 - **Default assumption:** 0.1.0 ships the environment detection (`CLAUDE_PLUGIN_ROOT` vs `PLUGIN_ROOT`) and one output-shaping function with a unit test per harness, and nothing else Codex-specific: no `.codex-plugin/` manifest, no second `hooks.json`, no Codex row in the README table. Research confirms the Codex event names and decision vocabulary before the adapter is designed.
-- **Answer:** _(to be filled — human)_
+- **Answer:** Default overtaken by events: Codex shipped in full in 0.0.3 (HG-11) — harness detection from `PLUGIN_ROOT`, `HOOKGATE_HARNESS` or the stdin shape, `codex/hooks.json`, `.codex-plugin/plugin.json`, e2e tests per harness — after the contract was read on learn.chatgpt.com and verified live on Codex 0.155.1. Codex has no `ask` on PreToolUse: `ask` passes through with a `systemMessage`, or denies with `codex.askAs: deny`.
 
 ---
 
@@ -173,8 +173,8 @@ Things the ticket might suggest but that we are **not** doing in this task:
 ## Status
 
 - [x] Questions generated
-- [ ] Reviewed by a human
-- [ ] Answers collected (or assumptions explicitly accepted)
+- [x] Reviewed by a human (2026-09-23: the maintainer asked for HG-1 to be run; defaults accepted where the code already follows them, deviations named in the answers to Q3, Q8 and Q10)
+- [x] Answers collected (or assumptions explicitly accepted)
 
 > Next phase: **Research**. The ticket is **not** passed to Research — only the
 > questions and their answers.
