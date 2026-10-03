@@ -23,7 +23,43 @@
     "build:site": "node site/build.mjs",
     "test": "node bin/hookgate.mjs check && node --test",
     "scorecard": "node evals/scorecard.mjs",
-    "backlog": "node scripts/backlog.mjs check && node scripts/backlog_test.mjs"
+    "backlog": "npx --yes backlogsync@0.1.1 check",
+    "roadmap": "npx --yes backlogsync@0.1.1 roadmap"
+  },
+  "backlogsync": {
+    "prefix": "HG",
+    "name": "hookgate",
+    "regenerate": "npm run roadmap",
+    "labels": {
+      "gate": [
+        "b7552f",
+        "A hook gate"
+      ],
+      "benchmark": [
+        "0e8a16",
+        "Measurement and evals"
+      ],
+      "release": [
+        "5319e7",
+        "Publishing and versioning"
+      ],
+      "docs": [
+        "0075ca",
+        "README, CONTRIBUTING, site"
+      ],
+      "project": [
+        "6a737d",
+        "Backlog, roadmap, repo hygiene"
+      ],
+      "tests": [
+        "d4c5f9",
+        "Test coverage and test tooling"
+      ],
+      "enhancement": [
+        "a2eeef",
+        "New capability"
+      ]
+    }
   },
   "keywords": [
     "claude",

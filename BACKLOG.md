@@ -5,7 +5,7 @@ commits, the CHANGELOG, the `thoughts/` artifacts and the issues can reference t
 New ideas go here rather than into scattered TODO comments.
 
 [ROADMAP.md](ROADMAP.md) is a **generated** view of this file, grouped by milestone.
-Do not edit it by hand — run `node scripts/backlog.mjs roadmap` after touching this
+Do not edit it by hand — run `npm run roadmap` (backlogsync) after touching this
 file, or CI fails. The GitHub issues are another generated view: on every push to
 `main` that changes this file, `.github/workflows/backlog-issues.yml` opens, retitles,
 closes and reopens issues to match it. The sync runs one way only. Closing an issue
@@ -107,6 +107,13 @@ mode is the only recommended mode until then.
   latency, Jev version, what it would have done) to `${CLAUDE_PLUGIN_DATA}`;
   `hookgate report` prints the README's columns from it. In 0.1.0 because it is how
   the thresholds stop being guesses. <!-- hg: prio=high size=M labels=gate,enhancement ver=0.0.3 -->
+- [x] **HG-33 — The backlog tooling is backlogsync's**: `scripts/backlog.mjs` (HG-7)
+  was one of several diverged copies of the same script, and `release-drift.yml` one of
+  several copies of the same check. Replace them, the script's test and fixtures with
+  backlogsync 0.1.1 — the CI `backlog` job and `backlog-issues.yml` through its action,
+  `release-drift.yml` through its reusable workflow, `npm run backlog` / `npm run roadmap`
+  through `npx backlogsync@0.1.1` — keeping the label set. Done 2026-10-03 (backlogsync
+  BS-11). <!-- hg: prio=med size=S labels=project ver=main -->
 
 ## v0.2.0 — Observe, promote, port <!-- ms: phase=next -->
 
