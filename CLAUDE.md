@@ -56,10 +56,7 @@ assets/                logo.svg (single source: favicon, header, hero, README), 
 BACKLOG.md             the single source of truth for planned work: stable HG-n ids,
                        `<!-- hg: ... -->` metadata, one `## vX.Y.Z — Theme` heading per
                        GitHub milestone
-ROADMAP.md             GENERATED from BACKLOG.md by scripts/backlog.mjs — never edit
-scripts/backlog.mjs    lint · roadmap · check · stats · issues [--apply]; contributor
-                       tooling, kept out of the tarball by package.json#files
-scripts/backlog_test.mjs  the planner against a fixture: the decisions are what can go wrong
+ROADMAP.md             GENERATED from BACKLOG.md by `npm run roadmap` (backlogsync) — never edit
 thoughts/              QRSPI artifacts for this repo's own work
 CONTRIBUTING.md        local loop, benchmark protocol, release runbook
 ```
@@ -104,7 +101,7 @@ Do not weaken these; they are the product.
    default; only `allowMode: "allow"` lets the plugin auto-approve, and audit mode
    never decides at all. The Stop gate blocks a prompt once, then lets it end.
 8. **Every idea goes in `BACKLOG.md`** with a stable `HG-n` id — never a scattered
-   TODO. After editing it, run `node scripts/backlog.mjs roadmap` and commit the
+   TODO. After editing it, run `npm run roadmap` and commit the
    regenerated `ROADMAP.md`, or CI fails. The issues are synced from the backlog
    on every push to `main` that touches it, one way only: tick the item, do not
    close the issue. Commits, pull requests and `thoughts/` reference the id.
@@ -188,8 +185,8 @@ echo '{"tool_name":"Bash","tool_input":{"command":"ls"},"cwd":"."}' | node bin/h
 TYPESAFE_API_KEY=… node bin/hookgate.mjs doctor      # the only command that needs the key
 HOOKGATE_MODE=audit …                                # judge and log without enforcing; then `report`
 npm pack --dry-run                                   # bin/, hooks/, .claude-plugin/, README, LICENSE
-npm run backlog                                      # ROADMAP.md in step; planner fixture test
-node scripts/backlog.mjs issues                      # what the sync WOULD do; --apply to do it
+npm run backlog                                      # backlogsync check: ROADMAP.md in step
+GITHUB_REPOSITORY=Allan-Nava/hookgate npx --yes backlogsync@0.1.1 sync --dry-run   # what the sync WOULD do
 ```
 
 ## Conventions

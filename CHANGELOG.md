@@ -10,6 +10,10 @@ versions follow [SemVer](https://semver.org/). Items reference their `HG-n` back
   skipped: HOOKGATE_CONFIG is set` when that variable bypasses the repository file (HG-1, D5).
 
 ### Changed
+- The backlog check, the roadmap, the issue sync and the release-drift check are
+  [backlogsync](https://github.com/Allan-Nava/backlogsync) 0.1.1, configured in
+  `package.json#backlogsync`; `scripts/backlog.mjs`, its test and fixtures are gone, and
+  `npm run roadmap` regenerates `ROADMAP.md` (HG-33).
 - A repository config can no longer set `failClosed`; the key is ignored and
   `hookgate doctor` lists it. A repository-level `failClosed: true` stops working
   silently — move it to `~/.hookgate.json` (or `HOOKGATE_CONFIG`, or

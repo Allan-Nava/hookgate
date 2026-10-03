@@ -86,11 +86,14 @@ says where it went (`ver=0.1.0`, or `ver=main` until released). `ROADMAP.md` is
 generated from it:
 
 ```bash
-node scripts/backlog.mjs lint       # ids unique, metadata complete, milestones well-formed
-node scripts/backlog.mjs roadmap    # regenerate ROADMAP.md — commit it with the backlog change
-node scripts/backlog.mjs check      # what CI runs: fails when ROADMAP.md is stale
-node scripts/backlog.mjs issues     # the plan for the GitHub issues; --apply executes it
+npm run backlog     # what CI runs: items well-formed, ROADMAP.md not stale
+npm run roadmap     # regenerate ROADMAP.md — commit it with the backlog change
+GITHUB_REPOSITORY=Allan-Nava/hookgate npx --yes backlogsync@0.1.1 sync --dry-run   # the issue plan
 ```
+
+The check, the roadmap and the sync are [backlogsync](https://github.com/Allan-Nava/backlogsync),
+configured in `package.json#backlogsync` and pinned to its release in `package.json`
+(`backlogsync@0.1.1`) and the workflows (`@backlogsync--v0.1.1`); bump them together.
 
 The issues are the third view. `.github/workflows/backlog-issues.yml` runs the sync
 on every push to `main` that changes `BACKLOG.md`: it opens an issue for a new open
@@ -100,9 +103,8 @@ ticked, reopens one whose item was un-ticked, and never creates an issue for an 
 that shipped without one. It runs one way only; closing an issue on GitHub changes
 nothing. Run it by hand with `workflow_dispatch` and `dry_run` to see the plan.
 
-The planner is tested against `scripts/fixtures/` without a network call, because
-its failure modes are all decisions: a duplicate opened on every push, an issue closed
-for work still open.
+The planner's tests, whose failure modes are all decisions — a duplicate opened on
+every push, an issue closed for work still open — live in backlogsync.
 
 ## Pull requests
 
